@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { addCredentials, getCredentials, getUser } = require("../controller/user/RegistrationController");
+const { addCredentials} = require("../controller/user/RegistrationController");
 
 // Define the routes
 // router.get("/", getCredentials);

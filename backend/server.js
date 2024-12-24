@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const dotenv = require("dotenv").config();
+
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const router = express.Router();

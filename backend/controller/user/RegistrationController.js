@@ -1,4 +1,4 @@
-const User = require("../models/UserSchema"); // Ensure you're using the correct model
+const User = require("../../models/UserSchema"); // Ensure you're using the correct model
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -19,10 +19,10 @@ const addCredentials = async (req, res)=>{
 
       // Create new user
       const newUser = await User.create({ 
-        username, 
+        fullname, 
         email, 
         password: hashedPassword, // Save the hashed password
-        role // Save the role
+        confirmPassword: hashedPassword
     });
 
     // Exclude password from the response
