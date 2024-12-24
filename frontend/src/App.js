@@ -1,25 +1,37 @@
-import logo from './logo.svg';
+import React, {createContext, useState} from'react';
 import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import axios from 'axios';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-function App() {
+
+import Splash from './pages/Splash';
+import Home from './pages/Home';
+import Register from './pages/Register';
+import Login from './pages/Login';
+
+
+
+export const AppContext = createContext();
+
+function App(){
+  const client = new QueryClient();
+  const [fullname, setFullname] = useState(" "); 
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='App'>
+      <QueryClientProvider client = {client}>
+        <AppContext.Provider value = {{fullname, setFullname}}>
+          <Router>
+            <Routes>
+              <Route path='/Register' element={<Register/>}/>
+              <Route path='/Login' element={<Login/>}/>
+              
+            </Routes>
+          </Router>
+        </AppContext.Provider>
+      </QueryClientProvider>
     </div>
   );
 }
-
 export default App;

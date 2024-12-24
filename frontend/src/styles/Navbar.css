@@ -1,0 +1,122 @@
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #7d0306; /* Adjust to your theme */
+    color: white;
+    padding: 10px 20px;
+    font-family: 'Jacques Francois', serif;
+  }
+  
+  .logo {
+    font-size: 24px;
+  }
+  
+  .logo-link {
+    text-decoration: none;
+    color: white;
+  }
+  
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+  }
+  
+  .nav-links li a {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-links li a:hover {
+    color: #f0bcbc;
+  }
+  
+  /* Search and Profile Section */
+  .search-and-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  
+  .search-input {
+    border: none;
+    outline: none;
+    padding: 5px;
+    font-size: 14px;
+  }
+  
+  .search-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #7d0306;
+  }
+  
+  .profile-section {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .profile-icon {
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .username-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+  }
+  
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    color: black;
+    list-style: none;
+    border: 1px solid #ddd;
+    padding: 5px 0;
+    z-index: 10;
+  }
+  
+  .username-dropdown:hover .dropdown-menu {
+    display: block;
+  }
+  
+  .dropdown-menu li {
+    padding: 5px 15px;
+  }
+  
+  .dropdown-menu li a {
+    text-decoration: none;
+    color: black;
+  }
+  
+  .dropdown-menu li:hover {
+    background-color: #f0bcbc;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .nav-links {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+  
