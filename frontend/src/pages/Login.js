@@ -10,7 +10,6 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Basic email and password validation
   const validateForm = () => {
     if (!email || !password) {
       setError("All fields must be filled.");
@@ -42,7 +41,7 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const response = await axios.post("http://localhost:4000/login", {
+      const response = await axios.post("http://localhost:3000/login", {
         email,
         password,
       });
@@ -65,8 +64,9 @@ const Login = () => {
     }
   };
 
-  const loginWithGoogle = () => {
-    window.open("http://localhost:8080/auth/google/callback", "_self");
+  // Google Authentication
+  const googleAuth = () => {
+    window.open("http://localhost:4000/auth/google/callback", "_self");
   };
 
   return (
@@ -101,8 +101,9 @@ const Login = () => {
               Don't have an account? <a href="/register">Sign Up</a>
             </p>
           </div>
-          <button className="login-with-google-btn" onClick={loginWithGoogle}>
-            Sign In With Google
+          <button className="google_btn" onClick={googleAuth}>
+            <img src={require("../images/google.png")}  alt="google icon" />
+            <span>Login with Google</span>
           </button>
         </div>
         <div className="Auth-image">

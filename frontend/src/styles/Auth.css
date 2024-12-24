@@ -43,7 +43,7 @@ body, html {
   }
   
   .Auth-form label {
-    display: block;
+    display: flex;
     margin: 10px 0 5px;
     color: #333;
     font-weight: bold;
@@ -57,38 +57,50 @@ body, html {
     border-radius: 5px;
     font-size: 14px;
   }
+  .Auth-form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    position: relative;
+    background: transparent; /* Make the input fields transparent */
+    color: #333; /* Text color */
+}
+
+
   
   .Auth-form button {
     width: 100%;
     padding: 12px;
-    background-color: #ff6f61;
-    color: #fff;
+    background-color: #e4dcdc;
+    color: #710b0b;
     border: none;
     border-radius: 5px;
+    border-color: #710b0b;
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
   
   .Auth-form button:hover {
-    background-color: #ff4c3b;
+    background-color: #710b0b;
+    color: #f9f9f9;
   }
-  
-  .policy-checkbox {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .policy-checkbox label {
-    margin-right: 10px;
-  }
-  
-  .policy-checkbox p {
-    font-size: 12px;
+  .policy-checkbox input[type="checkbox"] {
+    width: 16px; /* Set the width of the checkbox */
+    height: 16px; /* Set the height of the checkbox */
+    margin-right: 8px; /* Add some spacing between the checkbox and the label */
+    cursor: pointer; /* Change the cursor to a pointer for better UX */
+}
+
+.policy-checkbox label {
+    font-size: 14px; /* Adjust label font size for better alignment */
     color: #333;
-  }
-  
+}
+
+
   .Auth-footer {
     text-align: center;
     margin-top: 15px;
@@ -118,7 +130,7 @@ body, html {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #ff6f61;
+    background-color: #771111;
     color: #fff;
     text-align: center;
     padding: 20px;
@@ -139,8 +151,8 @@ body, html {
     font-size: 14px;
     margin-top: 10px;
   }
-  button {
-    background-color: #ff6f61;
+  /* button {
+    background-color: #701108;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -156,10 +168,41 @@ body, html {
   
   button:hover:not(:disabled) {
     background-color: #ff3d2f;
-  }
+  } */
   
-  .login-with-google-btn {
+  .Auth-form google_btn {
     background-color: #4285f4;
     color: white;
     margin-top: 10px;
   }
+
+  .google_btn {
+    width: 230px;
+    height: 40px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    background-color: white;
+    box-shadow: rgb(0 0 0 / 20%) 0px 3px 1px -2px, rgb(0 0 0 / 14%) 0px 2px 2px 0px, rgb(0 0 0 / 12%) 0px 1px 5px 0px;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 20px 0;
+    color: #2c444e;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-color: transparent; /* No background */
+
+}
+
+.google_btn > img{
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+}
+
+.google_btn > span{
+    margin-left: 10px;
+}

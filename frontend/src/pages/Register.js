@@ -1,13 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 import "../styles/Auth.css";
 import axios from "axios";
-// import { GoogleLogin } from "@react-oauth/google";
-import { AppContext } from "../App";
 
 const Signup = () => {
-  const { fullname, setFullname } = useContext(AppContext);
+  const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,57 +15,42 @@ const Signup = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
-  
+
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
       return;
     }
-  
-    console.log("Submitting data:", { fullname, email, password });  // Log data for debugging
 
     try {
       setLoading(true);
-  
-      const response = await axios.post("http://localhost:4000/register", {
+
+      const response = await axios.post("http://localhost:3000/register", {
         fullname,
         email,
         password,
         confirmPassword,
-      }, {
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
-  
+
       setLoading(false);
-  
+
       const data = response.data;
       if (data.success) {
-        setFullname(fullname); // Set the fullname in the context
         alert("Signup successful!");
-        navigate("/Login");
+        navigate("/login");
       } else {
-        setError(data.error|| "Signup failed."  );
+        setError(data.error || "Signup failed.");
       }
     } catch (error) {
       setLoading(false);
       console.error("Error during Signup:", error);
-      if (error.response && error.response.data) {
-        setError(error.response.data.error || "An unexpected error occurred.");  // Log error response for debugging
-      }
       setError("An error occurred. Please try again.");
     }
   };
 
-  
-
-  if (loading) {
-    return (
-      <div className="spinner-border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-    );
-  }
+  // Google Authentication
+  const googleAuth = () => {
+    window.open("http://localhost:4000/auth/google/callback", "_self");
+  };
 
   return (
     <div className="Auth-page">
@@ -114,21 +96,21 @@ const Signup = () => {
                 I agree with all the terms and conditions.
               </label>
             </div>
-            {error && <div className="error-message">{error}</div>} {/* Error display */}
+            {error && <div className="error-message">{error}</div>}
 
             <button type="submit">Sign Up</button>
           </form>
           <div className="Auth-footer">
             <p>
-              Already have an account? <Link to="/Login">Log in</Link>
+              Already have an account? <a href="/login">Log in</a>
             </p>
-            <span>or</span>
           </div>
-          {/* Uncomment this if using Google OAuth */}
-          {/* <GoogleLogin onSuccess={responseMessage} onError={errorMessage} /> */}
+          <button className="google_btn" onClick={googleAuth}>
+            <img src={require("../images/google.png")} alt="google icon" />
+            <span>Sign Up with Google</span>
+          </button>
         </div>
         <div className="Auth-image">
-          {/* <h1>iStitch</h1> */}
           <img src={require("../images/iStitch.png")} alt="Signup Illustration" />
         </div>
       </div>
