@@ -10,6 +10,7 @@ const router = express.Router();
 const verifyToken = require("./middleware/Middleware");
 const Home = require("./controller/user/Controller");
 const Register = require("./routes/Register");
+const Login = require("./routes/Login");
 
 
 //Import DB function
@@ -25,6 +26,7 @@ app.use(cors());
 
 router.get("/", verifyToken, Home.Home);
 app.use("/register", Register);
+app.use("/login", Login)
 
 const startServer = async()=>{
     try{
