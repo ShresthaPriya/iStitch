@@ -56,60 +56,36 @@ const googleCallback = passport.authenticate("google", {
 const googleSuccess = (req, res) => {
     const user = req.user;
 
-    // Generate a JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-    // Redirect to frontend or send the token
-    res.status(200).json({
-        success: true,
-        message: "Google login successful!",
-        token,
-        user,
-    });
-};
-
-// Google OAuth Strategy Configuration
-const configureGoogleStrategy = () => {
-    const GoogleStrategy = require("passport-google-oauth20").Strategy;
-
-    passport.use(
-        new GoogleStrategy(
-            {
-                clientID: process.env.GOOGLE_CLIENT_ID,
-                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-                callbackURL: "http://localhost:4000/auth/google/callback",
-            },
-            async (accessToken, refreshToken, profile, done) => {
-                try {
-                    // Check if user exists
-                    let user = await User.findOne({ googleId: profile.id });
-
-                    if (!user) {
-                        // Create a new user if not found
-                        user = await User.create({
-                            googleId: profile.id,
-                            name: profile.displayName,
-                            email: profile.emails[0].value,
-                        });
-                    }
-
-                    done(null, user);
-                } catch (error) {
-                    done(error, null);
-                }
-            }
-        )
-    );
-
-    passport.serializeUser((user, done) => done(null, user.id));
-    passport.deserializeUser(async (id, done) => {
-        try {
-            const user = await User.findById(id);
-            done(null, user);
-        } catch (error) {
-            done(error, null);
+    User.findOne({ googleId: user.id }, async (err, existingUser) => {
+        if (err) {
+            return res.status(500).json({ success: false, error: err.message });
         }
+        
+        if (!existingUser) {
+            const newUser = new User({
+                googleId: user.id,
+                fullname: user.displayName,
+                email: user.emails[0].value,
+                password: null, // Google login doesn't need a password
+            });
+
+            await newUser.save();
+            return res.status(200).json({
+                success: true,
+                message: "Google login successful! New user created.",
+                token: jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" }),
+                user: newUser,
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Google login successful!",
+            token: jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" }),
+            user: existingUser,
+        });
     });
 };
 
-module.exports = { Login, googleLogin, googleCallback, googleSuccess, configureGoogleStrategy };
+
+module.exports = { Login, googleLogin, googleCallback, googleSuccess };

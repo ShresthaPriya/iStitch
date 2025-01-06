@@ -1,6 +1,8 @@
 const User = require("../../models/UserSchema"); // Ensure you're using the correct model
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { googleLogin, googleCallback } = require("./authController");
+  
 
 // Add credentials in registration
 const addCredentials = async (req, res) => {
@@ -54,5 +56,8 @@ const addCredentials = async (req, res) => {
         return res.status(500).json({ success: false, error: err.message });
     }
 };
+// Add Google OAuth login
+addCredentials.googleLogin = googleLogin;
+addCredentials.googleCallback = googleCallback;
 
 module.exports = { addCredentials };
