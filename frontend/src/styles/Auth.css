@@ -14,7 +14,7 @@ body, html {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background: url('../images/splash.jpg') no-repeat center center;
+    background: url('../images/ph.jpg') no-repeat center center;
     background-size: cover;
     position: relative;
     z-index: 1;
@@ -88,17 +88,30 @@ body, html {
     background-color: #710b0b;
     color: #f9f9f9;
   }
-  .policy-checkbox input[type="checkbox"] {
-    width: 16px; /* Set the width of the checkbox */
-    height: 16px; /* Set the height of the checkbox */
-    margin-right: 8px; /* Add some spacing between the checkbox and the label */
-    cursor: pointer; /* Change the cursor to a pointer for better UX */
-}
-
-.policy-checkbox label {
-    font-size: 14px; /* Adjust label font size for better alignment */
+  .policy-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
+  .policy-checkbox label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
     color: #333;
-}
+  }
+  
+  .policy-checkbox a {
+    color: #710b0b;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .policy-checkbox a:hover {
+    text-decoration: underline;
+  }
+  
 
 
   .Auth-footer {
@@ -151,24 +164,7 @@ body, html {
     font-size: 14px;
     margin-top: 10px;
   }
-  /* button {
-    background-color: #701108;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-  }
-  
-  button:disabled {
-    background-color: #ffc4bc;
-    cursor: not-allowed;
-  }
-  
-  button:hover:not(:disabled) {
-    background-color: #ff3d2f;
-  } */
+ 
   
   .Auth-form google_btn {
     background-color: #4285f4;

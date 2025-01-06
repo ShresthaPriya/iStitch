@@ -41,7 +41,7 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const response = await axios.post("http://localhost:3000/login", {
+      const response = await axios.post("http://localhost:4000/login", {
         email,
         password,
       });
@@ -91,6 +91,14 @@ const Login = () => {
               placeholder="Enter your password"
               required
             />
+            <div className="policy-checkbox">
+              <label>
+                <input type="checkbox" required />
+                Remember Me
+              </label>
+              <a href="/resetPassword">Forgot Password?</a>
+            </div>
+           
             {error && <div className="error-message">{error}</div>}
             <button type="submit" disabled={loading}>
               {loading ? "Logging in..." : "Login"}

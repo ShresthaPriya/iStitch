@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #7d0306; /* Adjust to your theme */
+    background-color: #261e1e; /* Adjust to your theme */
     color: white;
     padding: 10px 20px;
     font-family: 'Jacques Francois', serif;
@@ -16,6 +16,7 @@
   .logo-link {
     text-decoration: none;
     color: white;
+    font-style: italic;
   }
   
   .nav-links {
@@ -73,6 +74,7 @@
   .profile-icon {
     font-size: 20px;
     cursor: pointer;
+    color: #ddd;
   }
   
   .username-dropdown {

@@ -9,6 +9,7 @@ import Splash from './pages/Splash';
 import Home from './pages/Home';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import ForgetPassword from './pages/ResetPassword';
 
 
 
@@ -24,8 +25,10 @@ function App(){
         <AppContext.Provider value = {{fullname, setFullname}}>
           <Router>
             <Routes>
-              <Route path='/Register' element={<Register/>}/>
+              <Route path='/auth/Register' element={<Register/>}/>
               <Route path='/Login' element={<Login/>}/>
+              <Route path='/forgetPassword' element={<ForgetPassword />} />
+              <Route path='/Home' element={<Home/>}/>
               
             </Routes>
           </Router>
