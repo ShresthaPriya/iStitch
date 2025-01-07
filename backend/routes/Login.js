@@ -4,7 +4,7 @@ const { Login} = require("../controller/user/Login");
 
 
 router.post("/", Login);
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+// router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 
 
