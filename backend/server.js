@@ -8,8 +8,8 @@ const connectDB = require("./config/dbConnect");
 const configureGoogleStrategy = require("./config/passwordGoogle");
 const verifyToken = require("./middleware/Middleware");
 const Home = require("./controller/user/Controller");
-// const Register = require("./routes/Register");
-// const Login = require("./routes/Login");
+const Register = require("./routes/Register");
+const Login = require("./routes/Login");
 const authRoutes = require("./routes/authRoutes");
 
 const app = express();
@@ -31,12 +31,13 @@ app.use(
 
 // Initialize Passport and Google OAuth Strategy
 configureGoogleStrategy();
+app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
 app.get("/", verifyToken, Home.Home);
-app.use("/register", authRoutes);
-app.use("/login", authRoutes);
+app.use("/register", Register);
+app.use("/login", Login);
 app.use("/auth", authRoutes);
 
 // Start the server

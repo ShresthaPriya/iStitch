@@ -1,5 +1,7 @@
 const express = require("express");
 const passport = require("passport");
+// Replace import with require
+const { forgetPassword, resetPassword } = require("../controller/user/forgetPasswordController");
 const {
   googleAuth,
   googleCallback,
@@ -8,19 +10,15 @@ const {
   logout,
 } = require("../controller/user/authController");
 
-
-
 const router = express.Router();
-const { addCredentials} = require("../controller/user/RegistrationController");
-const { Login} = require("../controller/user/Login");
+const { addCredentials } = require("../controller/user/RegistrationController");
+const { Login } = require("../controller/user/Login");
 
-router.post("/", addCredentials);
-router.post("/", Login);
+router.post("/register", addCredentials); // Register route
+router.post("/login", Login); // Login route
+
 // Initiates Google login
-router.get("/google", (req, res, next) => {
-  console.log("Google Auth route hit");
-  next();
-}, googleAuth);
+router.get("/google", googleAuth);
 
 // Google callback URL
 router.get("/google/callback", googleCallback);
@@ -33,5 +31,8 @@ router.get("/login/failed", loginFailed);
 
 // Logout handler
 router.get("/logout", logout);
+
+router.post("/forgetPassword", forgetPassword);
+router.post("/reset-password/:token", resetPassword);
 
 module.exports = router;
