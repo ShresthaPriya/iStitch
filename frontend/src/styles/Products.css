@@ -112,7 +112,7 @@
   
   .products-title {
     font-size: 2rem;
-    color: rgba(20, 58, 121, 0.4); /* 40% opacity */
+    color: black;
 
     align-items: center;
     margin: 0;

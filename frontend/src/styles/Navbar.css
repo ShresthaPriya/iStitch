@@ -38,6 +38,54 @@
   color: #f0bcbc; /* Hover color for links */
 }
 
+.nav-links .dropdown {
+  position: relative;
+  
+}
+
+.nav-links .dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #333;
+  color: white;
+  list-style: none;
+  padding: 10px 0;
+  z-index: 10;
+  border-radius: 5px; /* Rounded corners for dropdown */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.nav-links .dropdown:hover .dropdown-menu,
+.nav-links .dropdown-menu .dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.nav-links .dropdown-menu li {
+  padding: 10px 20px; /* Increased padding for better spacing */
+}
+
+.nav-links .dropdown-menu li a {
+  text-decoration: none;
+  color: white;
+  font-size: 18px; /* Consistent font size */
+}
+
+.nav-links .dropdown-menu li:hover {
+  background-color: #444;
+}
+
+.nav-links .dropdown > a {
+  font-size: 24px; /* Match the font size of other nav elements */
+  color: #ffffff; /* Match the color of other nav elements */
+  text-decoration: none;
+}
+
+.dropdown-menu.wide-dropdown {
+  width: 200px; /* Increase the width for better spacing */
+}
+
 /* Search and Profile Section */
 .search-and-profile {
   display: flex;

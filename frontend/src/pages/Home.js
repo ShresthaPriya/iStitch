@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from '../components/Navbar';
+// import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CategoryGrid from "../components/CategoryGrid";
 import FabricCollection from "../components/FabricCollection";
@@ -8,7 +8,7 @@ import  "../styles/Home.css"
 const Home = () => {
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
     
       <CategoryGrid />
       <FabricCollection/>
