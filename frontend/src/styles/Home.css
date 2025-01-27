@@ -1,57 +1,61 @@
 .hero {
-    position: relative;
-    background-image: url('../images/photo.jpg'); /* Use your actual image path */
-    background-size: cover;
-    background-position: center;
-    padding-top: 30px;
-    height: 675px; /* Adjust height as needed */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .hero-content {
-    text-align: center;
-    color: white;
-    z-index: 2;
-    position: relative;
-  }
-  
-  .hero-content h1 {
-    font-size: 3rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  
-  .hero-content p {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-  }
-  
-  .hero-content .new-articles {
-    padding: 10px 20px;
-    background-color: #a6a637; /* Button color */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .hero-content .new-articles:hover {
-    background-color: #8f8f29; /* Hover color */
-  }
-  
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Overlay to darken the image */
-    z-index: 1;
-  }
-  
+  position: relative;
+  background-image: url('../images/photo.jpg'); /* Use your actual image path */
+  background-size: cover;
+  background-position: center;
+  padding-top: 30px;
+  height: 675px; /* Adjust height as needed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+  text-align: center;
+  color: white;
+  z-index: 2;
+  position: relative;
+  max-width: 80%; /* Limit width for better readability */
+  margin: 0 auto; /* Center the content */
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  letter-spacing: 2px; /* Add spacing between letters */
+}
+
+.hero-content p {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  line-height: 1.5; /* Improve readability */
+}
+
+.hero-content .new-articles {
+  padding: 10px 20px;
+  background-color: #a6a637; /* Button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Add smooth transition */
+}
+
+.hero-content .new-articles:hover {
+  background-color: #8f8f29; /* Hover color */
+  transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Overlay to darken the image */
+  z-index: 1;
+}
