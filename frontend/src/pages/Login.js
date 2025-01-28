@@ -98,7 +98,6 @@ const Login = () => {
               </label>
               <a href="/resetPassword">Forgot Password?</a>
             </div>
-           
             {error && <div className="error-message">{error}</div>}
             <button type="submit" disabled={loading}>
               {loading ? "Logging in..." : "Login"}

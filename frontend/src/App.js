@@ -12,7 +12,10 @@ import Login from './pages/Login';
 import ForgetPassword from './pages/ResetPassword';
 import Items from './components/Items';
 import Navbar from './components/Navbar';
-
+import ResetPasswordRequest from './pages/ResetPassword';
+import ProductCard from './components/ProductCard';
+import Cart from './components/Cart'; // Import Cart component
+import Checkout from './components/Checkout'; // Import Checkout component
 
 
 export const AppContext = createContext();
@@ -28,12 +31,17 @@ function App(){
           <Router>
             <Navbar />
             <Routes>
+              <Route path='/' element={<Splash/>}/>
               <Route path='/auth/Register' element={<Register/>}/>
               <Route path='/Login' element={<Login/>}/>
               <Route path='/forgetPassword' element={<ForgetPassword />} />
               <Route path='/Home' element={<Home/>}/>
+              <Route path='/Splash' element={<Splash/>}/>
               <Route path='/Items' element={<Items />} />
-              
+              <Route path ='/resetPassword' element={<ResetPasswordRequest />} />
+              <Route path='/product/:id' element={<ProductCard />} />
+              <Route path='/cart' element={<Cart />} /> {/* Add Cart route */}
+              <Route path='/checkout' element={<Checkout />} /> {/* Add Checkout route */}
             </Routes>
           </Router>
         </AppContext.Provider>

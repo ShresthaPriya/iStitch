@@ -1,14 +1,13 @@
 /* Navbar Styles */
 .navbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
-  background-color: rgba(20, 58, 121, 0.4); /* 40% opacity */
-
-  color: white;
+  width: 100%;
   padding: 15px 30px;
   font-family: 'Jacques Francois', serif;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  background-color:  rgba(20, 58, 121, 0.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
@@ -35,7 +34,7 @@
 }
 
 .nav-links li a:hover {
-  color: #f0bcbc; /* Hover color for links */
+  color: #0d0c0c; /* Hover color for links */
 }
 
 .nav-links .dropdown {

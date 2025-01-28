@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import  "../styles/ForgetPassword.css"
+import "../styles/ForgetPassword.css";
 
 const ResetPasswordRequest = () => {
   const [email, setEmail] = useState("");
@@ -30,7 +30,6 @@ const ResetPasswordRequest = () => {
     }
     setError(""); // Clear error message
     return true;
-
   };
 
   return (

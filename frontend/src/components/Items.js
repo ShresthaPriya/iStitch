@@ -6,7 +6,8 @@ function Items() {
     const navigate = useNavigate();
 
     const viewItem = (id) => {
-      navigate(`/item/${id}`);
+      navigate(`/product/${id}`);
+      
     };
 
     return (
@@ -66,7 +67,7 @@ function Items() {
                         <p>4.5 ★★★★</p>
                        
                     </div>
-                <button onClick={()=>viewItem('item-id-3')}>View Item</button>
+                <button onClick={()=>viewItem('item-id-4')}>View Item</button>
             </div>
             <div className="item-grid">
                 <img src={require('../images/items/shirts/shirt5.jpg')} alt="Shirt" className="item-image"/>
@@ -79,7 +80,7 @@ function Items() {
                         <p>4.5 ★★★★</p>
                        
                     </div>
-                <button onClick={()=>viewItem('item-id-2')}>View Item</button>
+                <button onClick={()=>viewItem('item-id-5')}>View Item</button>
             </div>
             <div className="item-grid">
                 <img src={require('../images/items/shirts/shirt7.jpg')} alt="Shirt" className="item-image"/>
@@ -92,7 +93,7 @@ function Items() {
                         <p>4.5 ★★★★</p>
                        
                     </div>
-                <button onClick={()=>viewItem('item-id-2')}>View Item</button>
+                <button onClick={()=>viewItem('item-id-6')}>View Item</button>
             </div>
         </div>
         </>
