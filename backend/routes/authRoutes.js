@@ -18,10 +18,7 @@ router.post("/register", addCredentials); // Register route
 router.post("/login", Login); // Login route
 
 // Initiates Google login
-router.get("/google", (req, res, next) => {
-  console.log("Google Auth route hit");
-  next();
-}, googleAuth);
+router.get("/google", googleAuth);
 
 // Google callback URL
 router.get("/google/callback", googleCallback);

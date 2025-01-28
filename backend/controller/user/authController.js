@@ -24,6 +24,7 @@ const googleAuth = passport.authenticate("google", {
 });
 
 const googleCallback = passport.authenticate("google", {
+  scope: ["profile", "email"], // Add this line to include the scope parameter
   successRedirect: process.env.CLIENT_URL,
   failureRedirect: "/auth/login/failed",
 });

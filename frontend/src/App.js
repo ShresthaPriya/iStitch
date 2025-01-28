@@ -10,6 +10,8 @@ import Home from './pages/Home';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ForgetPassword from './pages/ResetPassword';
+import Items from './components/Items';
+import Navbar from './components/Navbar';
 
 
 
@@ -24,11 +26,13 @@ function App(){
       <QueryClientProvider client = {client}>
         <AppContext.Provider value = {{fullname, setFullname}}>
           <Router>
+            <Navbar />
             <Routes>
               <Route path='/auth/Register' element={<Register/>}/>
               <Route path='/Login' element={<Login/>}/>
               <Route path='/forgetPassword' element={<ForgetPassword />} />
               <Route path='/Home' element={<Home/>}/>
+              <Route path='/Items' element={<Items />} />
               
             </Routes>
           </Router>

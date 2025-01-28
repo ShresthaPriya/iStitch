@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 
-const UserSchema =mongoose.Schema({
-    // googleId: { 
-    //     type: String, 
-    //     unique: true },
+const UserSchema = mongoose.Schema({
+    googleId: { 
+        type: String, 
+        unique: true 
+    },
     fullname: {
         type: String,
         required: true
@@ -15,12 +16,8 @@ const UserSchema =mongoose.Schema({
     }, 
     password: {
         type: String,
-        required : true
+        required: [true, 'Password is required'],
     },
-    // confirmPassword: {
-    //     type: String,
-    //     required : true
-    // }
     resetPasswordToken:{
         type: String
     },

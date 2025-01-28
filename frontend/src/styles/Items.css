@@ -1,0 +1,116 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  h2 {
+    text-align: center; /* Centers the text horizontally */
+    margin-bottom: 14px; /* Adds some space below the heading */
+    font-size: 24px;
+    
+  }
+
+  p {
+    text-align: center; /* Centers the text horizontally */
+    font-size: 16px; /* Adjust the font size */
+    margin-bottom: 20px; /* Adds some space below the paragraph */
+  }
+  
+  p .create-your-own {
+    color: #4CAF50; /* Green color for the "Create your own" text */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-weight: bold; /* Bold text */
+    margin-left: 5px; /* Adds some space to the left */
+    display: inline-flex; /* Aligns the icon and text */
+    align-items: center; /* Vertically centers the icon and text */
+  }
+  
+  p .create-your-own i {
+    margin-right: 5px; /* Adds some space to the right of the icon */
+  }
+  
+  p .create-your-own:hover {
+    text-decoration: underline; /* Underline text on hover */
+  }
+  
+  /* Container for the trending items */
+  .explore-items {
+    display: flex;
+    justify-content: center; /* Aligns the cards to the center */
+    flex-wrap: wrap;
+    gap: 20px; /* Adds space between cards */
+    margin: 20px auto;
+    max-width: 1800px; /* Limits the width of the container */
+  }
+  
+  .item-grid {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    width: 250px; /* Adjust the width to make the grid smaller */
+    text-align: center;
+    transition: transform 0.2s;
+    padding: 10px; /* Add padding for better spacing */
+  }
+  
+  .item-grid:hover {
+    transform: scale(1.05);
+  }
+  
+  .item-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    height: 180px; /* Adjust the height to make the images smaller */
+    object-fit: cover; /* Ensures the image covers the entire area without stretching */
+  }
+  
+  .item-grid h2 {
+    font-size: 18px;
+    margin: 15px 0;
+  }
+  
+  .item-grid .info {
+    color: #666;
+    margin: 0;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between; /* Aligns items to the left and right */
+    align-items: center;
+  }
+  
+  .item-grid .info p {
+    margin: 0;
+  }
+  
+  .item-grid button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    margin: 15px 0;
+    border-radius: 5px; /* Rounded button */
+    cursor: pointer;
+    font-size: 1em;
+  }
+  
+  .item-grid button:hover {
+    background-color: #45a049;
+  }
+  
+  /* Responsive design for small screens */
+  @media screen and (max-width: 768px) {
+    .explore-items {
+      flex-direction: column; /* Stacks the cards vertically */
+      align-items: center;
+    }
+  
+    .item-grid {
+      width: 80%; /* Make the cards larger on smaller screens */
+      margin: 0 auto;
+    }
+  }

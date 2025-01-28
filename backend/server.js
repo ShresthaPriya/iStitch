@@ -31,6 +31,7 @@ app.use(
 
 // Initialize Passport and Google OAuth Strategy
 configureGoogleStrategy();
+app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
