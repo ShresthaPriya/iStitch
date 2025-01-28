@@ -106,7 +106,7 @@ const Login = () => {
           </form>
           <div className="Auth-footer">
             <p>
-              Don't have an account? <a href="/register">Sign Up</a>
+              Don't have an account? <a href="/auth/register">Sign Up</a>
             </p>
           </div>
           <button className="google_btn" onClick={googleAuth}>
@@ -114,9 +114,9 @@ const Login = () => {
             <span>Login with Google</span>
           </button>
         </div>
-        <div className="Auth-image">
+        {/* <div className="Auth-image">
           <img src={require("../images/iStitch.png")} alt="Login Illustration" />
-        </div>
+        </div> */}
       </div>
     </div>
   );

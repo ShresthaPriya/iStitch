@@ -54,7 +54,11 @@ const Signup = () => {
 
   return (
     <div className="Auth-page">
+      {/* <div className="left-side">
+      <img src={require("../images/iStitch.png")} alt="Signup Illustration" />
+        </div> */}
       <div className="Auth-container">
+      
         <div className="Auth-form">
           <h2>Sign Up</h2>
           <form onSubmit={handleSubmit}>
@@ -93,7 +97,8 @@ const Signup = () => {
             <div className="policy-checkbox">
               <label>
                 <input type="checkbox" required />
-                I agree with all the terms and conditions.
+                <p> I agree with all the terms and conditions.</p>
+               
               </label>
             </div>
             {error && <div className="error-message">{error}</div>}
@@ -110,9 +115,9 @@ const Signup = () => {
             <span>Sign Up with Google</span>
           </button>
         </div>
-        <div className="Auth-image">
+        {/* <div className="Auth-image">
           <img src={require("../images/iStitch.png")} alt="Signup Illustration" />
-        </div>
+        </div> */}
       </div>
     </div>
   );
