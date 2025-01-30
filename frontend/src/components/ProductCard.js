@@ -5,12 +5,19 @@ import '../styles/ProductCard.css'; // Import custom CSS
 
 const ProductCard = () => {
   const [selectedSize, setSelectedSize] = useState("M");
+  const [selectedFabric, setSelectedFabric] = useState("Cotton");
   const sizes = ["S", "M", "L", "XL", "XXL"];
+  const fabrics = ["Cotton", "Silk", "Linen"];
   const navigate = useNavigate();
 
   const addToCart = () => {
     // Add item to cart logic here
     navigate('/cart');
+  };
+
+  const placeTailoringOrder = () => {
+    // Place tailoring order logic here
+    navigate('/checkout');
   };
 
   return (
@@ -43,6 +50,22 @@ const ProductCard = () => {
             comfortably during day-to-day wear.
           </p>
 
+          {/* Fabric Selection */}
+          <div className="fabric-selection">
+            <h4 className="fabric-title">Fabric:</h4>
+            <div className="fabric-buttons">
+              {fabrics.map((fabric) => (
+                <button
+                  key={fabric}
+                  className={`fabric-button ${selectedFabric === fabric ? "selected" : ""}`}
+                  onClick={() => setSelectedFabric(fabric)}
+                >
+                  {fabric}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Size Selection */}
           <div className="size-selection">
             <h4 className="size-title">Sizes:</h4>
@@ -62,7 +85,7 @@ const ProductCard = () => {
           {/* Buttons */}
           <div className="action-buttons">
             <button className="add-to-cart-button" onClick={addToCart}>Add to cart</button>
-            <button className="customize-button">Customize</button>
+            <button className="customize-button" onClick={placeTailoringOrder}>Customize</button>
           </div>
         </div>
       </div>

@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css"; 
-import Items from "./Items";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { AppContext } from "../App";
 
@@ -81,7 +80,7 @@ function Navbar() {
           )}
         </li>
         <li><Link to="/fabric">Fabric</Link></li>
-        <li><Link to="/measurement">Measurements</Link></li>
+        <li><Link to="/Measurement">Measurements</Link></li> {/* Updated link */}
       </ul>
 
       {/* Search and Profile Section */}

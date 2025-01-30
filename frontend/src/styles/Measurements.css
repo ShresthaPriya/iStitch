@@ -1,0 +1,101 @@
+.measurements-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 32px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.measurements-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.measurements-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #1f2937;
+  outline: none;
+}
+
+.save-button,
+.edit-button {
+  padding: 12px 24px;
+  background-color: #1f2937;
+  color: white;
+  border-radius: 8px;
+  font-size: 1.125rem;
+  transition: background-color 0.3s, color 0.3s;
+  cursor: pointer;
+  border: none;
+}
+
+.resources {
+  margin-top: 20px;
+}
+
+.resources h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.resources ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.resources li {
+  margin-bottom: 5px;
+}
+
+.resources a {
+  color: #1f2937;
+  text-decoration: none;
+}
+
+.resources a:hover {
+  text-decoration: underline;
+}
+
+.dropdown {
+  margin-bottom: 15px;
+}
+
+.dropdown button {
+  padding: 10px 20px;
+  background-color: #1f2937;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
