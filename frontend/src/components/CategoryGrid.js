@@ -70,6 +70,7 @@
 // export default CategoryGrid;
 import React from "react";
 import "../styles/Products.css";
+import Navbar from './Navbar';
 
 const CategoryGrid = () => {
   const items = [
@@ -79,6 +80,7 @@ const CategoryGrid = () => {
   ];
 
   return (
+    <>  <Navbar />
     <div className="products-container">
       <h2 className="products-title">What we have</h2>
       <div className="products-header">
@@ -96,6 +98,7 @@ const CategoryGrid = () => {
         ))}
       </div>
     </div>
+    </>
   );
 };
 

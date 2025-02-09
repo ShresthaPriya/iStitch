@@ -11,7 +11,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import ForgetPassword from './pages/ResetPassword';
 import Items from './components/Items';
-import Navbar from './components/Navbar';
+
 import Measurements from './components/Measurements';
 import ResetPasswordRequest from './pages/ResetPassword';
 import ProductCard from './components/ProductCard';
@@ -21,6 +21,13 @@ import ShirtMeasurements from './components/ShirtMeasurements'; // Import ShirtM
 import PantMeasurements from './components/PantMeasurements'; // Import PantMeasurements component
 import BlazerMeasurements from './components/BlazerMeasurements'; // Import BlazerMeasurements component
 import BlouseMeasurements from './components/BlouseMeasurements'; // Import BlouseMeasurements component
+
+import Customer from './pages/Customer';
+import AdminHome from './pages/AdminHome';
+import Category from './pages/Category';
+import Item from './pages/Item';
+import Order from './pages/Order';
+
 
 
 export const AppContext = createContext();
@@ -34,13 +41,14 @@ function App(){
       <QueryClientProvider client = {client}>
         <AppContext.Provider value = {{fullname, setFullname}}>
           <Router>
-            <Navbar />
+          
             <Routes>
               <Route path='/' element={<Splash/>}/>
               <Route path='/auth/Register' element={<Register/>}/>
               <Route path='/Login' element={<Login/>}/>
               <Route path='/forgetPassword' element={<ForgetPassword />} />
               <Route path='/Home' element={<Home/>}/>
+              <Route path='/AdminHome' element={<AdminHome/>}/>
               <Route path='/Splash' element={<Splash/>}/>
               <Route path='/Items' element={<Items />} />
               <Route path='/Measurement' element={<Measurements />} />
@@ -52,6 +60,11 @@ function App(){
               <Route path='/measurements/pant' element={<PantMeasurements />} /> {/* Add PantMeasurements route */}
               <Route path='/measurements/blazer' element={<BlazerMeasurements />} /> {/* Add BlazerMeasurements route */}
               <Route path='/measurements/blouse' element={<BlouseMeasurements />} /> {/* Add BlouseMeasurements route */}
+              <Route path ='Customer' element={<Customer/>}/>
+              <Route path ='Category' element={<Category/>}/>
+              <Route path ='Item' element={<Item/>}/>
+              <Route path ='Order' element={<Order/>}/>
+
               {/* Add other measurement routes as needed */}
             </Routes>
           </Router>

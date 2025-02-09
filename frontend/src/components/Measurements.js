@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Measurements.css'; // Import custom CSS
+import Navbar from './Navbar';
 
 const Measurements = () => {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ const Measurements = () => {
   };
 
   return (
+    <>
+      <Navbar />
     <div className="measurements-container">
       <h2 className="measurements-title">Your Measurements</h2>
       <div className="measurements-form">
@@ -30,7 +33,7 @@ const Measurements = () => {
         </div>
        
       </div>
-    </div>
+    </div></>
   );
 };
 

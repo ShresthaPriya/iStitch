@@ -88,7 +88,6 @@ function Navbar() {
         <div className="search-bar">
           <input 
             type="text" 
-            placeholder="Search for recipes..." 
             className="search-input" 
           />
           <button className="search-button">
@@ -127,6 +126,9 @@ function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Filters Section */}
+      {/* Removed Filters Section */}
     </nav>
   );
 }

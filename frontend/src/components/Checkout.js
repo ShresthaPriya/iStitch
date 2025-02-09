@@ -3,6 +3,7 @@ import '../styles/Checkout.css'; // Import custom CSS
 import visaLogo from '../images/payment/visa.jpg';
 import khaltiLogo from '../images/payment/khalti.png';
 // import codLogo from '../images/payment/cod.png';
+import Navbar from './Navbar';
 
 const Checkout = () => {
   const [formData, setFormData] = useState({
@@ -53,6 +54,8 @@ const Checkout = () => {
   const grandTotal = total + deliveryFee;
 
   return (
+    <>
+      <Navbar />
     <div className="checkout-container">
       <h2 className="checkout-title">Checkout</h2>
       <div className="checkout-content">
@@ -173,7 +176,7 @@ const Checkout = () => {
           Order placed successfully!
         </div>
       )}
-    </div>
+    </div></>
   );
 };
 

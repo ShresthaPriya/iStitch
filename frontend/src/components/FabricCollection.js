@@ -1,5 +1,6 @@
 import React from 'react';
 import '../styles/FabricCollection.css';
+import Navbar from './Navbar';
 
 function FabricCollection() {
   const fabrics = [
@@ -40,6 +41,7 @@ function FabricCollection() {
 
   return (
     <>
+      <Navbar />
       <div className="fabric-header">
         <h3 className="fabric-title">Trending Fabrics</h3>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Cart.css'; // Import custom CSS
+import Navbar from './Navbar';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([
@@ -38,6 +39,8 @@ const Cart = () => {
   };
 
   return (
+    <>
+      <Navbar />
     <div className="cart-container">
       <h2 className="cart-title">Shopping Cart</h2>
       <div className="cart-items">
@@ -63,7 +66,7 @@ const Cart = () => {
         </p>
         <button className="checkout-button" onClick={proceedToCheckout}>Proceed to Checkout</button>
       </div>
-    </div>
+    </div></>
   );
 };
 

@@ -14,6 +14,7 @@ const Splash = () => {
 
   return (
     <>
+      <Navbar />
       <section className="hero">
         <div className="hero-content">
           <h1>LOOK YOUR BEST</h1>

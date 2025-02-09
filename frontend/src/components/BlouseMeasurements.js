@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Measurements.css'; // Import custom CSS
+import Navbar from './Navbar';
 
 const BlouseMeasurements = () => {
   const [measurements, setMeasurements] = useState({
@@ -39,6 +40,7 @@ const BlouseMeasurements = () => {
   };
 
   return (
+    <>  <Navbar />
     <div className="measurements-container">
       <h2 className="measurements-title">Blouse Measurements</h2>
       <div className="measurements-form">
@@ -91,6 +93,7 @@ const BlouseMeasurements = () => {
         </ul>
       </div>
     </div>
+    </>
   );
 };
 

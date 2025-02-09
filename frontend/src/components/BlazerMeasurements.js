@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Measurements.css'; // Import custom CSS
+import Navbar from './Navbar';
 
 const BlazerMeasurements = () => {
   const [measurements, setMeasurements] = useState({
@@ -30,6 +31,8 @@ const BlazerMeasurements = () => {
   };
 
   return (
+    <>
+    <Navbar />
     <div className="measurements-container">
       <h2 className="measurements-title">Blazer Measurements</h2>
       <div className="measurements-form">
@@ -73,7 +76,9 @@ const BlazerMeasurements = () => {
         </ul>
       </div>
     </div>
+    </>
   );
 };
+
 
 export default BlazerMeasurements;

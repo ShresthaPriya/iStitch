@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Star } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import Navbar from './Navbar';
 import '../styles/ProductCard.css'; // Import custom CSS
 
 const ProductCard = () => {
@@ -21,6 +22,8 @@ const ProductCard = () => {
   };
 
   return (
+    <>
+      <Navbar />
     <div className="product-card-container">
       <div className="product-card-content">
         {/* Product Image */}
@@ -89,7 +92,7 @@ const ProductCard = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div></>
   );
 };
 
