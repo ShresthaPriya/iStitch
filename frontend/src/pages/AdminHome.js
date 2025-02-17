@@ -1,10 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaUser, FaCog, FaUsersCog, FaListAlt, FaClipboardList, FaShoppingBag, FaBox } from "react-icons/fa";
+import axios from "axios";
 import "../styles/Dashboard.css";
 import Sidebar from "../components/Sidebar";
 
 const AdminHome = () => {
     const [username] = useState("Admin");
+    const [metrics, setMetrics] = useState({
+        customerCount: 0,
+        pendingOrderCount: 0,
+        totalOrderCount: 0,
+        totalSales: 0,
+        totalItemCount: 0
+    });
+
+    useEffect(() => {
+        const fetchMetrics = async () => {
+            try {
+                const response = await axios.get('http://localhost:4000/api/metrics');
+                setMetrics(response.data.metrics);
+            } catch (err) {
+                console.error("Error fetching metrics:", err);
+            }
+        };
+
+        fetchMetrics();
+    }, []);
 
     return (
         <div className="dashboard-container">
@@ -25,27 +46,27 @@ const AdminHome = () => {
                     <div className="metric-card">
                         <FaUsersCog className="metric-icon users" />
                         <span className="metric-title">Customers</span>
-                        <span className="metric-value">xxx</span>
+                        <span className="metric-value">{metrics.customerCount}</span>
                     </div>
                     <div className="metric-card">
                         <FaListAlt className="metric-icon pending-orders" />
                         <span className="metric-title">Pending Orders</span>
-                        <span className="metric-value">xxx</span>
+                        <span className="metric-value">{metrics.pendingOrderCount}</span>
                     </div>
                     <div className="metric-card">
                         <FaClipboardList className="metric-icon orders" />
                         <span className="metric-title">Total Orders</span>
-                        <span className="metric-value">xxx</span>
+                        <span className="metric-value">{metrics.totalOrderCount}</span>
                     </div>
                     <div className="metric-card">
                         <FaShoppingBag className="metric-icon sales" />
                         <span className="metric-title">Total Sales</span>
-                        <span className="metric-value">xxx</span>
+                        <span className="metric-value">${metrics.totalSales.toFixed(2)}</span>
                     </div>
                     <div className="metric-card">
                         <FaBox className="metric-icon items" />
                         <span className="metric-title">Total Items</span>
-                        <span className="metric-value">xxx</span>
+                        <span className="metric-value">{metrics.totalItemCount}</span>
                     </div>
                 </div>
 

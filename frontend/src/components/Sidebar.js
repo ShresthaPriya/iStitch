@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from "react-router-dom";
-import { FaUsers, FaClipboardList, FaBox, FaTags, FaHome, FaBolt } from "react-icons/fa";
+import { FaUsers, FaClipboardList, FaBox, FaTags, FaHome, FaBolt, FaRuler } from "react-icons/fa";
 import "../styles/Sidebar.css";
 
 const Sidebar = () => {
@@ -41,6 +41,11 @@ const Sidebar = () => {
         <li>
           <NavLink to="/fabric" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaBolt className="icon" /> Fabric
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/measurement" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+            <FaRuler className="icon" /> Body Measurement
           </NavLink>
         </li>
       </ul>

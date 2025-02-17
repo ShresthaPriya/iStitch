@@ -81,7 +81,7 @@ function Navbar() {
           )}
         </li>
         <li><Link to="/fabric">Fabric</Link></li>
-        <li><Link to="/Measurement">Measurements</Link></li> {/* Updated link */}
+        <li><Link to="/Measurements">Measurements</Link></li> {/* Updated link */}
       </ul>
 
       {/* Search and Profile Section */}

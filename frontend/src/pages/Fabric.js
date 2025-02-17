@@ -54,9 +54,10 @@ const Fabric = () => {
     setNewFabric({ ...newFabric, [name]: value });
   };
 
-  // Handle image input changes
-  const handleImageChange = (e) => {
-    setNewFabric({ ...newFabric, images: Array.from(e.target.files) });
+  // Handle file input changes
+  const handleFileChange = (e) => {
+    const { files } = e.target;
+    setNewFabric({ ...newFabric, images: files });
   };
 
   // Add or Edit fabric
@@ -67,9 +68,9 @@ const Fabric = () => {
     formData.append("subcategory", newFabric.subcategory);
     formData.append("price", newFabric.price);
     formData.append("description", newFabric.description);
-    newFabric.images.forEach((image, index) => {
-      formData.append("images", image);
-    });
+    for (let i = 0; i < newFabric.images.length; i++) {
+      formData.append("images", newFabric.images[i]);
+    }
 
     try {
       if (editMode) {
@@ -214,7 +215,7 @@ const Fabric = () => {
             <label>Description:</label>
             <textarea name="description" value={newFabric.description} onChange={handleChange} required />
             <label>Images:</label>
-            <input type="file" name="images" onChange={handleImageChange} multiple accept="image/*" required />
+            <input type="file" name="images" onChange={handleFileChange} multiple accept="image/*" required />
             <div className="modal-actions">
               <button className="add-btn" onClick={handleAddFabric}>
                 {editMode ? "Update" : "Add"}
