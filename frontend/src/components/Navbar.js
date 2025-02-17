@@ -1,5 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../styles/Navbar.css"; 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { AppContext } from "../App";
@@ -8,9 +9,21 @@ function Navbar() {
   const { username } = useContext(AppContext);
   const [menuActive, setMenuActive] = useState(false);
   const [shopDropdownActive, setShopDropdownActive] = useState(false);
-  const [menDropdownActive, setMenDropdownActive] = useState(false);
-  const [womenDropdownActive, setWomenDropdownActive] = useState(false);
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/categories');
+        setCategories(response.data.categories);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const toggleMenu = () => {
     setMenuActive(!menuActive);
@@ -20,17 +33,18 @@ function Navbar() {
     setShopDropdownActive(!shopDropdownActive);
   };
 
-  const toggleMenDropdown = () => {
-    setMenDropdownActive(!menDropdownActive);
+  const groupCategoriesByGender = (categories) => {
+    return categories.reduce((acc, category) => {
+      const gender = category.gender;
+      if (!acc[gender]) {
+        acc[gender] = [];
+      }
+      acc[gender].push(category);
+      return acc;
+    }, {});
   };
 
-  const toggleWomenDropdown = () => {
-    setWomenDropdownActive(!womenDropdownActive);
-  };
-
-  const navigateToShirts = () => {
-    navigate('/shop/men/shirt');
-  };
+  const groupedCategories = groupCategoriesByGender(categories);
 
   return (
     <nav className="navbar">
@@ -53,29 +67,16 @@ function Navbar() {
           <Link to="#" onClick={toggleShopDropdown}>Shop <i className="fa fa-chevron-down"></i></Link>
           {shopDropdownActive && (
             <ul className="dropdown-menu wide-dropdown">
-              <li className="dropdown">
-                <Link to="#" onClick={toggleMenDropdown}>Men Wear <i className="fa fa-chevron-right"></i></Link>
-                {menDropdownActive && (
+              {Object.keys(groupedCategories).map(gender => (
+                <li className="dropdown" key={gender}>
+                  <Link to="#">{gender} Wear <i className="fa fa-chevron-right"></i></Link>
                   <ul className="dropdown-menu wide-dropdown">
-                    {/* <li><Link to="#" onClick={navigateToShirts}>Shirt</Link></li> */}
-                    <li><Link to="/Items">Shirt</Link></li>
-                    <li><Link to="/shop/men/pant">Pant</Link></li>
-                    <li><Link to="/shop/men/suit">Suit</Link></li>
-                    <li><Link to="/shop/men/tshirt">T-Shirt</Link></li>
+                    {groupedCategories[gender].map(category => (
+                      <li key={category._id}><Link to={`/shop/${gender.toLowerCase()}/${category.name.toLowerCase()}`}>{category.name}</Link></li>
+                    ))}
                   </ul>
-                )}
-              </li>
-              <li className="dropdown">
-                <Link to="#" onClick={toggleWomenDropdown}>Women Wear <i className="fa fa-chevron-right"></i></Link>
-                {womenDropdownActive && (
-                  <ul className="dropdown-menu wide-dropdown">
-                    <li><Link to="/shop/women/blouse">Blouse</Link></li>
-                    <li><Link to="/shop/women/kurta">Kurta</Link></li>
-                    <li><Link to="/shop/women/pants">Pants</Link></li>
-                    <li><Link to="/shop/women/blazer">Blazer</Link></li>
-                  </ul>
-                )}
-              </li>
+                </li>
+              ))}
             </ul>
           )}
         </li>

@@ -1,18 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
-import "../styles/Customer.css"; 
+import axios from "axios";
+import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
 
 const Item = () => {
-  const [items, setItems] = useState([
-    { id: 1, name: "Dresses", price: 2000, fabric: "Cotton", category: "Casual Wear", image: null },
-    { id: 2, name: "Suits", price: 5000, fabric: "Wool", category: "Formal Wear", image: null },
-  ]);
-  
+  const [items, setItems] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
-  const [newItem, setNewItem] = useState({ name: "", price: "", fabric: "", category: "", image: null });
+  const [newItem, setNewItem] = useState({ name: "", category: "", subcategory: "", price: "", description: "", images: [] });
+  const [viewingItem, setViewingItem] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/items');
+        setItems(response.data.items);
+      } catch (err) {
+        console.error("Error fetching items:", err);
+      }
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/categories');
+        setCategories(response.data.categories);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+
+    const fetchSubcategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/subcategories');
+        setSubcategories(response.data.subcategories);
+      } catch (err) {
+        console.error("Error fetching subcategories:", err);
+      }
+    };
+
+    fetchItems();
+    fetchCategories();
+    fetchSubcategories();
+  }, []);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -20,40 +54,75 @@ const Item = () => {
     setNewItem({ ...newItem, [name]: value });
   };
 
-  // Handle file upload
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setNewItem({ ...newItem, image: file });
+  // Handle image input changes
+  const handleImageChange = (e) => {
+    setNewItem({ ...newItem, images: Array.from(e.target.files) });
   };
 
-  // Add new item
-  const handleAddItem = () => {
-    if (editMode) {
-      setItems(
-        items.map((item) =>
-          item.id === selectedItemId ? { ...item, ...newItem } : item
-        )
-      );
-      setEditMode(false);
-      setSelectedItemId(null);
-    } else {
-      setItems([...items, { id: items.length + 1, ...newItem }]);
+  // Add or Edit item
+  const handleAddItem = async () => {
+    const formData = new FormData();
+    formData.append("name", newItem.name);
+    formData.append("category", newItem.category);
+    formData.append("subcategory", newItem.subcategory);
+    formData.append("price", newItem.price);
+    formData.append("description", newItem.description);
+    newItem.images.forEach((image, index) => {
+      formData.append("images", image);
+    });
+
+    try {
+      if (editMode) {
+        const response = await axios.put(`http://localhost:4000/api/items/${selectedItemId}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        });
+        setItems(
+          items.map((item) =>
+            item._id === selectedItemId ? { ...item, ...response.data.item } : item
+          )
+        );
+        setEditMode(false);
+        setSelectedItemId(null);
+      } else {
+        const response = await axios.post('http://localhost:4000/api/items', formData, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        });
+        setItems([...items, response.data.item]);
+      }
+      setShowModal(false);
+      setNewItem({ name: "", category: "", subcategory: "", price: "", description: "", images: [] });
+    } catch (err) {
+      console.error('Error adding/updating item:', err);
+      setError(`Error adding/updating item: ${err.response?.data?.error || err.message}`);
     }
-    setShowModal(false);
-    setNewItem({ name: "", price: "", fabric: "", category: "", image: null });
   };
 
   // Delete item
-  const handleDeleteItem = (id) => {
-    setItems(items.filter((item) => item.id !== id));
+  const handleDeleteItem = async (id) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/items/${id}`);
+      setItems(items.filter((item) => item._id !== id));
+    } catch (err) {
+      console.error('Error deleting item:', err);
+      setError(`Error deleting item: ${err.response?.data?.error || err.message}`);
+    }
   };
 
   // Edit item
   const handleEditItem = (item) => {
     setNewItem(item);
-    setSelectedItemId(item.id);
+    setSelectedItemId(item._id);
     setEditMode(true);
     setShowModal(true);
+  };
+
+  // View item details
+  const handleViewItem = (item) => {
+    setViewingItem(item);
   };
 
   return (
@@ -84,34 +153,32 @@ const Item = () => {
           <table>
             <thead>
               <tr>
-                <th>Item Id</th>
                 <th>Item Name</th>
-                <th>Total Price</th>
-                <th>Fabric</th>
                 <th>Category</th>
+                <th>Subcategory</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Images</th>
                 <th>Operations</th>
-                <th>Upload Picture</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
+                <tr key={item._id}>
                   <td>{item.name}</td>
-                  <td>Rs. {item.price}</td>
-                  <td>{item.fabric}</td>
-                  <td>{item.category}</td>
+                  <td>{item.category ? item.category.name : "N/A"}</td>
+                  <td>{item.subcategory ? item.subcategory.name : "N/A"}</td>
+                  <td>{item.price}</td>
+                  <td>{item.description}</td>
+                  <td>
+                    {item.images.map((image, index) => (
+                      <img key={index} src={`http://localhost:4000/uploads/${image}`} alt={`Item ${index}`} width="50" />
+                    ))}
+                  </td>
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditItem(item)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDeleteItem(item.id)} />
-                    <FaEye className="view-icon" />
-                  </td>
-                  <td>
-                    {item.image ? (
-                      <img src={URL.createObjectURL(item.image)} alt="Uploaded" className="uploaded-img" />
-                    ) : (
-                      <span>No Image</span>
-                    )}
+                    <FaTrash className="delete-icon" onClick={() => handleDeleteItem(item._id)} />
+                    <FaEye className="view-icon" onClick={() => handleViewItem(item)} />
                   </td>
                 </tr>
               ))}
@@ -125,27 +192,57 @@ const Item = () => {
         <div className="modal">
           <div className="modal-content">
             <h3>{editMode ? "Edit Item" : "Add New Item"}</h3>
-            <label>Item Name:</label>
+            {error && <p className="error">{error}</p>}
+            <label>Name:</label>
             <input type="text" name="name" value={newItem.name} onChange={handleChange} required />
-
-            <label>Total Price:</label>
-            <input type="number" name="price" value={newItem.price} onChange={handleChange} required />
-
-            <label>Fabric:</label>
-            <input type="text" name="fabric" value={newItem.fabric} onChange={handleChange} required />
-
             <label>Category:</label>
-            <input type="text" name="category" value={newItem.category} onChange={handleChange} required />
-
-            <label>Upload Picture:</label>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-            
+            <select name="category" value={newItem.category} onChange={handleChange} required>
+              <option value="">Select Category</option>
+              {categories.map(category => (
+                <option key={category._id} value={category._id}>{category.name}</option>
+              ))}
+            </select>
+            <label>Subcategory:</label>
+            <select name="subcategory" value={newItem.subcategory} onChange={handleChange} required>
+              <option value="">Select Subcategory</option>
+              {subcategories.map(subcategory => (
+                <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
+              ))}
+            </select>
+            <label>Price:</label>
+            <input type="number" name="price" value={newItem.price} onChange={handleChange} required />
+            <label>Description:</label>
+            <textarea name="description" value={newItem.description} onChange={handleChange} required />
+            <label>Images:</label>
+            <input type="file" name="images" onChange={handleImageChange} multiple accept="image/*" required />
             <div className="modal-actions">
               <button className="add-btn" onClick={handleAddItem}>
                 {editMode ? "Update" : "Add"}
               </button>
               <button className="close-btn" onClick={() => setShowModal(false)}>Cancel</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Item Details Modal */}
+      {viewingItem && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>{viewingItem.name} Details</h3>
+            <p><strong>Category:</strong> {viewingItem.category ? viewingItem.category.name : "N/A"}</p>
+            <p><strong>Subcategory:</strong> {viewingItem.subcategory ? viewingItem.subcategory.name : "N/A"}</p>
+            <p><strong>Price:</strong> {viewingItem.price}</p>
+            <p><strong>Description:</strong> {viewingItem.description}</p>
+            <div>
+              <strong>Images:</strong>
+              <div className="images-container">
+                {viewingItem.images.map((image, index) => (
+                  <img key={index} src={`http://localhost:4000/uploads/${image}`} alt={`Item ${index}`} width="100" />
+                ))}
+              </div>
+            </div>
+            <button className="close-btn" onClick={() => setViewingItem(null)}>Close</button>
           </div>
         </div>
       )}

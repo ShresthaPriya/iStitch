@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import axios from "axios";
 import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
 
@@ -12,24 +13,15 @@ const Customer = () => {
   const [viewingCustomer, setViewingCustomer] = useState(null);
   const [showMeasurements, setShowMeasurements] = useState(false);
   const [customers, setCustomers] = useState([]);
+  const [err, setError] = useState([]);
 
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/customers', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-        const data = await response.json();
-        if (data.success) {
-          setCustomers(data.customers);
-        } else {
-          console.error(data.error);
-        }
+        const response = await axios.get('http://localhost:4000/api/customers');
+        setCustomers(response.data.customers);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching customers:", err);
       }
     };
 
@@ -46,64 +38,34 @@ const Customer = () => {
   const handleAddCustomer = async () => {
     try {
       if (editMode) {
-        const response = await fetch(`http://localhost:3000/api/customers/${selectedCustomerId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newCustomer)
-        });
-        const data = await response.json();
-        if (data.success) {
-          setCustomers(
-            customers.map((customer) =>
-              customer._id === selectedCustomerId ? { ...customer, ...newCustomer } : customer
-            )
-          );
-          setEditMode(false);
-          setSelectedCustomerId(null);
-        } else {
-          console.error(data.error);
-        }
+        const response = await axios.put(`http://localhost:4000/api/customers/${selectedCustomerId}`, newCustomer);
+        setCustomers(
+          customers.map((customer) =>
+            customer._id === selectedCustomerId ? { ...customer, ...response.data.customer } : customer
+          )
+        );
+        setEditMode(false);
+        setSelectedCustomerId(null);
       } else {
-        const response = await fetch('http://localhost:3000/api/customers', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newCustomer)
-        });
-        const data = await response.json();
-        if (data.success) {
-          setCustomers([...customers, data.customer]);
-        } else {
-          console.error(data.error);
-        }
+        const response = await axios.post('http://localhost:4000/api/customers', newCustomer);
+        setCustomers([...customers, response.data.customer]);
       }
       setShowModal(false);
       setNewCustomer({ name: "", email: "", address: "", phone: "", order: [] });
     } catch (err) {
       console.error('Error adding/updating customer:', err);
+      setError(`Error adding/updating customer: ${err.response?.data?.error || err.message}`);
     }
   };
 
   // Delete customer
   const handleDeleteCustomer = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/customers/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
-        setCustomers(customers.filter((customer) => customer._id !== id));
-      } else {
-        console.error(data.error);
-      }
+      await axios.delete(`http://localhost:4000/api/customers/${id}`);
+      setCustomers(customers.filter((customer) => customer._id !== id));
     } catch (err) {
       console.error('Error deleting customer:', err);
+      setError(`Error deleting customer: ${err.response?.data?.error || err.message}`);
     }
   };
 

@@ -25,9 +25,10 @@ import BlouseMeasurements from './components/BlouseMeasurements'; // Import Blou
 import Customer from './pages/Customer';
 import AdminHome from './pages/AdminHome';
 import Category from './pages/Category';
+import Subcategory from './pages/Subcategory';
 import Item from './pages/Item';
 import Order from './pages/Order';
-
+import Fabric from './pages/Fabric'; // Import Fabric component
 
 
 export const AppContext = createContext();
@@ -62,8 +63,10 @@ function App(){
               <Route path='/measurements/blouse' element={<BlouseMeasurements />} /> {/* Add BlouseMeasurements route */}
               <Route path ='Customer' element={<Customer/>}/>
               <Route path ='Category' element={<Category/>}/>
+              <Route path ='Subcategory' element={<Subcategory/>}/>
               <Route path ='Item' element={<Item/>}/>
               <Route path ='Order' element={<Order/>}/>
+              <Route path='/Fabric' element={<Fabric />} /> {/* Add Fabric route */}
 
               {/* Add other measurement routes as needed */}
             </Routes>

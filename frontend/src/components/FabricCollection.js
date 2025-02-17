@@ -41,7 +41,7 @@ function FabricCollection() {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="fabric-header">
         <h3 className="fabric-title">Trending Fabrics</h3>
       </div>

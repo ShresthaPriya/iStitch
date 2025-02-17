@@ -1,34 +1,74 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import axios from "axios";
 import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
 
 const Category = () => {
-  const [categories, setCategories] = useState([
-    { id: 1, name: "Men", totalItems: 20 },
-    { id: 2, name: "Women", totalItems: 15 },
-  ]);
+  const [categories, setCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [newCustomer, setNewCustomer] = useState({
-    name: "",
-    email: "",
-    address: "",
-    phone: "",
-  });
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [newCategory, setNewCategory] = useState({ name: "", gender: "", items: [] });
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/categories');
+        setCategories(response.data.categories);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewCustomer({ ...newCustomer, [name]: value });
+    setNewCategory({ ...newCategory, [name]: value });
   };
 
-  const handleAddCustomer = () => {
-    if (editMode) {
-      // Update customer logic
-    } else {
-      // Add customer logic
+  // Add or Edit category
+  const handleAddCategory = async () => {
+    try {
+      if (editMode) {
+        const response = await axios.put(`http://localhost:4000/api/categories/${selectedCategoryId}`, newCategory);
+        setCategories(
+          categories.map((category) =>
+            category._id === selectedCategoryId ? { ...category, ...newCategory } : category
+          )
+        );
+        setEditMode(false);
+        setSelectedCategoryId(null);
+      } else {
+        const response = await axios.post('http://localhost:4000/api/categories', newCategory);
+        setCategories([...categories, response.data.category]);
+      }
+      setShowModal(false);
+      setNewCategory({ name: "", gender: "", items: [] });
+    } catch (err) {
+      console.error('Error adding/updating category:', err);
     }
-    setShowModal(false);
+  };
+
+  // Delete category
+  const handleDeleteCategory = async (id) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/categories/${id}`);
+      setCategories(categories.filter((category) => category._id !== id));
+    } catch (err) {
+      console.error('Error deleting category:', err);
+    }
+  };
+
+  // Edit category
+  const handleEditCategory = (category) => {
+    setNewCategory(category);
+    setSelectedCategoryId(category._id);
+    setEditMode(true);
+    setShowModal(true);
   };
 
   return (
@@ -49,7 +89,7 @@ const Category = () => {
 
         {/* Add Category Button */}
         <div className="add-category-container">
-          <button className="add-category-btn" onClick={() => setShowModal(true)}>
+          <button className="add-category-btn" onClick={() => { setShowModal(true); setEditMode(false); }}>
             <FaPlus className="add-icon" /> Add Category
           </button>
         </div>
@@ -59,26 +99,21 @@ const Category = () => {
           <table>
             <thead>
               <tr>
-                <th>Category Id</th>
                 <th>Category Name</th>
-                <th>Total Items</th>
+                <th>Gender</th>
+                <th>Items Count</th>
                 <th>Operations</th>
               </tr>
             </thead>
             <tbody>
               {categories.map((category) => (
-                <tr key={category.id}>
-                  <td>{category.id}</td>
+                <tr key={category._id}>
                   <td>{category.name}</td>
-                  <td>{category.totalItems}</td>
+                  <td>{category.gender}</td>
+                  <td>{category.items.join(", ")}</td>
                   <td className="operations">
-                    <FaEdit className="edit-icon" onClick={() => {
-                      setEditMode(true);
-                      setShowModal(true);
-                      // Load category data into form (you may need to adjust this)
-                    }} />
-                    <FaTrash className="delete-icon" />
-                    <FaEye className="view-icon" />
+                    <FaEdit className="edit-icon" onClick={() => handleEditCategory(category)} />
+                    <FaTrash className="delete-icon" onClick={() => handleDeleteCategory(category._id)} />
                   </td>
                 </tr>
               ))}
@@ -87,23 +122,23 @@ const Category = () => {
         </div>
       </div>
 
-      {/* Add/Edit Customer Modal */}
+      {/* Add/Edit Category Modal */}
       {showModal && (
         <div className="modal">
           <div className="modal-content">
             <h3>{editMode ? "Edit Category" : "Add New Category"}</h3>
-            <label>Category:</label>
-            <input type="text" name="name" value={newCustomer.name} onChange={handleChange} required />
-
+            <label>Name:</label>
+            <input type="text" name="name" value={newCategory.name} onChange={handleChange} required />
+            <label>Gender:</label>
+            <select name="gender" value={newCategory.gender} onChange={handleChange} required>
+              <option value="">Select Gender</option>
+              <option value="Men">Men</option>
+              <option value="Women">Women</option>
+            </select>
             <label>Items:</label>
-            <input type="email" name="email" value={newCustomer.email} onChange={handleChange} required />
-
-            <label>Total Items:</label>
-            <input type="number" name="address" value={newCustomer.address} onChange={handleChange} required />
-
-
+            <input type="text" name="items" value={newCategory.items} onChange={handleChange} required />
             <div className="modal-actions">
-              <button className="add-btn" onClick={handleAddCustomer}>
+              <button className="add-btn" onClick={handleAddCategory}>
                 {editMode ? "Update" : "Add"}
               </button>
               <button className="close-btn" onClick={() => setShowModal(false)}>Cancel</button>
