@@ -18,6 +18,9 @@ const categoryRoutes = require("./routes/categoryRoute");
 const subcategoryRoutes = require("./routes/subcategoryRoute");
 const itemRoutes = require("./routes/itemRoute");
 const fabricRoutes = require("./routes/fabricRoute");
+const measurementRoutes = require("./routes/measurementRoute");
+const guideRoutes = require("./routes/guideRoute");
+const metricsRoutes = require("./routes/metricsRoute");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -58,6 +61,9 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/subcategories", subcategoryRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/fabrics", fabricRoutes);
+app.use("/api/measurements", measurementRoutes);
+app.use("/api/guides", guideRoutes);
+app.use("/api/metrics", metricsRoutes);
 
 // Start the server
 const startServer = async () => {

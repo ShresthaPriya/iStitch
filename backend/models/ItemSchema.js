@@ -8,12 +8,12 @@ const ItemSchema = mongoose.Schema({
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Category",
-        required: true // Make this field optional
+        required: false // Make this field optional
     },
     subcategory: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Subcategory",
-        required: true
+        required: false
     },
     price: {
         type: Number,
