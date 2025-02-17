@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
@@ -8,41 +8,33 @@ const Customer = () => {
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
-  const [newCustomer, setNewCustomer] = useState({ name: "", email: "", address: "", phone: "" });
+  const [newCustomer, setNewCustomer] = useState({ name: "", email: "", address: "", phone: "", order: [] });
   const [viewingCustomer, setViewingCustomer] = useState(null);
   const [showMeasurements, setShowMeasurements] = useState(false);
+  const [customers, setCustomers] = useState([]);
 
-  const [customers, setCustomers] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      address: "123 Main St",
-      phone: "9876543210",
-      profilePicture: "path/to/johns-picture.jpg", // Add the image path
-      measurements: {
-        chest: "40",
-        waist: "32",
-        hip: "38",
-        inseam: "30",
-      },
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      address: "456 Elm St",
-      phone: "9123456789",
-      profilePicture: "path/to/janes-picture.jpg", // Add the image path
-      measurements: {
-        chest: "36",
-        waist: "28",
-        hip: "34",
-        inseam: "32",
-      },
-    },
-    // Add more customers as needed
-  ]);
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/customers', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        const data = await response.json();
+        if (data.success) {
+          setCustomers(data.customers);
+        } else {
+          console.error(data.error);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -51,31 +43,74 @@ const Customer = () => {
   };
 
   // Add or Edit customer
-  const handleAddCustomer = () => {
-    if (editMode) {
-      setCustomers(
-        customers.map((customer) =>
-          customer.id === selectedCustomerId ? { ...customer, ...newCustomer } : customer
-        )
-      );
-      setEditMode(false);
-      setSelectedCustomerId(null);
-    } else {
-      setCustomers([...customers, { id: customers.length + 1, ...newCustomer }]);
+  const handleAddCustomer = async () => {
+    try {
+      if (editMode) {
+        const response = await fetch(`http://localhost:3000/api/customers/${selectedCustomerId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newCustomer)
+        });
+        const data = await response.json();
+        if (data.success) {
+          setCustomers(
+            customers.map((customer) =>
+              customer._id === selectedCustomerId ? { ...customer, ...newCustomer } : customer
+            )
+          );
+          setEditMode(false);
+          setSelectedCustomerId(null);
+        } else {
+          console.error(data.error);
+        }
+      } else {
+        const response = await fetch('http://localhost:3000/api/customers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newCustomer)
+        });
+        const data = await response.json();
+        if (data.success) {
+          setCustomers([...customers, data.customer]);
+        } else {
+          console.error(data.error);
+        }
+      }
+      setShowModal(false);
+      setNewCustomer({ name: "", email: "", address: "", phone: "", order: [] });
+    } catch (err) {
+      console.error('Error adding/updating customer:', err);
     }
-    setShowModal(false);
-    setNewCustomer({ name: "", email: "", address: "", phone: "" });
   };
 
   // Delete customer
-  const handleDeleteCustomer = (id) => {
-    setCustomers(customers.filter((customer) => customer.id !== id));
+  const handleDeleteCustomer = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/customers/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setCustomers(customers.filter((customer) => customer._id !== id));
+      } else {
+        console.error(data.error);
+      }
+    } catch (err) {
+      console.error('Error deleting customer:', err);
+    }
   };
 
   // Edit customer
   const handleEditCustomer = (customer) => {
     setNewCustomer(customer);
-    setSelectedCustomerId(customer.id);
+    setSelectedCustomerId(customer._id);
     setEditMode(true);
     setShowModal(true);
   };
@@ -129,15 +164,15 @@ const Customer = () => {
             </thead>
             <tbody>
               {customers.map((customer) => (
-                <tr key={customer.id}>
+                <tr key={customer._id}>
                   <td>{customer.name}</td>
                   <td>{customer.email}</td>
                   <td>{customer.address}</td>
                   <td>{customer.phone}</td>
-                  <td>{customer.order}</td>
+                  <td>{customer.order.join(", ")}</td>
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditCustomer(customer)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDeleteCustomer(customer.id)} />
+                    <FaTrash className="delete-icon" onClick={() => handleDeleteCustomer(customer._id)} />
                     <FaEye className="view-icon" onClick={() => handleViewCustomer(customer)} />
                   </td>
                 </tr>
@@ -160,6 +195,8 @@ const Customer = () => {
             <input type="text" name="address" value={newCustomer.address} onChange={handleChange} required />
             <label>Phone:</label>
             <input type="text" name="phone" value={newCustomer.phone} onChange={handleChange} required />
+            <label>Order:</label>
+            <input type="text" name="order" value={newCustomer.order} onChange={handleChange} required />
             <div className="modal-actions">
               <button className="add-btn" onClick={handleAddCustomer}>
                 {editMode ? "Update" : "Add"}

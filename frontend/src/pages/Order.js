@@ -1,125 +1,128 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
-import "../styles/Customer.css"; 
+import "../styles/Order.css";
 import Sidebar from "../components/Sidebar";
 
 const Order = () => {
-  const [items, setItems] = useState([
-    { id: 1, name: "Dresses", phone: 981728728, item: "Pants", measurement: "xxx", deliveryDate: "Feb 12, 2025", note: "if any", paymentStatus: "Done", orderStatus: "In Process", price: "Rs.2200" },
-    // Add more items as needed
-  ]);
-  
+  const [username] = useState("Admin");
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState(null);
-  const [newItem, setNewItem] = useState({ name: "", price: "", item: "", measurement: "", deliveryDate: "", paymentStatus: "", orderStatus: "In Process" });
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [newOrder, setNewOrder] = useState({ customer: "", items: [], totalAmount: 0, status: "Pending" });
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/order', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the token in localStorage
+          }
+        });
+        const data = await response.json();
+        if (data.success) {
+          setOrders(data.orders);
+        } else {
+          console.error(data.error);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewItem({ ...newItem, [name]: value });
+    setNewOrder({ ...newOrder, [name]: value });
   };
 
-  // Add new item
-  const handleAddItem = () => {
+  // Add or Edit order
+  const handleAddOrder = () => {
     if (editMode) {
-      setItems(
-        items.map((item) =>
-          item.id === selectedItemId ? { ...item, ...newItem } : item
+      setOrders(
+        orders.map((order) =>
+          order._id === selectedOrderId ? { ...order, ...newOrder } : order
         )
       );
       setEditMode(false);
-      setSelectedItemId(null);
+      setSelectedOrderId(null);
     } else {
-      setItems([...items, { id: items.length + 1, ...newItem }]);
+      setOrders([...orders, { _id: orders.length + 1, ...newOrder }]);
     }
     setShowModal(false);
-    setNewItem({ name: "", price: "", item: "", measurement: "", deliveryDate: "", paymentStatus: "", orderStatus: "In Process" });
+    setNewOrder({ customer: "", items: [], totalAmount: 0, status: "Pending" });
   };
 
-  // Delete item
-  const handleDeleteItem = (id) => {
-    setItems(items.filter((item) => item.id !== id));
+  // Delete order
+  const handleDeleteOrder = (id) => {
+    setOrders(orders.filter((order) => order._id !== id));
   };
 
-  // Edit item
-  const handleEditItem = (item) => {
-    setNewItem(item);
-    setSelectedItemId(item.id);
+  // Edit order
+  const handleEditOrder = (order) => {
+    setNewOrder(order);
+    setSelectedOrderId(order._id);
     setEditMode(true);
     setShowModal(true);
   };
 
-  // Handle Order Status change
-  const handleStatusChange = (id, newStatus) => {
-    setItems(items.map((item) => 
-      item.id === id ? { ...item, orderStatus: newStatus } : item
-    ));
+  // View order
+  const handleViewOrder = (order) => {
+    // Implement the logic to view order details
+    console.log(order);
   };
 
   return (
-    <div className="customer-container">
+    <div className="order-container">
       <Sidebar />
 
       {/* Main Content */}
       <div className="main-content">
         {/* Top Bar */}
         <div className="top-bar">
-          <h2 className="title">Items</h2>
+          <h2 className="title">Orders</h2>
           <div className="user-info">
-            <span>Admin</span>
+            <span>{username}</span>
             <FaCog className="icon" />
             <FaUser className="icon" />
           </div>
         </div>
 
-        {/* Add Item Button */}
+        {/* Add Order Button */}
         <div className="add-category-container">
           <button className="add-category-btn" onClick={() => { setShowModal(true); setEditMode(false); }}>
-            <FaPlus className="add-icon" /> Add Orders
+            <FaPlus className="add-icon" /> Add Order
           </button>
         </div>
 
-        {/* Items Table */}
-        <div className="customers-table">
+        {/* Orders Table */}
+        <div className="orders-table">
           <table>
             <thead>
               <tr>
-                <th>Item Id</th>
-                <th>Item Name</th>
-                <th>Price</th>
-                <th>Item</th>
-                <th>Measurement</th>
-                <th>Delivery Date</th>
-                <th>Payment Status</th>
-                <th>Order Status</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total Amount</th>
+                <th>Status</th>
                 <th>Operations</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
-                  <td>{item.price}</td>
-                  <td>{item.item}</td>
-                  <td>{item.measurement}</td>
-                  <td>{item.deliveryDate}</td>
-                  <td>{item.paymentStatus}</td>
-                  <td>
-                    <select
-                      value={item.orderStatus}
-                      onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                    >
-                      <option value="In Process">In Process</option>
-                      <option value="Dispatched">Dispatched</option>
-                      <option value="Delivered">Delivered</option>
-                    </select>
-                  </td>
+              {orders.map((order) => (
+                <tr key={order._id}>
+                  <td>{order.customer.name}</td>
+                  <td>{order.items.join(", ")}</td>
+                  <td>{order.totalAmount}</td>
+                  <td>{order.status}</td>
                   <td className="operations">
-                    <FaEdit className="edit-icon" onClick={() => handleEditItem(item)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDeleteItem(item.id)} />
-                    <FaEye className="view-icon" />
+                    <FaEdit className="edit-icon" onClick={() => handleEditOrder(order)} />
+                    <FaTrash className="delete-icon" onClick={() => handleDeleteOrder(order._id)} />
+                    <FaEye className="view-icon" onClick={() => handleViewOrder(order)} />
                   </td>
                 </tr>
               ))}
@@ -128,31 +131,25 @@ const Order = () => {
         </div>
       </div>
 
-      {/* Add/Edit Item Modal */}
+      {/* Add/Edit Order Modal */}
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h3>{editMode ? "Edit Orders" : "Add New Orders"}</h3>
-            <label>Item Name:</label>
-            <input type="text" name="name" value={newItem.name} onChange={handleChange} required />
-
-            <label>Price:</label>
-            <input type="number" name="price" value={newItem.price} onChange={handleChange} required />
-
-            <label>Item:</label>
-            <input type="text" name="item" value={newItem.item} onChange={handleChange} required />
-
-            <label>Measurement:</label>
-            <input type="text" name="measurement" value={newItem.measurement} onChange={handleChange} required />
-
-            <label>Delivery Date:</label>
-            <input type="date" name="deliveryDate" value={newItem.deliveryDate} onChange={handleChange} required />
-
-            <label>Payment Status:</label>
-            <input type="text" name="paymentStatus" value={newItem.paymentStatus} onChange={handleChange} required />
-
+            <h3>{editMode ? "Edit Order" : "Add New Order"}</h3>
+            <label>Customer:</label>
+            <input type="text" name="customer" value={newOrder.customer} onChange={handleChange} required />
+            <label>Items:</label>
+            <input type="text" name="items" value={newOrder.items.join(", ")} onChange={(e) => setNewOrder({ ...newOrder, items: e.target.value.split(", ") })} required />
+            <label>Total Amount:</label>
+            <input type="number" name="totalAmount" value={newOrder.totalAmount} onChange={handleChange} required />
+            <label>Status:</label>
+            <select name="status" value={newOrder.status} onChange={handleChange} required>
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
             <div className="modal-actions">
-              <button className="add-btn" onClick={handleAddItem}>
+              <button className="add-btn" onClick={handleAddOrder}>
                 {editMode ? "Update" : "Add"}
               </button>
               <button className="close-btn" onClick={() => setShowModal(false)}>Cancel</button>
