@@ -11,6 +11,8 @@ const Home = require("./controller/user/Controller");
 const Register = require("./routes/Register");
 const Login = require("./routes/Login");
 const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const customerRoutes = require("./routes/customerRoute");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,6 +41,8 @@ app.get("/", verifyToken, Home.Home);
 app.use("/register", Register);
 app.use("/login", Login);
 app.use("/auth", authRoutes);
+app.use("/admin", adminRoutes);
+app.use("/api/customers", customerRoutes); 
 
 // Start the server
 const startServer = async () => {
