@@ -16,14 +16,14 @@ const adminRoutes = require("./routes/adminRoutes");
 const customerRoutes = require("./routes/customerRoute");
 const categoryRoutes = require("./routes/categoryRoute");
 const subcategoryRoutes = require("./routes/subcategoryRoute");
-const itemRoutes = require("./routes/itemRoute");
+const itemRoutes = require("./routes/itemRoutes");
 const fabricRoutes = require("./routes/fabricRoute");
 const measurementRoutes = require("./routes/measurementRoute");
 const guideRoutes = require("./routes/guideRoute");
 const metricsRoutes = require("./routes/metricsRoute");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(express.json());
@@ -31,6 +31,7 @@ app.use(cors());
 
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
 // Cookie-based session
 app.use(
