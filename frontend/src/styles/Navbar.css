@@ -1,15 +1,17 @@
 /* Navbar Styles */
 .navbar {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   padding: 15px 30px;
   font-family: 'Jacques Francois', serif;
-  background-color:  rgba(20, 58, 121, 0.4);
+  background-color: black;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
+/* Logo */
 .logo {
   font-size: 28px;
   font-weight: bold;
@@ -17,31 +19,37 @@
 
 .logo-link {
   text-decoration: none;
-  color: #ffffff; /* Soft color for the logo */
+  color: #ffffff;
 }
 
+/* Navigation Links */
 .nav-links {
   display: flex;
   list-style: none;
   gap: 25px;
 }
 
+.nav-links li {
+  position: relative;
+}
+
 .nav-links li a {
   text-decoration: none;
   color: white;
-  font-size: 24px; /* Increased font size */
+  font-size: 24px;
   transition: color 0.3s ease;
 }
 
 .nav-links li a:hover {
-  color: #0d0c0c; /* Hover color for links */
+  color: #f0bcbc;
 }
 
+/* Dropdown Menu */
 .nav-links .dropdown {
   position: relative;
-  
 }
 
+/* Fix second-level dropdown display */
 .nav-links .dropdown-menu {
   display: none;
   position: absolute;
@@ -51,38 +59,67 @@
   color: white;
   list-style: none;
   padding: 10px 0;
-  z-index: 10;
-  border-radius: 5px; /* Rounded corners for dropdown */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  z-index: 1000; /* Ensure dropdown appears above other elements */
+  border-radius: 5px;
+  min-width: 200px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.nav-links .dropdown:hover .dropdown-menu,
-.nav-links .dropdown-menu .dropdown:hover .dropdown-menu {
+/* Show first-level dropdown on hover */
+.nav-links .dropdown:hover > .dropdown-menu {
   display: block;
 }
 
+/* Fix second-level (sub-dropdown) positioning */
+.nav-links .dropdown-menu .dropdown {
+  position: relative;
+}
+
+.nav-links .dropdown-menu .dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%; /* Ensures the submenu appears to the right */
+  background-color: #444;
+  min-width: 200px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1001; /* Ensures submenu appears above everything */
+}
+
+/* Show second-level dropdown on hover */
+.nav-links .dropdown-menu .dropdown:hover > .dropdown-menu {
+  display: block;
+}
+
+/* Fix dropdown items */
 .nav-links .dropdown-menu li {
-  padding: 10px 20px; /* Increased padding for better spacing */
+  padding: 10px 20px;
 }
 
 .nav-links .dropdown-menu li a {
   text-decoration: none;
   color: white;
-  font-size: 18px; /* Consistent font size */
+  font-size: 18px;
 }
 
 .nav-links .dropdown-menu li:hover {
-  background-color: #444;
+  background-color: #555;
 }
 
-.nav-links .dropdown > a {
-  font-size: 24px; /* Match the font size of other nav elements */
-  color: #ffffff; /* Match the color of other nav elements */
+/* Dropdown Item Styles */
+.nav-links .dropdown-menu li {
+  padding: 10px 20px;
+}
+
+.nav-links .dropdown-menu li a {
+  color: white;
+  font-size: 18px;
   text-decoration: none;
 }
 
-.dropdown-menu.wide-dropdown {
-  width: 200px; /* Increase the width for better spacing */
+.nav-links .dropdown-menu li:hover {
+  background-color: #555;
 }
 
 /* Search and Profile Section */
@@ -92,47 +129,41 @@
   gap: 20px;
 }
 
+/* Search Bar */
 .search-bar {
   display: flex;
-  justify-content: center;
   align-items: center;
-  background-color: #fff; /* White background for contrast */
-  border-radius: 24px; /* Rounded corners for a modern look */
+  background-color: white;
+  border-radius: 24px;
   padding: 5px 15px;
-  width: 250px; /* Fixed width for consistency */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  width: 250px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .search-input {
   border: none;
   outline: none;
   padding: 10px;
-  font-size: 16px; /* Increased font size */
+  font-size: 16px;
   background: none;
-  color: #333; /* Darker text color */
+  color: #333;
   width: 100%;
-}
-
-.search-input::placeholder {
-  color: #aaa; /* Light placeholder color */
-  align-items: center;
-  text-align: center; /* Center the placeholder text */
 }
 
 .search-button {
   background: none;
   border: none;
   cursor: pointer;
-  color: #f0bcbc; /* Soft color for search button */
-  font-size: 18px; /* Slightly larger icon */
-  padding: 5px; /* Padding for better click area */
-  transition: color 0.3s ease; /* Smooth transition */
+  color: #f0bcbc;
+  font-size: 18px;
+  transition: color 0.3s ease;
 }
 
 .search-button:hover {
-  color: #333; /* Darker color on hover */
+  color: #333;
 }
 
+/* Notification, Cart & Profile Buttons */
 .notification-button, .cart-button, .profile-button {
   background: none;
   border: none;
@@ -153,14 +184,14 @@
   font-size: 12px;
 }
 
+/* Profile Dropdown */
 .username-dropdown {
   display: flex;
   align-items: center;
-  gap: 5px;
   cursor: pointer;
 }
 
-.dropdown-menu {
+.username-dropdown .dropdown-menu {
   display: none;
   position: absolute;
   top: 100%;
@@ -171,101 +202,37 @@
   border: 1px solid #ddd;
   padding: 5px 0;
   z-index: 10;
+  border-radius: 5px;
 }
 
 .username-dropdown:hover .dropdown-menu {
   display: block;
 }
 
-.dropdown-menu li {
+.username-dropdown .dropdown-menu li {
   padding: 5px 15px;
 }
 
-.dropdown-menu li a {
+.username-dropdown .dropdown-menu li a {
   text-decoration: none;
   color: black;
 }
 
-.dropdown-menu li:hover {
+.username-dropdown .dropdown-menu li:hover {
   background-color: #f0bcbc;
 }
 
-/* Responsive Design */
+/* Responsive Styles */
 @media (max-width: 768px) {
   .nav-links {
-    display: flex;
-    list-style: none;
-    gap: 20px;
-  }
-  
-  .nav-links li a {
-    text-decoration: none;
-    color: white;
-    font-size: 18px;
-    transition: color 0.3s ease;
-  }
-  
-  .nav-links li a:hover {
-    color: #f0bcbc;
-  }
-  
-  /* Search and Profile Section */
-  .search-and-profile {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  
-  .search-bar {
-    display: flex;
-    align-items: center;
-    background-color: white;
-    border-radius: 5px;
-    padding: 5px;
-  }
-  
-  .search-input {
-    border: none;
-    outline: none;
-    padding: 5px;
-    font-size: 14px;
-  }
-  
-  .search-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #7d0306;
-  }
-  
-  /* .profile-section {
-    display: flex;
-    align-items: center;
-    position: relative;
-  }
-  
-  .profile-icon {
-    font-size: 20px;
-    cursor: pointer;
-    color: #ddd;
-  } */
-  
-  .username-dropdown {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-  }
-  
-  .dropdown-menu {
     display: none;
     flex-direction: column;
-    gap: 10px;
-    background-color: #333;
     position: absolute;
+    background: black;
     top: 60px;
-    right: 0;
+    left: 0;
     width: 100%;
+    z-index: 1000;
     padding: 10px 0;
   }
 
@@ -273,34 +240,41 @@
     display: flex;
   }
 
+  .nav-links li {
+    padding: 10px;
+  }
+
+  .nav-links .dropdown-menu {
+    position: static;
+    background: black;
+    display: none;
+  }
+
+  .nav-links .dropdown:hover > .dropdown-menu {
+    display: block;
+    position: relative;
+  }
+
   .menu-toggle {
-    display: block; /* Show only on mobile view */
+    display: block;
     font-size: 24px;
     cursor: pointer;
     color: white;
   }
 }
 
+/* Hamburger Menu Toggle */
 .menu-toggle {
-  display: none; /* Hide by default */
+  display: none;
   font-size: 24px;
   cursor: pointer;
   color: white;
 }
 
-.profile-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: white; /* Ensure the profile icon is white */
-  font-size: 20px;
-  position: relative;
-}
-
 .profile-button a {
-  color: white; /* Ensure the profile icon is white */
+  color: white;
 }
 
 .profile-button a:hover {
-  color: black; /* Change color to black on hover */
+  color: black;
 }

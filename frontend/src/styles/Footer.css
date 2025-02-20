@@ -1,6 +1,7 @@
 .footer {
     padding: 1rem 2rem;
-    background-color: rgba(20, 58, 121, 0.4); /* 40% opacity */
+    /* background-color: rgba(20, 58, 121, 0.4); 40% opacity */
+    background-color: black;
 
     color: #fff;
     display: flex;

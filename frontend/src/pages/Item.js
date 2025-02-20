@@ -172,7 +172,7 @@ const Item = () => {
                   <td>{item.description}</td>
                   <td>
                     {item.images.map((image, index) => (
-                      <img key={index} src={`http://localhost:4000/uploads/${image}`} alt={`Item ${index}`} width="50" />
+                      <img key={index} src={`http://localhost:4000/public/images/${image}`} alt={`Item ${index}`} width="50" />
                     ))}
                   </td>
                   <td className="operations">
