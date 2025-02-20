@@ -6,10 +6,11 @@ import Sidebar from "../components/Sidebar";
 
 const Category = () => {
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-  const [newCategory, setNewCategory] = useState({ name: "", gender: "", items: [] });
+  const [newCategory, setNewCategory] = useState({ name: "", gender: "", subcategories: [] });
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -21,13 +22,35 @@ const Category = () => {
       }
     };
 
+    const fetchSubcategories = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/subcategories');
+        setSubcategories(response.data.subcategories);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
     fetchCategories();
+    fetchSubcategories();
   }, []);
 
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewCategory({ ...newCategory, [name]: value });
+  };
+
+  // Handle subcategory selection changes
+  const handleSubcategoryChange = (e) => {
+    const { options } = e.target;
+    const selectedSubcategories = [];
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected) {
+        selectedSubcategories.push(options[i].value);
+      }
+    }
+    setNewCategory({ ...newCategory, subcategories: selectedSubcategories });
   };
 
   // Add or Edit category
@@ -47,7 +70,7 @@ const Category = () => {
         setCategories([...categories, response.data.category]);
       }
       setShowModal(false);
-      setNewCategory({ name: "", gender: "", items: [] });
+      setNewCategory({ name: "", gender: "", subcategories: [] });
     } catch (err) {
       console.error('Error adding/updating category:', err);
     }
@@ -69,6 +92,11 @@ const Category = () => {
     setSelectedCategoryId(category._id);
     setEditMode(true);
     setShowModal(true);
+  };
+
+  // Get subcategories for a category
+  const getSubcategoriesForCategory = (categoryId) => {
+    return subcategories.filter(subcategory => subcategory.category === categoryId);
   };
 
   return (
@@ -101,7 +129,7 @@ const Category = () => {
               <tr>
                 <th>Category Name</th>
                 <th>Gender</th>
-                <th>Items Count</th>
+                <th>Subcategories</th>
                 <th>Operations</th>
               </tr>
             </thead>
@@ -110,7 +138,11 @@ const Category = () => {
                 <tr key={category._id}>
                   <td>{category.name}</td>
                   <td>{category.gender}</td>
-                  <td>{category.items.join(", ")}</td>
+                  <td>
+                    {getSubcategoriesForCategory(category._id).map(subcategory => (
+                      <span key={subcategory._id}>{subcategory.name}</span>
+                    ))}
+                  </td>
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditCategory(category)} />
                     <FaTrash className="delete-icon" onClick={() => handleDeleteCategory(category._id)} />
@@ -135,8 +167,12 @@ const Category = () => {
               <option value="Men">Men</option>
               <option value="Women">Women</option>
             </select>
-            <label>Items:</label>
-            <input type="text" name="items" value={newCategory.items} onChange={handleChange} required />
+            <label>Subcategories:</label>
+            <select name="subcategories" multiple value={newCategory.subcategories} onChange={handleSubcategoryChange} required>
+              {subcategories.map(subcategory => (
+                <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
+              ))}
+            </select>
             <div className="modal-actions">
               <button className="add-btn" onClick={handleAddCategory}>
                 {editMode ? "Update" : "Add"}

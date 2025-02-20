@@ -119,7 +119,7 @@ const Subcategory = () => {
               {subcategories.map((subcategory) => (
                 <tr key={subcategory._id}>
                   <td>{subcategory.name}</td>
-                  <td>{subcategory.category.name}</td>
+                  <td>{subcategory.category ? subcategory.category.name : "N/A"}</td>
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditSubcategory(subcategory)} />
                     <FaTrash className="delete-icon" onClick={() => handleDeleteSubcategory(subcategory._id)} />
