@@ -21,13 +21,15 @@ const fabricRoutes = require("./routes/fabricRoute");
 const measurementRoutes = require("./routes/measurementRoute");
 const guideRoutes = require("./routes/guideRoute");
 const metricsRoutes = require("./routes/metricsRoute");
+const designRoutes = require("./routes/designRoute");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Middleware
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -48,9 +50,6 @@ configureGoogleStrategy();
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Image upload middleware
-app.use(express.urlencoded({ extended: true }));
-
 // Routes
 app.get("/", verifyToken, Home.Home);
 app.use("/register", Register);
@@ -65,6 +64,7 @@ app.use("/api/fabrics", fabricRoutes);
 app.use("/api/measurements", measurementRoutes);
 app.use("/api/guides", guideRoutes);
 app.use("/api/metrics", metricsRoutes);
+app.use("/api/designs", designRoutes);
 
 // Start the server
 const startServer = async () => {

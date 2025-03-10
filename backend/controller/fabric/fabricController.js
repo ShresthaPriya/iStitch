@@ -24,9 +24,10 @@ const upload = multer({ storage: storage }).array('images', 3);
 // Get all fabrics
 const getFabrics = async (req, res) => {
     try {
-        const fabrics = await Fabric.find().populate("category").populate("subcategory");
+        const fabrics = await Fabric.find();
         res.status(200).json({ success: true, fabrics });
     } catch (err) {
+        console.error("Error fetching fabrics:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 };
@@ -39,15 +40,15 @@ const addFabric = async (req, res) => {
             return res.status(500).json({ success: false, error: err.message });
         }
 
-        const { name, category, subcategory, price, description } = req.body;
-        if (!name || !category || !subcategory || !price || !description) {
+        const { name, description } = req.body;
+        if (!name || !description) {
             return res.status(400).json({ success: false, error: "All fields are required" });
         }
 
         const images = req.files.map(file => file.path);
 
         try {
-            const newFabric = new Fabric({ name, category, subcategory, price, description, images });
+            const newFabric = new Fabric({ name, description, images });
             await newFabric.save();
             res.status(201).json({ success: true, fabric: newFabric });
         } catch (err) {
@@ -66,15 +67,15 @@ const updateFabric = async (req, res) => {
         }
 
         const { id } = req.params;
-        const { name, category, subcategory, price, description } = req.body;
-        if (!name || !category || !subcategory || !price || !description) {
+        const { name, description } = req.body;
+        if (!name || !description) {
             return res.status(400).json({ success: false, error: "All fields are required" });
         }
 
         const images = req.files.map(file => file.path);
 
         try {
-            const updatedFabric = await Fabric.findByIdAndUpdate(id, { name, category, subcategory, price, description, images }, { new: true });
+            const updatedFabric = await Fabric.findByIdAndUpdate(id, { name, description, images }, { new: true });
             res.status(200).json({ success: true, fabric: updatedFabric });
         } catch (err) {
             console.error("Error updating fabric:", err);
