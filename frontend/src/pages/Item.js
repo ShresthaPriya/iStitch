@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
@@ -14,6 +14,7 @@ const Item = () => {
   const [newItem, setNewItem] = useState({ name: "", category: "", subcategory: "", price: "", description: "", images: [] });
   const [viewingItem, setViewingItem] = useState(null);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // Success message state
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -85,6 +86,7 @@ const Item = () => {
         );
         setEditMode(false);
         setSelectedItemId(null);
+        setSuccessMessage("Item updated successfully!");
       } else {
         const response = await axios.post('http://localhost:4000/api/items', formData, {
           headers: {
@@ -92,6 +94,7 @@ const Item = () => {
           }
         });
         setItems([...items, response.data.item]);
+        setSuccessMessage("Item added successfully!");
       }
       setShowModal(false);
       setNewItem({ name: "", category: "", subcategory: "", price: "", description: "", images: [] });
@@ -103,9 +106,15 @@ const Item = () => {
 
   // Delete item
   const handleDeleteItem = async (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this item?");
+    if (!confirmed) {
+      return;
+    }
+
     try {
       await axios.delete(`http://localhost:4000/api/items/${id}`);
       setItems(items.filter((item) => item._id !== id));
+      setSuccessMessage("Item deleted successfully!");
     } catch (err) {
       console.error('Error deleting item:', err);
       setError(`Error deleting item: ${err.response?.data?.error || err.message}`);
@@ -123,6 +132,11 @@ const Item = () => {
   // View item details
   const handleViewItem = (item) => {
     setViewingItem(item);
+  };
+
+  // Close success message
+  const closeSuccessMessage = () => {
+    setSuccessMessage("");
   };
 
   return (
@@ -148,6 +162,14 @@ const Item = () => {
           </button>
         </div>
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="success-message">
+            {successMessage}
+            <FaTimes className="close-icon" onClick={closeSuccessMessage} />
+          </div>
+        )}
+
         {/* Items Table */}
         <div className="customers-table">
           <table>
@@ -172,7 +194,7 @@ const Item = () => {
                   <td>{item.description}</td>
                   <td>
                     {item.images.map((image, index) => (
-                      <img key={index} src={`http://localhost:4000/public/images/${image}`} alt={`Item ${index}`} width="50" />
+                      <img key={index} src={`http://localhost:4000/uploads/${image}`} alt={`Item ${index}`} width="50" />
                     ))}
                   </td>
                   <td className="operations">

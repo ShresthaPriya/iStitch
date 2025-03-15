@@ -28,6 +28,8 @@ import Item from './pages/Item';
 import Order from './pages/Order';
 import Fabric from './pages/Fabric';
 import Measurement from './pages/Measurement';
+import Sidebar from "./components/Sidebar";
+import Design from "./pages/Design";
 
 export const AppContext = createContext();
 
@@ -40,16 +42,17 @@ function App() {
       <QueryClientProvider client={client}>
         <AppContext.Provider value={{ fullname, setFullname }}>
           <Router>
+            <Sidebar />
             <Routes>
               <Route path='/' element={<Splash />} />
               <Route path='/auth/Register' element={<Register />} />
-              <Route path='/Login' element={<Login />} />
+              <Route path='/login' element={<Login />} />
               <Route path='/forgetPassword' element={<ForgetPassword />} />
-              <Route path='/Home' element={<Home />} />
-              <Route path='/AdminHome' element={<AdminHome />} />
+              <Route path='/home' element={<Home />} />
+              <Route path='/admin' element={<AdminHome />} />
               <Route path='/Splash' element={<Splash />} />
-              <Route path='/Items' element={<Items />} />
-              <Route path='/Measurements' element={<Measurements />} />
+              <Route path='/items' element={<Items />} />
+              <Route path='/measurements' element={<Measurements />} />
               <Route path='/resetPassword' element={<ResetPasswordRequest />} />
               <Route path='/product/:id' element={<ProductCard />} />
               <Route path='/cart' element={<Cart />} />
@@ -58,13 +61,15 @@ function App() {
               <Route path='/measurements/pant' element={<PantMeasurements />} />
               <Route path='/measurements/blazer' element={<BlazerMeasurements />} />
               <Route path='/measurements/blouse' element={<BlouseMeasurements />} />
-              <Route path='/Customer' element={<Customer />} />
-              <Route path='/Category' element={<Category />} />
-              <Route path='/Subcategory' element={<Subcategory />} />
-              <Route path='/Item' element={<Item />} />
-              <Route path='/Order' element={<Order />} />
-              <Route path='/Fabric' element={<Fabric />} />
-              <Route path='/Measurement' element={<Measurement />} />
+              <Route path='/admin/customers' element={<Customer />} />
+              <Route path='/admin/categories' element={<Category />} />
+              <Route path='/admin/subcategories' element={<Subcategory />} />
+              <Route path='/admin/products' element={<Item />} />
+              <Route path='/admin/orders' element={<Order />} />
+              <Route path='/admin/fabrics' element={<Fabric />} />
+              <Route path='/admin/measurements' element={<Measurement />} />
+              <Route path='/items/:category/:subcategory' element={<Items />} />
+              <Route path='/admin/designs' element={<Design />} />
             </Routes>
           </Router>
         </AppContext.Provider>

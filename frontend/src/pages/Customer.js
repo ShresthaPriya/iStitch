@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
@@ -13,7 +13,8 @@ const Customer = () => {
   const [viewingCustomer, setViewingCustomer] = useState(null);
   const [showMeasurements, setShowMeasurements] = useState(false);
   const [customers, setCustomers] = useState([]);
-  const [err, setError] = useState([]);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // Success message state
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -46,9 +47,11 @@ const Customer = () => {
         );
         setEditMode(false);
         setSelectedCustomerId(null);
+        setSuccessMessage("Customer updated successfully!");
       } else {
         const response = await axios.post('http://localhost:4000/api/customers', newCustomer);
         setCustomers([...customers, response.data.customer]);
+        setSuccessMessage("Customer added successfully!");
       }
       setShowModal(false);
       setNewCustomer({ name: "", email: "", address: "", phone: "", order: [] });
@@ -60,9 +63,15 @@ const Customer = () => {
 
   // Delete customer
   const handleDeleteCustomer = async (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this customer?");
+    if (!confirmed) {
+      return;
+    }
+
     try {
       await axios.delete(`http://localhost:4000/api/customers/${id}`);
       setCustomers(customers.filter((customer) => customer._id !== id));
+      setSuccessMessage("Customer deleted successfully!");
     } catch (err) {
       console.error('Error deleting customer:', err);
       setError(`Error deleting customer: ${err.response?.data?.error || err.message}`);
@@ -88,6 +97,11 @@ const Customer = () => {
     setShowMeasurements(!showMeasurements);
   };
 
+  // Close success message
+  const closeSuccessMessage = () => {
+    setSuccessMessage("");
+  };
+
   return (
     <div className="customer-container">
       <Sidebar />
@@ -110,6 +124,14 @@ const Customer = () => {
             <FaPlus className="add-icon" /> Add Customer
           </button>
         </div>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="success-message">
+            {successMessage}
+            <FaTimes className="close-icon" onClick={closeSuccessMessage} />
+          </div>
+        )}
 
         {/* Customers Table */}
         <div className="customers-table">

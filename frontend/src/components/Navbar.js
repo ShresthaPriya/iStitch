@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Navbar.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -12,6 +12,7 @@ function Navbar() {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -48,6 +49,12 @@ function Navbar() {
     setActiveCategory(activeCategory === categoryId ? null : categoryId);
   };
 
+  const handleSubcategoryClick = (categoryName, subcategoryName) => {
+    const encodedCategoryName = encodeURIComponent(categoryName.toLowerCase());
+    const encodedSubcategoryName = encodeURIComponent(subcategoryName.toLowerCase());
+    navigate(`/items/${encodedCategoryName}/${encodedSubcategoryName}`);
+  };
+
   const getSubcategoriesForCategory = (categoryId) => {
     return subcategories.filter((subcategory) => subcategory.category._id === categoryId);
   };
@@ -79,7 +86,7 @@ function Navbar() {
                     <ul className="dropdown-menu sub-menu">
                       {getSubcategoriesForCategory(category._id).map((subcategory) => (
                         <li key={subcategory._id}>
-                          <Link to={`/shop/${category.name.toLowerCase()}/${subcategory.name.toLowerCase()}`}>
+                          <Link to="#" onClick={() => handleSubcategoryClick(category.name, subcategory.name)}>
                             {subcategory.name}
                           </Link>
                         </li>
@@ -91,7 +98,7 @@ function Navbar() {
             </ul>
           )}
         </li>
-        <li><Link to="/fabric">Fabric</Link></li>
+        <li><Link to="/fabric-details">Fabric</Link></li>
         <li><Link to="/Measurements">Measurements</Link></li>
       </ul>
 

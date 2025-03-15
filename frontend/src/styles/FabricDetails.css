@@ -1,0 +1,56 @@
+.fabric-details-container {
+  padding: 20px;
+  text-align: center;
+}
+
+.fabrics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.fabric-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.fabric-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.fabric-card h3 {
+  margin-top: 10px;
+  font-size: 1.5em;
+}
+
+.fabric-card p {
+  margin: 10px 0;
+  color: #555;
+}
+
+.favourite-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.favourite-button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 20px;
+}

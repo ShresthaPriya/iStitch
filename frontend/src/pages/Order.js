@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import axios from "axios";
 import "../styles/Order.css";
 import Sidebar from "../components/Sidebar";
 
@@ -10,29 +11,30 @@ const Order = () => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [newOrder, setNewOrder] = useState({ customer: "", items: [], totalAmount: 0, status: "Pending" });
   const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [error, setError] = useState(""); // Define the error state
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:4000/order', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the token in localStorage
-          }
-        });
-        const data = await response.json();
-        if (data.success) {
-          setOrders(data.orders);
-        } else {
-          console.error(data.error);
-        }
+        const response = await axios.get('http://localhost:4000/api/orders');
+        setOrders(response.data.orders);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching orders:", err);
+      }
+    };
+
+    const fetchCustomers = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/customers');
+        setCustomers(response.data.customers);
+      } catch (err) {
+        console.error("Error fetching customers:", err);
       }
     };
 
     fetchOrders();
+    fetchCustomers();
   }, []);
 
   // Handle form input changes
@@ -42,25 +44,38 @@ const Order = () => {
   };
 
   // Add or Edit order
-  const handleAddOrder = () => {
-    if (editMode) {
-      setOrders(
-        orders.map((order) =>
-          order._id === selectedOrderId ? { ...order, ...newOrder } : order
-        )
-      );
-      setEditMode(false);
-      setSelectedOrderId(null);
-    } else {
-      setOrders([...orders, { _id: orders.length + 1, ...newOrder }]);
+  const handleAddOrder = async () => {
+    try {
+      if (editMode) {
+        const response = await axios.put(`http://localhost:4000/api/orders/${selectedOrderId}`, newOrder);
+        setOrders(
+          orders.map((order) =>
+            order._id === selectedOrderId ? { ...order, ...response.data.order } : order
+          )
+        );
+        setEditMode(false);
+        setSelectedOrderId(null);
+      } else {
+        const response = await axios.post('http://localhost:4000/api/orders', newOrder);
+        setOrders([...orders, response.data.order]);
+      }
+      setShowModal(false);
+      setNewOrder({ customer: "", items: [], totalAmount: 0, status: "Pending" });
+    } catch (err) {
+      console.error('Error adding/updating order:', err);
+      setError(`Error adding/updating order: ${err.response?.data?.error || err.message}`);
     }
-    setShowModal(false);
-    setNewOrder({ customer: "", items: [], totalAmount: 0, status: "Pending" });
   };
 
   // Delete order
-  const handleDeleteOrder = (id) => {
-    setOrders(orders.filter((order) => order._id !== id));
+  const handleDeleteOrder = async (id) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/orders/${id}`);
+      setOrders(orders.filter((order) => order._id !== id));
+    } catch (err) {
+      console.error('Error deleting order:', err);
+      setError(`Error deleting order: ${err.response?.data?.error || err.message}`);
+    }
   };
 
   // Edit order
@@ -136,8 +151,14 @@ const Order = () => {
         <div className="modal">
           <div className="modal-content">
             <h3>{editMode ? "Edit Order" : "Add New Order"}</h3>
+            {error && <p className="error">{error}</p>}
             <label>Customer:</label>
-            <input type="text" name="customer" value={newOrder.customer} onChange={handleChange} required />
+            <select name="customer" value={newOrder.customer} onChange={handleChange} required>
+              <option value="">Select Customer</option>
+              {customers.map(customer => (
+                <option key={customer._id} value={customer._id}>{customer.name}</option>
+              ))}
+            </select>
             <label>Items:</label>
             <input type="text" name="items" value={newOrder.items.join(", ")} onChange={(e) => setNewOrder({ ...newOrder, items: e.target.value.split(", ") })} required />
             <label>Total Amount:</label>

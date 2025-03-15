@@ -6,12 +6,10 @@ import Sidebar from "../components/Sidebar";
 
 const Fabric = () => {
   const [fabrics, setFabrics] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedFabricId, setSelectedFabricId] = useState(null);
-  const [newFabric, setNewFabric] = useState({ name: "", category: "", subcategory: "", price: "", description: "", images: [] });
+  const [newFabric, setNewFabric] = useState({ name: "", price: "", description: "", images: [] });
   const [viewingFabric, setViewingFabric] = useState(null);
   const [error, setError] = useState("");
 
@@ -25,27 +23,7 @@ const Fabric = () => {
       }
     };
 
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/categories');
-        setCategories(response.data.categories);
-      } catch (err) {
-        console.error("Error fetching categories:", err);
-      }
-    };
-
-    const fetchSubcategories = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/subcategories');
-        setSubcategories(response.data.subcategories);
-      } catch (err) {
-        console.error("Error fetching subcategories:", err);
-      }
-    };
-
     fetchFabrics();
-    fetchCategories();
-    fetchSubcategories();
   }, []);
 
   // Handle form input changes
@@ -64,8 +42,6 @@ const Fabric = () => {
   const handleAddFabric = async () => {
     const formData = new FormData();
     formData.append("name", newFabric.name);
-    formData.append("category", newFabric.category);
-    formData.append("subcategory", newFabric.subcategory);
     formData.append("price", newFabric.price);
     formData.append("description", newFabric.description);
     for (let i = 0; i < newFabric.images.length; i++) {
@@ -95,7 +71,7 @@ const Fabric = () => {
         setFabrics([...fabrics, response.data.fabric]);
       }
       setShowModal(false);
-      setNewFabric({ name: "", category: "", subcategory: "", price: "", description: "", images: [] });
+      setNewFabric({ name: "", price: "", description: "", images: [] });
     } catch (err) {
       console.error('Error adding/updating fabric:', err);
       setError(`Error adding/updating fabric: ${err.response?.data?.error || err.message}`);
@@ -155,8 +131,6 @@ const Fabric = () => {
             <thead>
               <tr>
                 <th>Fabric Name</th>
-                <th>Category</th>
-                <th>Subcategory</th>
                 <th>Price</th>
                 <th>Description</th>
                 <th>Images</th>
@@ -167,8 +141,6 @@ const Fabric = () => {
               {fabrics.map((fabric) => (
                 <tr key={fabric._id}>
                   <td>{fabric.name}</td>
-                  <td>{fabric.category ? fabric.category.name : "N/A"}</td>
-                  <td>{fabric.subcategory ? fabric.subcategory.name : "N/A"}</td>
                   <td>{fabric.price}</td>
                   <td>{fabric.description}</td>
                   <td>
@@ -196,20 +168,6 @@ const Fabric = () => {
             {error && <p className="error">{error}</p>}
             <label>Name:</label>
             <input type="text" name="name" value={newFabric.name} onChange={handleChange} required />
-            <label>Category:</label>
-            <select name="category" value={newFabric.category} onChange={handleChange} required>
-              <option value="">Select Category</option>
-              {categories.map(category => (
-                <option key={category._id} value={category._id}>{category.name}</option>
-              ))}
-            </select>
-            <label>Subcategory:</label>
-            <select name="subcategory" value={newFabric.subcategory} onChange={handleChange} required>
-              <option value="">Select Subcategory</option>
-              {subcategories.map(subcategory => (
-                <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
-              ))}
-            </select>
             <label>Price:</label>
             <input type="number" name="price" value={newFabric.price} onChange={handleChange} required />
             <label>Description:</label>
@@ -231,8 +189,6 @@ const Fabric = () => {
         <div className="modal">
           <div className="modal-content">
             <h3>{viewingFabric.name} Details</h3>
-            <p><strong>Category:</strong> {viewingFabric.category ? viewingFabric.category.name : "N/A"}</p>
-            <p><strong>Subcategory:</strong> {viewingFabric.subcategory ? viewingFabric.subcategory.name : "N/A"}</p>
             <p><strong>Price:</strong> {viewingFabric.price}</p>
             <p><strong>Description:</strong> {viewingFabric.description}</p>
             <div>

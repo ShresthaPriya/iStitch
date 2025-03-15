@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from "react-router-dom";
-import { FaUsers, FaClipboardList, FaBox, FaTags, FaHome, FaBolt, FaRuler } from "react-icons/fa";
+import { FaUsers, FaClipboardList, FaBox, FaTags, FaHome, FaBolt, FaRuler, FaPaintBrush } from "react-icons/fa";
 import "../styles/Sidebar.css";
 
 const Sidebar = () => {
@@ -9,43 +9,48 @@ const Sidebar = () => {
       <h1 className="logo">iStitch</h1>
       <ul className="menu">
         <li>
-          <NavLink to="/AdminHome" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+          <NavLink to="/admin" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaHome className="icon" /> Home
           </NavLink>
         </li>
         <li>
-          <NavLink to="/customer" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+          <NavLink to="/admin/customers" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaUsers className="icon" /> Customers
           </NavLink>
         </li>
         <li>
-          <NavLink to="/order" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+          <NavLink to="/admin/orders" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaClipboardList className="icon" /> Orders
           </NavLink>
         </li>
         <li>
-          <NavLink to="/item" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
-            <FaBox className="icon" /> Items
+          <NavLink to="/admin/products" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+            <FaBox className="icon" /> Products
           </NavLink>
         </li>
         <li>
-          <NavLink to="/category" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+          <NavLink to="/admin/categories" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaTags className="icon" /> Categories
           </NavLink>
         </li>
         <li>
-          <NavLink to="/subcategory" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+          <NavLink to="/admin/subcategories" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaTags className="icon" /> Subcategories
           </NavLink>
         </li>
         <li>
-          <NavLink to="/fabric" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
-            <FaBolt className="icon" /> Fabric
+          <NavLink to="/admin/fabrics" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+            <FaBolt className="icon" /> Fabrics
           </NavLink>
         </li>
         <li>
-          <NavLink to="/measurement" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
-            <FaRuler className="icon" /> Body Measurement
+          <NavLink to="/admin/measurements" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+            <FaRuler className="icon" /> Body Measurements
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/admin/designs" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+            <FaPaintBrush className="icon" /> Designs
           </NavLink>
         </li>
       </ul>
