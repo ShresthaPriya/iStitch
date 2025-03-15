@@ -1,9 +1,9 @@
 /* General Layout */
 .dashboard-container {
-  display: flex;  /* Ensures sidebar and content are side by side */
+  display: flex;
   height: 100vh;
   font-family: "Arial", sans-serif;
-  background-color: #f8f9fa;
+  background-color: #f4f7fc;
 }
 
 /* Sidebar */
@@ -12,7 +12,7 @@
   height: 100vh;
   background: #1f2937;
   color: white;
-  position: fixed; /* Keeps sidebar fixed */
+  position: fixed;
   top: 0;
   left: 0;
   padding: 20px;
@@ -22,8 +22,8 @@
 .main-content {
   flex-grow: 1;
   padding: 20px;
-  margin-left: 250px; /* Ensures content does not overlap sidebar */
-  width: calc(100% - 250px); /* Adjusts width dynamically */
+  margin-left: 250px;
+  width: calc(100% - 250px);
 }
 
 /* Top Bar */
@@ -47,49 +47,50 @@
 
 /* Metric Card */
 .metric-card {
-  background: white;
   padding: 20px;
   border-radius: 10px;
   text-align: center;
-  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+  color: white;
+  font-weight: bold;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .metric-card:hover {
   transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
-  
-  /* Metric Icon */
-  .metric-icon {
-    font-size: 30px;
-    margin-bottom: 10px;
-  }
-  
-  /* Different Colors for Icons */
-  .metric-icon.users { color: #3498db; }
-  .metric-icon.pending-orders { color: #9b59b6; }
-  .metric-icon.orders { color: #e67e22; }
-  .metric-icon.sales { color: #e74c3c; }
-  .metric-icon.items { color: #2ecc71; }
-  .metric-icon.stats { color: #f39c12; }
-  
-  /* Metric Text */
-  .metric-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #666;
-  }
-  
-  .metric-value {
-    font-size: 22px;
-    font-weight: bold;
-    color: #333;
-  }
-  /* Top Selling Products Section */
+/* Unique Colors for Metric Cards */
+.customers { background-color: #3498db; } /* Blue */
+.pending-orders { background-color: #9b59b6; } /* Purple */
+.total-orders { background-color: #e67e22; } /* Orange */
+.total-sales { background-color: #e74c3c; } /* Red */
+.total-items { background-color: #2ecc71; } /* Green */
+
+/* Metric Icon */
+.metric-icon {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+/* Metric Text */
+.metric-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+}
+
+.metric-value {
+  font-size: 22px;
+  font-weight: bold;
+  color: white;
+}
+
+/* Top Selling Products Section */
 .top-selling-products {
   margin-top: 40px;
   background: #fff;
@@ -106,20 +107,22 @@
   text-align: center;
 }
 
+/* Product Grid */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 20px;
 }
 
+/* Product Card */
 .product-card {
-  background: #dfe5e9;
   padding: 15px;
   text-align: center;
   border-radius: 8px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+  color: rgb(7, 6, 6);
 }
+
 
 .product-card:hover {
   transform: translateY(-5px);
@@ -136,14 +139,10 @@
 .product-name {
   font-size: 16px;
   font-weight: bold;
-  color: #333;
   margin-top: 10px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
 }
 
-/* Ensure product cards are responsive */
+/* Responsive Design */
 @media (max-width: 768px) {
   .metrics-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

@@ -43,32 +43,33 @@ const AdminHome = () => {
 
                 {/* Dashboard Metrics */}
                 <div className="metrics-grid">
-                    <div className="metric-card">
-                        <FaUsersCog className="metric-icon users" />
-                        <span className="metric-title">Customers</span>
-                        <span className="metric-value">{metrics.customerCount}</span>
-                    </div>
-                    <div className="metric-card">
-                        <FaListAlt className="metric-icon pending-orders" />
-                        <span className="metric-title">Pending Orders</span>
-                        <span className="metric-value">{metrics.pendingOrderCount}</span>
-                    </div>
-                    <div className="metric-card">
-                        <FaClipboardList className="metric-icon orders" />
-                        <span className="metric-title">Total Orders</span>
-                        <span className="metric-value">{metrics.totalOrderCount}</span>
-                    </div>
-                    <div className="metric-card">
-                        <FaShoppingBag className="metric-icon sales" />
-                        <span className="metric-title">Total Sales</span>
-                        <span className="metric-value">${metrics.totalSales.toFixed(2)}</span>
-                    </div>
-                    <div className="metric-card">
-                        <FaBox className="metric-icon items" />
-                        <span className="metric-title">Total Items</span>
-                        <span className="metric-value">{metrics.totalItemCount}</span>
-                    </div>
-                </div>
+    <div className="metric-card customers">
+        <FaUsersCog className="metric-icon" />
+        <span className="metric-title">Customers</span>
+        <span className="metric-value">{metrics.customerCount}</span>
+    </div>
+    <div className="metric-card pending-orders">
+        <FaListAlt className="metric-icon" />
+        <span className="metric-title">Pending Orders</span>
+        <span className="metric-value">{metrics.pendingOrderCount}</span>
+    </div>
+    <div className="metric-card total-orders">
+        <FaClipboardList className="metric-icon" />
+        <span className="metric-title">Total Orders</span>
+        <span className="metric-value">{metrics.totalOrderCount}</span>
+    </div>
+    <div className="metric-card total-sales">
+        <FaShoppingBag className="metric-icon" />
+        <span className="metric-title">Total Sales</span>
+        <span className="metric-value">${metrics.totalSales.toFixed(2)}</span>
+    </div>
+    <div className="metric-card total-items">
+        <FaBox className="metric-icon" />
+        <span className="metric-title">Total Items</span>
+        <span className="metric-value">{metrics.totalItemCount}</span>
+    </div>
+</div>
+
 
                 {/* Top-Selling Products Section */}
                 <div className="top-selling-products">
