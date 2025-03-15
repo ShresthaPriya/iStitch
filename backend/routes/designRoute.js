@@ -16,10 +16,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+const uploadFields = upload.fields([
+  { name: 'fullSleeve', maxCount: 1 },
+  { name: 'halfSleeve', maxCount: 1 },
+  { name: 'sleeve', maxCount: 1 },
+]);
+
 // Route to add a new design
-router.post("/", upload.array("designPhotos", 5), designController.addDesign);
+router.post("/", uploadFields, designController.addDesign);
 
 // Route to update an existing design
-router.put("/:id", upload.array("designPhotos", 5), designController.updateDesign);
+router.put("/:id", uploadFields, designController.updateDesign);
 
 module.exports = router;

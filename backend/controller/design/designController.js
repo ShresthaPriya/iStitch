@@ -3,7 +3,11 @@ const Design = require("../../models/DesignSchema");
 exports.addDesign = async (req, res) => {
   try {
     const { name, subcategory } = req.body;
-    const designPhotos = req.files.map(file => file.path);
+    const designPhotos = {
+      fullSleeve: req.files.fullSleeve ? req.files.fullSleeve[0].path : null,
+      halfSleeve: req.files.halfSleeve ? req.files.halfSleeve[0].path : null,
+      sleeve: req.files.sleeve ? req.files.sleeve[0].path : null,
+    };
 
     const newDesign = new Design({
       name,
@@ -22,7 +26,11 @@ exports.updateDesign = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, subcategory } = req.body;
-    const designPhotos = req.files.map(file => file.path);
+    const designPhotos = {
+      fullSleeve: req.files.fullSleeve ? req.files.fullSleeve[0].path : null,
+      halfSleeve: req.files.halfSleeve ? req.files.halfSleeve[0].path : null,
+      sleeve: req.files.sleeve ? req.files.sleeve[0].path : null,
+    };
 
     const design = await Design.findById(id);
     if (!design) {
@@ -31,7 +39,7 @@ exports.updateDesign = async (req, res) => {
 
     design.name = name || design.name;
     design.subcategory = subcategory || design.subcategory;
-    design.designPhotos = designPhotos.length > 0 ? designPhotos : design.designPhotos;
+    design.designPhotos = { ...design.designPhotos, ...designPhotos };
 
     await design.save();
     res.status(200).json({ message: "Design updated successfully", design });

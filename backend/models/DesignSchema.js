@@ -10,12 +10,20 @@ const DesignSchema = new mongoose.Schema({
     ref: "Subcategory",
     required: true,
   },
-  designPhotos: [
-    {
+  designPhotos: {
+    fullSleeve: {
       type: String,
-      required: true,
+      required: false,
     },
-  ],
+    halfSleeve: {
+      type: String,
+      required: false,
+    },
+    sleeve: {
+      type: String,
+      required: false,
+    },
+  },
 });
 
 module.exports = mongoose.model("Design", DesignSchema);
