@@ -1,17 +1,29 @@
 import React from "react";
 import "../styles/Footer.css"; 
+import { Icon } from "lucide-react";
 
 const Footer = () => (
   <footer className="footer">
-    <div>
-      <ul>
-        <li>About Us</li>
-        <li>Contact Us</li>
-        <li>FAQs</li>
-        <li>Terms and Conditions</li>
-      </ul>
+    <div className="footer-content">
+      <div className="footer-section">
+        <ul>
+          <li>About Us</li>
+          <li>Contact Us</li>
+          <li>FAQs</li>
+          <li>Terms and Conditions</li>
+        </ul>
+      </div>
+      <div className="footer-section contact-info">
+        <p>Email us: info@example.com </p>
+        <p>Phone : +123 456 7890</p>
+      </div>
+      <div className="footer-section payments">
+        <p>We accept: <span>💳</span></p>
+      </div>
     </div>
-    <div className="payments">We accept: <span>💳</span></div>
+    <div className="footer-bottom">
+      <p>&copy; 2023 iStitch. All rights reserved.</p>
+    </div>
   </footer>
 );
 

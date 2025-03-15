@@ -1,19 +1,64 @@
 .footer {
-    padding: 1rem 2rem;
-    /* background-color: rgba(20, 58, 121, 0.4); 40% opacity */
-    background-color: black;
+  background-color: #e9e9e8; /* Adjusted to blend with the page */
+  color: #060505;
+  padding: 20px 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration-color: rgb(6, 7, 7);
+}
 
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .footer ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .footer ul li {
-    margin-bottom: 0.5rem;
-  }
-  
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 2000px;
+  padding: 10px 20px;
+}
+
+.footer-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Increased spacing between list items */
+}
+
+.footer ul li {
+  margin: 0;
+}
+
+.footer ul li:hover {
+  text-decoration: underline;
+}
+
+.footer .contact-info {
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.footer .payments {
+  text-align: right;
+  font-size: 1.2em;
+  ;
+}
+
+.footer .payments span {
+  font-size: 1.5em;
+  margin-left: 10px;
+}
+
+.footer-bottom {
+  margin-top: 10px;
+  font-size: 0.8em;
+  text-align: center;
+}

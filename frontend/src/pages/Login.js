@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import "../styles/Auth.css";
+import "../styles/Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -70,54 +73,60 @@ const Login = () => {
   };
 
   return (
-    <div className="Auth-page">
-      <div className="Auth-container">
-        <div className="Auth-form">
-          <h2>Login</h2>
-          <form onSubmit={handleLogin}>
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-            />
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
-            <div className="policy-checkbox">
-              <label>
-                <input type="checkbox" required />
-                Remember Me
-              </label>
-              <a href="/resetPassword">Forgot Password?</a>
+    <>
+      <Navbar />
+      <div className="login-container">
+        <div className="Auth-page">
+          <div className="Auth-container">
+            <div className="Auth-form">
+              <h2>Login</h2>
+              <form onSubmit={handleLogin}>
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                />
+                <label>Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                />
+                <div className="policy-checkbox">
+                  <label>
+                    <input type="checkbox" required />
+                    Remember Me
+                  </label>
+                  <a href="/resetPassword">Forgot Password?</a>
+                </div>
+                {error && <div className="error-message">{error}</div>}
+                <button type="submit" disabled={loading}>
+                  {loading ? "Logging in..." : "Login"}
+                </button>
+              </form>
+              <div className="Auth-footer">
+                <p>
+                  Don't have an account? <a href="/auth/register">Sign Up</a>
+                </p>
+              </div>
+              <button className="google_btn" onClick={googleAuth}>
+                <img src={require("../images/google.png")}  alt="google icon" />
+                <span>Login with Google</span>
+              </button>
             </div>
-            {error && <div className="error-message">{error}</div>}
-            <button type="submit" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
-            </button>
-          </form>
-          <div className="Auth-footer">
-            <p>
-              Don't have an account? <a href="/auth/register">Sign Up</a>
-            </p>
+            {/* <div className="Auth-image">
+              <img src={require("../images/iStitch.png")} alt="Login Illustration" />
+            </div> */}
           </div>
-          <button className="google_btn" onClick={googleAuth}>
-            <img src={require("../images/google.png")}  alt="google icon" />
-            <span>Login with Google</span>
-          </button>
         </div>
-        {/* <div className="Auth-image">
-          <img src={require("../images/iStitch.png")} alt="Login Illustration" />
-        </div> */}
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 
