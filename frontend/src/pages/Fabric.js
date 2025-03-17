@@ -55,6 +55,8 @@ const Fabric = () => {
             "Content-Type": "multipart/form-data"
           }
         });
+        alert("Fabric uploaded successfully");
+
         setFabrics(
           fabrics.map((fabric) =>
             fabric._id === selectedFabricId ? { ...fabric, ...response.data.fabric } : fabric
@@ -145,7 +147,7 @@ const Fabric = () => {
                   <td>{fabric.description}</td>
                   <td>
                     {fabric.images.map((image, index) => (
-                      <img key={index} src={`http://localhost:4000/uploads/${image}`} alt={`Fabric ${index}`} width="50" />
+                      <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} width="50" />
                     ))}
                   </td>
                   <td className="operations">
@@ -195,7 +197,7 @@ const Fabric = () => {
               <strong>Images:</strong>
               <div className="images-container">
                 {viewingFabric.images.map((image, index) => (
-                  <img key={index} src={`http://localhost:4000/uploads/${image}`} alt={`Fabric ${index}`} width="100" />
+                  <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} width="100" />
                 ))}
               </div>
             </div>

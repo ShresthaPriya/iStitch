@@ -23,7 +23,7 @@ import BlouseMeasurements from './components/BlouseMeasurements';
 import Customer from './pages/Customer';
 import AdminHome from './pages/AdminHome';
 import Category from './pages/Category';
-import Subcategory from './pages/Subcategory';
+// import Subcategory from './pages/Subcategory';
 import Item from './pages/Item';
 import Order from './pages/Order';
 import Fabric from './pages/Fabric';
@@ -63,7 +63,7 @@ function App() {
               <Route path='/measurements/blouse' element={<BlouseMeasurements />} />
               <Route path='/admin/customers' element={<Customer />} />
               <Route path='/admin/categories' element={<Category />} />
-              <Route path='/admin/subcategories' element={<Subcategory />} />
+              {/* <Route path='/admin/subcategories' element={<Subcategory />} /> */}
               <Route path='/admin/products' element={<Item />} />
               <Route path='/admin/orders' element={<Order />} />
               <Route path='/admin/fabrics' element={<Fabric />} />

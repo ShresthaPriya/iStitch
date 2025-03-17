@@ -167,7 +167,7 @@ const Design = () => {
               {designs.map((design) => (
                 <tr key={design._id}>
                   <td>{design.name}</td>
-                  <td>{design.subcategory}</td>
+                  <td>{design.subcategory.name}</td>
                   <td>
                     {design.designPhotos.fullSleeve && <img src={`/${design.designPhotos.fullSleeve}`} alt="Full Sleeve" className="design-photo" />}
                     {design.designPhotos.halfSleeve && <img src={`/${design.designPhotos.halfSleeve}`} alt="Half Sleeve" className="design-photo" />}
@@ -221,7 +221,7 @@ const Design = () => {
         <div className="modal">
           <div className="modal-content">
             <h3>{viewingDesign.name} Details</h3>
-            <p><strong>Subcategory:</strong> {viewingDesign.subcategory}</p>
+            <p><strong>Subcategory:</strong> {viewingDesign.subcategory.name}</p>
             <div>
               <strong>Photos:</strong>
               <div className="images-container">

@@ -34,11 +34,6 @@ const Sidebar = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/admin/subcategories" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
-            <FaTags className="icon" /> Subcategories
-          </NavLink>
-        </li>
-        <li>
           <NavLink to="/admin/fabrics" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaBolt className="icon" /> Fabrics
           </NavLink>
