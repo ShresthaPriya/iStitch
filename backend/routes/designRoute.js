@@ -28,4 +28,10 @@ router.post("/", uploadFields, designController.addDesign);
 // Route to update an existing design
 router.put("/:id", uploadFields, designController.updateDesign);
 
+// Route to get all designs
+router.get("/", designController.getAllDesigns);
+
+// Route to delete a design
+router.delete("/:id", designController.deleteDesign);
+
 module.exports = router;

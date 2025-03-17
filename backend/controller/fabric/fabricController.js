@@ -1,21 +1,15 @@
 const Fabric = require("../../models/FabricSchema");
 const multer = require("multer");
-const fs = require("fs");
 const path = require("path");
 
-// Ensure the uploads directory exists
-const uploadsDir = path.join(__dirname, "../../uploads");
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Configure Multer for file uploads
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadsDir);
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../../public/images')); // Corrected path
     },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
+    filename: function (req, file, cb) {
+        const filename = Date.now() + '-' + file.originalname;
+        console.log('Saving file as:', filename); // Logging filename
+        cb(null, filename);
     }
 });
 
@@ -34,54 +28,40 @@ const getFabrics = async (req, res) => {
 
 // Add a new fabric
 const addFabric = async (req, res) => {
-    upload(req, res, async (err) => {
-        if (err) {
-            console.error("Error uploading images:", err);
-            return res.status(500).json({ success: false, error: err.message });
-        }
+    const { name, description, price } = req.body;
+    if (!name || !description || !price) {
+        return res.status(400).json({ success: false, error: "All fields are required" });
+    }
 
-        const { name, description } = req.body;
-        if (!name || !description) {
-            return res.status(400).json({ success: false, error: "All fields are required" });
-        }
+    const images = req.files.map(file => file.filename); // Store only the filename
 
-        const images = req.files.map(file => file.path);
-
-        try {
-            const newFabric = new Fabric({ name, description, images });
-            await newFabric.save();
-            res.status(201).json({ success: true, fabric: newFabric });
-        } catch (err) {
-            console.error("Error adding fabric:", err);
-            res.status(500).json({ success: false, error: err.message });
-        }
-    });
+    try {
+        const newFabric = new Fabric({ name, description, images, price });
+        await newFabric.save();
+        res.status(201).json({ success: true, fabric: newFabric });
+    } catch (err) {
+        console.error("Error adding fabric:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
 };
 
 // Update a fabric
 const updateFabric = async (req, res) => {
-    upload(req, res, async (err) => {
-        if (err) {
-            console.error("Error uploading images:", err);
-            return res.status(500).json({ success: false, error: err.message });
-        }
+    const { id } = req.params;
+    const { name, description, price } = req.body;
+    if (!name || !description || !price) {
+        return res.status(400).json({ success: false, error: "All fields are required" });
+    }
 
-        const { id } = req.params;
-        const { name, description } = req.body;
-        if (!name || !description) {
-            return res.status(400).json({ success: false, error: "All fields are required" });
-        }
+    const images = req.files.map(file => file.filename); // Store only the filename
 
-        const images = req.files.map(file => file.path);
-
-        try {
-            const updatedFabric = await Fabric.findByIdAndUpdate(id, { name, description, images }, { new: true });
-            res.status(200).json({ success: true, fabric: updatedFabric });
-        } catch (err) {
-            console.error("Error updating fabric:", err);
-            res.status(500).json({ success: false, error: err.message });
-        }
-    });
+    try {
+        const updatedFabric = await Fabric.findByIdAndUpdate(id, { name, description, images, price }, { new: true });
+        res.status(200).json({ success: true, fabric: updatedFabric });
+    } catch (err) {
+        console.error("Error updating fabric:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
 };
 
 // Delete a fabric
@@ -96,4 +76,4 @@ const deleteFabric = async (req, res) => {
     }
 };
 
-module.exports = { getFabrics, addFabric, updateFabric, deleteFabric };
+module.exports = { getFabrics, addFabric, updateFabric, deleteFabric, upload };

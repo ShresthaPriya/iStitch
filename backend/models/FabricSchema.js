@@ -5,20 +5,6 @@ const FabricSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category",
-        required: true
-    },
-    subcategory: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Subcategory",
-        required: true
-    },
-    price: {
-        type: Number,
-        required: true
-    },
     description: {
         type: String,
         required: true
@@ -26,6 +12,10 @@ const FabricSchema = mongoose.Schema({
     images: {
         type: [String], // Array of image URLs
         validate: [arrayLimit, '{PATH} exceeds the limit of 3']
+    },
+    price: {
+        type: Number,
+        required: true
     }
 }, { timestamps: true });
 

@@ -1,5 +1,22 @@
 const Customer = require("../../models/CustomerSchema");
+const multer = require("multer")
+const path = require("path")
 
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, path.join(__dirname, '../public/images'));
+    },
+    filename: function (req, file, cb) {
+      const filename = Date.now() + '-' + file.originalname; 
+      console.log('Saving file as:', filename); // Logging filename
+  
+      cb(null, filename);
+    }
+  });
+  
+  
+  const upload = multer({ storage: storage })
 // Get all customers
 const getCustomer = async (req, res) => {
     try {
@@ -16,13 +33,20 @@ const addCustomer = async (req, res) => {
     if (!name || !email || !address || !phone || !order) {
         return res.status(400).json({ success: false, error: "All fields are required" });
     }
-    try {
-        const newCustomer = new Customer({ name, email, address, phone, order });
-        await newCustomer.save(); // This saves the new customer to the MongoDB database
-        res.status(201).json({ success: true, customer: newCustomer });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }  
+    try{const newCustomer = await Customer.create({
+       name,
+       email,
+       address,
+       phone,
+       order,
+        imageUrl: req.file ? req.file.filename : null, // Ensure imageUrl is null if no file is uploaded
+      });
+  
+      res.status(201).json(newCustomer);
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      res.status(500).json({ error: "Internal server error" });
+    }
 };
 
 // Update a customer
@@ -51,4 +75,4 @@ const deleteCustomer = async (req, res) => {
     }
 };
 
-module.exports = { getCustomer, addCustomer, updateCustomer, deleteCustomer };
+module.exports = { upload, getCustomer, addCustomer, updateCustomer, deleteCustomer };

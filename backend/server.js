@@ -15,7 +15,7 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const customerRoutes = require("./routes/customerRoute");
 const categoryRoutes = require("./routes/categoryRoute");
-const subcategoryRoutes = require("./routes/subcategoryRoute");
+const orderRoutes = require("./routes/orderRoute");
 const itemRoutes = require("./routes/itemRoutes");
 const fabricRoutes = require("./routes/fabricRoute");
 const measurementRoutes = require("./routes/measurementRoute");
@@ -32,8 +32,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/public/images', express.static(path.join(__dirname, 'public/images')));
 
 // Cookie-based session
 app.use(
@@ -58,7 +58,7 @@ app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/categories", categoryRoutes);
-app.use("/api/subcategories", subcategoryRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/fabrics", fabricRoutes);
 app.use("/api/measurements", measurementRoutes);

@@ -23,13 +23,13 @@ const CustomerSchema = mongoose.Schema({
         type: [String],
         required: true
     },
-    profilePicture: { type: String },
+    // profilePicture: { type: String },
     measurements: {
       chest: { type: Number },
       waist: { type: Number },
       hip: { type: Number },
       inseam: { type: Number }
-    },
+    },imageUrl: String,
 }, { timestamps: true });
 
 module.exports = mongoose.model("Customer", CustomerSchema);

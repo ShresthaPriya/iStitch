@@ -2,16 +2,11 @@ const Design = require("../../models/DesignSchema");
 
 exports.addDesign = async (req, res) => {
   try {
-    const { name, subcategory } = req.body;
-    const designPhotos = {
-      fullSleeve: req.files.fullSleeve ? req.files.fullSleeve[0].path : null,
-      halfSleeve: req.files.halfSleeve ? req.files.halfSleeve[0].path : null,
-      sleeve: req.files.sleeve ? req.files.sleeve[0].path : null,
-    };
+    const { name } = req.body;
+    const designPhotos = req.files.designPhotos ? req.files.designPhotos[0].path : null;
 
     const newDesign = new Design({
       name,
-      subcategory,
       designPhotos,
     });
 
@@ -25,12 +20,8 @@ exports.addDesign = async (req, res) => {
 exports.updateDesign = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, subcategory } = req.body;
-    const designPhotos = {
-      fullSleeve: req.files.fullSleeve ? req.files.fullSleeve[0].path : null,
-      halfSleeve: req.files.halfSleeve ? req.files.halfSleeve[0].path : null,
-      sleeve: req.files.sleeve ? req.files.sleeve[0].path : null,
-    };
+    const { name } = req.body;
+    const designPhotos = req.files.designPhotos ? req.files.designPhotos[0].path : null;
 
     const design = await Design.findById(id);
     if (!design) {
@@ -38,12 +29,33 @@ exports.updateDesign = async (req, res) => {
     }
 
     design.name = name || design.name;
-    design.subcategory = subcategory || design.subcategory;
-    design.designPhotos = { ...design.designPhotos, ...designPhotos };
+    design.designPhotos = designPhotos || design.designPhotos;
 
     await design.save();
     res.status(200).json({ message: "Design updated successfully", design });
   } catch (error) {
     res.status(500).json({ message: "Failed to update design", error: error.message });
+  }
+};
+
+exports.getAllDesigns = async (req, res) => {
+  try {
+    const designs = await Design.find();
+    res.status(200).json(designs);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch designs", error: error.message });
+  }
+};
+
+exports.deleteDesign = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const design = await Design.findByIdAndDelete(id);
+    if (!design) {
+      return res.status(404).json({ message: "Design not found" });
+    }
+    res.status(200).json({ message: "Design deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete design", error: error.message });
   }
 };
