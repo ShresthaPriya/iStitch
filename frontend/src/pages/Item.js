@@ -7,11 +7,10 @@ import Sidebar from "../components/Sidebar";
 const Item = () => {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
-  const [newItem, setNewItem] = useState({ name: "", category: "", subcategory: "", price: "", description: "", images: [] });
+  const [newItem, setNewItem] = useState({ name: "", category: "", price: "", description: "", images: [] });
   const [viewingItem, setViewingItem] = useState(null);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // Success message state
@@ -35,18 +34,8 @@ const Item = () => {
       }
     };
 
-    const fetchSubcategories = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/subcategories');
-        setSubcategories(response.data.subcategories);
-      } catch (err) {
-        console.error("Error fetching subcategories:", err);
-      }
-    };
-
     fetchItems();
     fetchCategories();
-    fetchSubcategories();
   }, []);
 
   // Handle form input changes
@@ -65,7 +54,6 @@ const Item = () => {
     const formData = new FormData();
     formData.append("name", newItem.name);
     formData.append("category", newItem.category);
-    formData.append("subcategory", newItem.subcategory);
     formData.append("price", newItem.price);
     formData.append("description", newItem.description);
     newItem.images.forEach((image, index) => {
@@ -97,7 +85,7 @@ const Item = () => {
         setSuccessMessage("Item added successfully!");
       }
       setShowModal(false);
-      setNewItem({ name: "", category: "", subcategory: "", price: "", description: "", images: [] });
+      setNewItem({ name: "", category: "", price: "", description: "", images: [] });
     } catch (err) {
       console.error('Error adding/updating item:', err);
       setError(`Error adding/updating item: ${err.response?.data?.error || err.message}`);
@@ -123,7 +111,10 @@ const Item = () => {
 
   // Edit item
   const handleEditItem = (item) => {
-    setNewItem(item);
+    setNewItem({
+      ...item,
+      category: item.category ? item.category._id : ""
+    });
     setSelectedItemId(item._id);
     setEditMode(true);
     setShowModal(true);
@@ -177,7 +168,6 @@ const Item = () => {
               <tr>
                 <th>Item Name</th>
                 <th>Category</th>
-                <th>Subcategory</th>
                 <th>Price</th>
                 <th>Description</th>
                 <th>Images</th>
@@ -189,7 +179,6 @@ const Item = () => {
                 <tr key={item._id}>
                   <td>{item.name}</td>
                   <td>{item.category ? item.category.name : "N/A"}</td>
-                  <td>{item.subcategory ? item.subcategory.name : "N/A"}</td>
                   <td>{item.price}</td>
                   <td>{item.description}</td>
                   <td>
@@ -224,13 +213,6 @@ const Item = () => {
                 <option key={category._id} value={category._id}>{category.name}</option>
               ))}
             </select>
-            <label>Subcategory:</label>
-            <select name="subcategory" value={newItem.subcategory} onChange={handleChange} required>
-              <option value="">Select Subcategory</option>
-              {subcategories.map(subcategory => (
-                <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
-              ))}
-            </select>
             <label>Price:</label>
             <input type="number" name="price" value={newItem.price} onChange={handleChange} required />
             <label>Description:</label>
@@ -253,7 +235,6 @@ const Item = () => {
           <div className="modal-content">
             <h3>{viewingItem.name} Details</h3>
             <p><strong>Category:</strong> {viewingItem.category ? viewingItem.category.name : "N/A"}</p>
-            <p><strong>Subcategory:</strong> {viewingItem.subcategory ? viewingItem.subcategory.name : "N/A"}</p>
             <p><strong>Price:</strong> {viewingItem.price}</p>
             <p><strong>Description:</strong> {viewingItem.description}</p>
             <div>

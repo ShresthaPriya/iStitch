@@ -24,7 +24,7 @@ const upload = multer({ storage: storage }).array('images', 3);
 // Get all items
 const getItems = async (req, res) => {
     try {
-        const items = await Item.find().populate("subcategory");
+        const items = await Item.find().populate("category");
         res.status(200).json({ success: true, items });
     } catch (err) {
         console.error("Error fetching items:", err);
@@ -40,15 +40,15 @@ const addItem = async (req, res) => {
             return res.status(500).json({ success: false, error: err.message });
         }
 
-        const { name, subcategory, price, description } = req.body;
-        if (!name || !subcategory || !price || !description) {
+        const { name, category, price, description } = req.body;
+        if (!name || !category || !price || !description) {
             return res.status(400).json({ success: false, error: "All fields are required" });
         }
 
         const images = req.files.map(file => file.path);
 
         try {
-            const newItem = new Item({ name, subcategory, price, description, images });
+            const newItem = new Item({ name, category, price, description, images });
             await newItem.save();
             res.status(201).json({ success: true, item: newItem });
         } catch (err) {
@@ -67,15 +67,15 @@ const updateItem = async (req, res) => {
         }
 
         const { id } = req.params;
-        const { name, subcategory, price, description } = req.body;
-        if (!name || !subcategory || !price || !description) {
+        const { name, category, price, description } = req.body;
+        if (!name || !category || !price || !description) {
             return res.status(400).json({ success: false, error: "All fields are required" });
         }
 
         const images = req.files.map(file => file.path);
 
         try {
-            const updatedItem = await Item.findByIdAndUpdate(id, { name, subcategory, price, description, images }, { new: true });
+            const updatedItem = await Item.findByIdAndUpdate(id, { name, category, price, description, images }, { new: true });
             res.status(200).json({ success: true, item: updatedItem });
         } catch (err) {
             console.error("Error updating item:", err);

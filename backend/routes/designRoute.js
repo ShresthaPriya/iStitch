@@ -17,9 +17,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const uploadFields = upload.fields([
-  { name: 'fullSleeve', maxCount: 1 },
-  { name: 'halfSleeve', maxCount: 1 },
-  { name: 'sleeve', maxCount: 1 },
+  { name: 'fullSleeve', maxCount: 3 },
+  { name: 'halfSleeve', maxCount: 3 },
+  { name: 'sleeve', maxCount: 3 },
 ]);
 
 // Route to add a new design

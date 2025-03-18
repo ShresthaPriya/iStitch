@@ -1,0 +1,71 @@
+.measurements-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.measurements-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.error-message, .success-message {
+  text-align: center;
+  margin-bottom: 20px;
+  color: red;
+}
+
+.success-message {
+  color: green;
+}
+
+.measurement-field {
+  margin-bottom: 15px;
+}
+
+.measurement-field label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.measurement-field input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.submit-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.size-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.size-matrix th, .size-matrix td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.size-matrix th {
+  background-color: #f2f2f2;
+}

@@ -5,24 +5,32 @@ const DesignSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  subcategory: {
+  category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Subcategory",
+    ref: "Category",
     required: true,
   },
   designPhotos: {
     fullSleeve: {
-      type: String,
+      type: [String],
       required: false,
     },
     halfSleeve: {
-      type: String,
+      type: [String],
       required: false,
     },
     sleeve: {
-      type: String,
+      type: [String],
       required: false,
     },
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
   },
 });
 

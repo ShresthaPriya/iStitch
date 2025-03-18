@@ -10,7 +10,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import ForgetPassword from './pages/ResetPassword';
 import Items from './components/Items';
-import Measurements from './components/Measurements';
+// import Measurements from './components/Measurements';
 import ResetPasswordRequest from './pages/ResetPassword';
 import ProductCard from './components/ProductCard';
 import Cart from './components/Cart';
@@ -19,6 +19,8 @@ import ShirtMeasurements from './components/ShirtMeasurements';
 import PantMeasurements from './components/PantMeasurements';
 import BlazerMeasurements from './components/BlazerMeasurements';
 import BlouseMeasurements from './components/BlouseMeasurements';
+import FabricDetails from './pages/FabricDetails';
+import FabricCollection from './components/FabricCollection';
 
 import Customer from './pages/Customer';
 import AdminHome from './pages/AdminHome';
@@ -30,6 +32,7 @@ import Fabric from './pages/Fabric';
 import Measurement from './pages/Measurement';
 import Sidebar from "./components/Sidebar";
 import Design from "./pages/Design";
+import CustomerMeasurements from './pages/CustomerMeasurements';
 
 export const AppContext = createContext();
 
@@ -42,7 +45,7 @@ function App() {
       <QueryClientProvider client={client}>
         <AppContext.Provider value={{ fullname, setFullname }}>
           <Router>
-            <Sidebar />
+            {/* <Sidebar /> */}
             <Routes>
               <Route path='/' element={<Splash />} />
               <Route path='/auth/Register' element={<Register />} />
@@ -52,7 +55,7 @@ function App() {
               <Route path='/admin' element={<AdminHome />} />
               <Route path='/Splash' element={<Splash />} />
               <Route path='/items' element={<Items />} />
-              <Route path='/measurements' element={<Measurements />} />
+              {/* <Route path='/measurements' element={<Measurements />} /> */}
               <Route path='/resetPassword' element={<ResetPasswordRequest />} />
               <Route path='/product/:id' element={<ProductCard />} />
               <Route path='/cart' element={<Cart />} />
@@ -70,6 +73,10 @@ function App() {
               <Route path='/admin/measurements' element={<Measurement />} />
               <Route path='/items/:category/:subcategory' element={<Items />} />
               <Route path='/admin/designs' element={<Design />} />
+              <Route path='/fabric-details' element={<FabricDetails />} />
+              <Route path='/fabric-collection' element={<FabricCollection />} />
+              <Route path='/fabric-details/:id' element={<FabricDetails />} />
+              <Route path='/customer-measurements' element={<CustomerMeasurements />} />
             </Routes>
           </Router>
         </AppContext.Provider>

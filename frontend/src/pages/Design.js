@@ -6,11 +6,11 @@ import Sidebar from "../components/Sidebar";
 
 const Design = () => {
   const [designs, setDesigns] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedDesignId, setSelectedDesignId] = useState(null);
-  const [newDesign, setNewDesign] = useState({ name: "", subcategory: "", fullSleeve: null, halfSleeve: null, sleeve: null });
+  const [newDesign, setNewDesign] = useState({ name: "", category: "", price: "", description: "", fullSleeve: [], halfSleeve: [], sleeve: [] });
   const [viewingDesign, setViewingDesign] = useState(null);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -25,17 +25,17 @@ const Design = () => {
       }
     };
 
-    const fetchSubcategories = async () => {
+    const fetchCategories = async () => {
       try {
-        const response = await axios.get('/api/subcategories');
-        setSubcategories(response.data.subcategories);
+        const response = await axios.get('/api/categories');
+        setCategories(response.data.categories);
       } catch (err) {
-        console.error("Error fetching subcategories:", err);
+        console.error("Error fetching categories:", err);
       }
     };
 
     fetchDesigns();
-    fetchSubcategories();
+    fetchCategories();
   }, []);
 
   // Handle form input changes
@@ -47,17 +47,19 @@ const Design = () => {
   // Handle file input changes
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setNewDesign({ ...newDesign, [name]: files[0] });
+    setNewDesign({ ...newDesign, [name]: Array.from(files) });
   };
 
   // Add or Edit design
   const handleAddDesign = async () => {
     const formData = new FormData();
     formData.append("name", newDesign.name);
-    formData.append("subcategory", newDesign.subcategory);
-    if (newDesign.fullSleeve) formData.append("fullSleeve", newDesign.fullSleeve);
-    if (newDesign.halfSleeve) formData.append("halfSleeve", newDesign.halfSleeve);
-    if (newDesign.sleeve) formData.append("sleeve", newDesign.sleeve);
+    formData.append("category", newDesign.category);
+    formData.append("price", newDesign.price);
+    formData.append("description", newDesign.description);
+    newDesign.fullSleeve.forEach(file => formData.append("fullSleeve", file));
+    newDesign.halfSleeve.forEach(file => formData.append("halfSleeve", file));
+    newDesign.sleeve.forEach(file => formData.append("sleeve", file));
 
     try {
       if (editMode) {
@@ -84,7 +86,7 @@ const Design = () => {
         setSuccessMessage("Design added successfully!");
       }
       setShowModal(false);
-      setNewDesign({ name: "", subcategory: "", fullSleeve: null, halfSleeve: null, sleeve: null });
+      setNewDesign({ name: "", category: "", price: "", description: "", fullSleeve: [], halfSleeve: [], sleeve: [] });
     } catch (err) {
       console.error('Error adding/updating design:', err);
       setError(`Error adding/updating design: ${err.response?.data?.error || err.message}`);
@@ -158,7 +160,9 @@ const Design = () => {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Subcategory</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Description</th>
                 <th>Photos</th>
                 <th>Operations</th>
               </tr>
@@ -167,11 +171,19 @@ const Design = () => {
               {designs.map((design) => (
                 <tr key={design._id}>
                   <td>{design.name}</td>
-                  <td>{design.subcategory.name}</td>
+                  <td>{design.category.name}</td>
+                  <td>{design.price}</td>
+                  <td>{design.description}</td>
                   <td>
-                    {design.designPhotos.fullSleeve && <img src={`/${design.designPhotos.fullSleeve}`} alt="Full Sleeve" className="design-photo" />}
-                    {design.designPhotos.halfSleeve && <img src={`/${design.designPhotos.halfSleeve}`} alt="Half Sleeve" className="design-photo" />}
-                    {design.designPhotos.sleeve && <img src={`/${design.designPhotos.sleeve}`} alt="Sleeve" className="design-photo" />}
+                    {design.designPhotos.fullSleeve.map((photo, index) => (
+                      <img key={index} src={`/${photo}`} alt="Full Sleeve" className="design-photo" />
+                    ))}
+                    {design.designPhotos.halfSleeve.map((photo, index) => (
+                      <img key={index} src={`/${photo}`} alt="Half Sleeve" className="design-photo" />
+                    ))}
+                    {design.designPhotos.sleeve.map((photo, index) => (
+                      <img key={index} src={`/${photo}`} alt="Sleeve" className="design-photo" />
+                    ))}
                   </td>
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditDesign(design)} />
@@ -193,19 +205,23 @@ const Design = () => {
             {error && <p className="error">{error}</p>}
             <label>Name:</label>
             <input type="text" name="name" value={newDesign.name} onChange={handleChange} required />
-            <label>Subcategory:</label>
-            <select name="subcategory" value={newDesign.subcategory} onChange={handleChange} required>
-              <option value="">Select Subcategory</option>
-              {subcategories.map(subcategory => (
-                <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
+            <label>Category:</label>
+            <select name="category" value={newDesign.category} onChange={handleChange} required>
+              <option value="">Select Category</option>
+              {categories.map(category => (
+                <option key={category._id} value={category._id}>{category.name}</option>
               ))}
             </select>
-            <label>Full Sleeve Photo:</label>
-            <input type="file" name="fullSleeve" onChange={handleFileChange} accept="image/*" />
-            <label>Half Sleeve Photo:</label>
-            <input type="file" name="halfSleeve" onChange={handleFileChange} accept="image/*" />
-            <label>Sleeve Photo:</label>
-            <input type="file" name="sleeve" onChange={handleFileChange} accept="image/*" />
+            <label>Price:</label>
+            <input type="number" name="price" value={newDesign.price} onChange={handleChange} required />
+            <label>Description:</label>
+            <textarea name="description" value={newDesign.description} onChange={handleChange} required />
+            <label>Full Sleeve Photos:</label>
+            <input type="file" name="fullSleeve" onChange={handleFileChange} multiple accept="image/*" />
+            <label>Half Sleeve Photos:</label>
+            <input type="file" name="halfSleeve" onChange={handleFileChange} multiple accept="image/*" />
+            <label>Sleeve Photos:</label>
+            <input type="file" name="sleeve" onChange={handleFileChange} multiple accept="image/*" />
             <div className="modal-actions">
               <button className="add-btn" onClick={handleAddDesign}>
                 {editMode ? "Update" : "Add"}
@@ -221,13 +237,21 @@ const Design = () => {
         <div className="modal">
           <div className="modal-content">
             <h3>{viewingDesign.name} Details</h3>
-            <p><strong>Subcategory:</strong> {viewingDesign.subcategory.name}</p>
+            <p><strong>Category:</strong> {viewingDesign.category.name}</p>
+            <p><strong>Price:</strong> {viewingDesign.price}</p>
+            <p><strong>Description:</strong> {viewingDesign.description}</p>
             <div>
               <strong>Photos:</strong>
               <div className="images-container">
-                {viewingDesign.designPhotos.fullSleeve && <img src={`/${viewingDesign.designPhotos.fullSleeve}`} alt="Full Sleeve" width="100" />}
-                {viewingDesign.designPhotos.halfSleeve && <img src={`/${viewingDesign.designPhotos.halfSleeve}`} alt="Half Sleeve" width="100" />}
-                {viewingDesign.designPhotos.sleeve && <img src={`/${viewingDesign.designPhotos.sleeve}`} alt="Sleeve" width="100" />}
+                {viewingDesign.designPhotos.fullSleeve.map((photo, index) => (
+                  <img key={index} src={`/${photo}`} alt="Full Sleeve" width="100" />
+                ))}
+                {viewingDesign.designPhotos.halfSleeve.map((photo, index) => (
+                  <img key={index} src={`/${photo}`} alt="Half Sleeve" width="100" />
+                ))}
+                {viewingDesign.designPhotos.sleeve.map((photo, index) => (
+                  <img key={index} src={`/${photo}`} alt="Sleeve" width="100" />
+                ))}
               </div>
             </div>
             <button className="close-btn" onClick={() => setViewingDesign(null)}>Close</button>

@@ -5,7 +5,7 @@ import "../styles/Navbar.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { AppContext } from "../App";
 
-function Navbar() {
+function SplashNavbar() {
   const { username } = useContext(AppContext);
   const [menuActive, setMenuActive] = useState(false);
   const [shopDropdownActive, setShopDropdownActive] = useState(false);
@@ -99,7 +99,6 @@ function Navbar() {
           )}
         </li>
         <li><Link to="/fabric-collection">Fabrics</Link></li>
-        <li><Link to="/customer-measurements">Enter Measurements</Link></li>
       </ul>
 
       <div className="search-and-profile">
@@ -107,18 +106,6 @@ function Navbar() {
           <input type="text" className="search-input" />
           <button className="search-button">
             <i className="fa fa-search"></i>
-          </button>
-        </div>
-        <div className="notification-section">
-          <button className="notification-button">
-            <i className="fa fa-bell"></i>
-            <span className="notification-badge">5</span>
-          </button>
-        </div>
-        <div className="cart-section">
-          <button className="cart-button">
-            <i className="fa fa-shopping-cart"></i>
-            <span className="cart-badge">3</span>
           </button>
         </div>
 
@@ -144,4 +131,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default SplashNavbar;

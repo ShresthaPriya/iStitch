@@ -1,32 +1,17 @@
-import React from "react";
-import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import CategoryGrid from "../components/CategoryGrid";
-import  "../styles/Home.css"
+import React from 'react';
+import SplashNavbar from '../components/SplashNavbar';
+import '../styles/Splash.css';
 
 const Splash = () => {
-  const navigate = useNavigate();
-
-  const handleExploreClick = () => {
-    navigate('/Login');
-  };
-
   return (
-    <>
-      <Navbar />
-      <section className="hero">
-        <div className="hero-content">
-          <h1>LOOK YOUR BEST</h1>
-          <p>FOR YOUR SPECIAL DAY</p>
-          <button className="new-articles" onClick={handleExploreClick}>Explore</button>
-        </div>
-      </section>
-      
-      <section>
-        <Footer />
-      </section>
-    </>
+    <div className="splash-container">
+      <SplashNavbar />
+      <div className="splash-content">
+        <h1>Welcome to iStitch</h1>
+        <p>Your one-stop solution for custom tailoring and fabrics.</p>
+        <button className="explore-button">Explore Now</button>
+      </div>
+    </div>
   );
 };
 

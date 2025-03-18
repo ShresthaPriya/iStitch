@@ -1,66 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../styles/FabricCollection.css';
 import Navbar from './Navbar';
 
 function FabricCollection() {
-  const fabrics = [
-    {
-      name: "Wool",
-      image: require('../images/fabrics/wool.jpg'),
-      reviews: 120,
-      rating: 4.8,
-    },
-    {
-      name: "Cotton",
-      image: require('../images/fabrics/cotton.webp'),
-      reviews: 180,
-      rating: 4.7,
-    },
-    {
-      name: "Linen",
-      image: require('../images/fabrics/lenin.jpg'),
-      reviews: 85,
-      rating: 4.6,
-    },
-    {
-      name: "Silk",
-      image: require('../images/fabrics/silk.jpg'),
-      rating: 4.8,
-    },
-    {
-      name: "Cotton Denim",
-      image: require('../images/fabrics/denim.jpg'),
-      rating: 4.7,
-    },
-    {
-      name: "Satin",
-      image: require('../images/fabrics/satin.webp'),
-      rating: 4.6,
-    },
-  ];
+  const navigate = useNavigate();
+  const [fabrics, setFabrics] = useState([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchFabrics = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/fabrics');
+        setFabrics(response.data.fabrics);
+      } catch (err) {
+        console.error("Error fetching fabrics:", err);
+        setError(`Error fetching fabrics: ${err.response?.data?.error || err.message}`);
+      }
+    };
+
+    fetchFabrics();
+  }, []);
+
+  const handleViewFabric = (id) => {
+    navigate(`/fabric-details/${id}`);
+  };
 
   return (
     <>
-      {/* <Navbar /> */}
+    <Navbar/>
       <div className="fabric-header">
-        <h3 className="fabric-title">Trending Fabrics</h3>
+        <h3 className="fabric-title">Fabrics</h3>
       </div>
       <div className="view-all-container">
         <a href="#viewAll" className="view-all-link">View all <span>▾</span></a>
       </div>
       <div className="fabric-collection">
-        {fabrics.map((fabric, index) => (
-          <div key={index} className="fabric-card">
-            <img src={fabric.image} alt={fabric.name} className="fabric-image" />
+        {error && <div className="error-message">{error}</div>}
+        {fabrics.map((fabric) => (
+          <div key={fabric._id} className="fabric-card">
+            {fabric.images.map((image, index) => (
+              <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
+            ))}
             <div className="fabric-info">
               <h3>{fabric.name}</h3>
-              <p>{fabric.rating} ★</p>
+              <p>${fabric.price}</p>
             </div>
-            <button>View Fabric</button>
+            <button onClick={() => handleViewFabric(fabric._id)}>View Fabric</button>
           </div>
         ))}
       </div>
-    
     </>
   );
 }
