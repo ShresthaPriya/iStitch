@@ -1,6 +1,10 @@
 .fabric-details-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 20px;
-  text-align: center;
+  background-color: #f9f9f9;
+  height: 100vh;
 }
 
 .fabrics-grid {
@@ -11,29 +15,53 @@
 }
 
 .fabric-card {
+  display: flex;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 20px;
-  width: 300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: left;
+  overflow: hidden;
+  max-width: 800px;
+  width: 100%;
+}
+
+.fabric-image-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
 .fabric-image {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 0px;
 }
 
-.fabric-card h3 {
-  margin-top: 10px;
-  font-size: 1.5em;
+.fabric-info {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.fabric-card p {
-  margin: 10px 0;
+.fabric-info h3 {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.fabric-info p {
+  margin-bottom: 10px;
   color: #555;
+}
+
+.fabric-info .price {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 
 .favourite-button {
@@ -41,9 +69,10 @@
   color: #fff;
   border: none;
   padding: 10px 20px;
+  font-size: 1em;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
 }
 
 .favourite-button:hover {
@@ -52,5 +81,12 @@
 
 .error-message {
   color: red;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.success-message {
+  color: green;
+  text-align: center;
   margin-bottom: 20px;
 }

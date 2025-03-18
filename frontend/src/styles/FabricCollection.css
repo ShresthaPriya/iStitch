@@ -12,8 +12,8 @@
   border-radius: 8px;
   overflow: hidden;
   width: 300px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -21,6 +21,7 @@
 
 .fabric-card:hover {
   transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .fabric-image {
@@ -37,6 +38,7 @@
 .fabric-info h3 {
   margin: 10px 0;
   font-size: 1.2em;
+  color: #333;
 }
 
 .fabric-info p {
@@ -62,6 +64,19 @@
 .fabric-header {
   text-align: center;
   margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sort-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.sort-container label {
+  margin-right: 10px;
 }
 
 .view-all-container {
@@ -71,6 +86,17 @@
 
 .view-all-link {
   text-decoration: none;
-  color: #000;
+  color: #007bff;
   font-weight: bold;
+  transition: color 0.2s;
+}
+
+.view-all-link:hover {
+  color: #0056b3;
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+  margin-bottom: 20px;
 }

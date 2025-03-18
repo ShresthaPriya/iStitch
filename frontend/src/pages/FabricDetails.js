@@ -8,6 +8,7 @@ const FabricDetails = () => {
   const { id } = useParams();
   const [fabric, setFabric] = useState(null);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const fetchFabric = async () => {
@@ -26,23 +27,31 @@ const FabricDetails = () => {
   const addToFavourite = (fabricId) => {
     // Add to favourite logic here
     console.log(`Fabric ${fabricId} added to favourite`);
+    setSuccessMessage("Fabric added to favourites successfully!");
+    setTimeout(() => {
+      setSuccessMessage("");
+    }, 3000);
   };
 
   return (
     <>
       <Navbar />
       <div className="fabric-details-container">
-        <h2>Fabric Details</h2>
         {error && <div className="error-message">{error}</div>}
+        {successMessage && <div className="success-message">{successMessage}</div>}
         {fabric && (
           <div className="fabric-card">
-            {fabric.images.map((image, index) => (
-              <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
-            ))}
-            <h3>{fabric.name}</h3>
-            <p><strong>Price:</strong> ${fabric.price}</p>
-            <p>{fabric.description}</p>
-            <button className="favourite-button" onClick={() => addToFavourite(fabric._id)}>Add to Favourite</button>
+            <div className="fabric-image-container">
+              {fabric.images.map((image, index) => (
+                <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
+              ))}
+            </div>
+            <div className="fabric-info">
+              <h3>{fabric.name}</h3>
+              <p>{fabric.description}</p>
+              <p className="price">${fabric.price}</p>
+              <button className="favourite-button" onClick={() => addToFavourite(fabric._id)}>Add to Favourite</button>
+            </div>
           </div>
         )}
       </div>

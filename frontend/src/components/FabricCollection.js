@@ -8,6 +8,7 @@ function FabricCollection() {
   const navigate = useNavigate();
   const [fabrics, setFabrics] = useState([]);
   const [error, setError] = useState("");
+  const [sortOrder, setSortOrder] = useState("default");
 
   useEffect(() => {
     const fetchFabrics = async () => {
@@ -27,18 +28,40 @@ function FabricCollection() {
     navigate(`/fabric-details/${id}`);
   };
 
+  const handleSortChange = (e) => {
+    setSortOrder(e.target.value);
+  };
+
+  const sortedFabrics = [...fabrics].sort((a, b) => {
+    if (sortOrder === "low-to-high") {
+      return a.price - b.price;
+    } else if (sortOrder === "high-to-low") {
+      return b.price - a.price;
+    } else {
+      return 0;
+    }
+  });
+
   return (
     <>
-    <Navbar/>
+      <Navbar />
       <div className="fabric-header">
         <h3 className="fabric-title">Fabrics</h3>
+        <div className="sort-container">
+          <label htmlFor="sort">Sort by price:</label>
+          <select id="sort" value={sortOrder} onChange={handleSortChange}>
+            <option value="default">Default</option>
+            <option value="low-to-high">Low to High</option>
+            <option value="high-to-low">High to Low</option>
+          </select>
+        </div>
       </div>
       <div className="view-all-container">
         <a href="#viewAll" className="view-all-link">View all <span>▾</span></a>
       </div>
       <div className="fabric-collection">
         {error && <div className="error-message">{error}</div>}
-        {fabrics.map((fabric) => (
+        {sortedFabrics.map((fabric) => (
           <div key={fabric._id} className="fabric-card">
             {fabric.images.map((image, index) => (
               <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
