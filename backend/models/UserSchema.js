@@ -16,7 +16,7 @@ const UserSchema = mongoose.Schema({
     }, 
     password: {
         type: String,
-        required: [true, 'Password is required'],
+        required: true
     },
     resetPasswordToken:{
         type: String

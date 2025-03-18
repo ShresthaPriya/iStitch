@@ -26,6 +26,21 @@ const getFabrics = async (req, res) => {
     }
 };
 
+// Get a single fabric by ID
+const getFabricById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const fabric = await Fabric.findById(id);
+        if (!fabric) {
+            return res.status(404).json({ success: false, error: "Fabric not found" });
+        }
+        res.status(200).json({ success: true, fabric });
+    } catch (err) {
+        console.error("Error fetching fabric:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
 // Add a new fabric
 const addFabric = async (req, res) => {
     const { name, description, price } = req.body;
@@ -76,4 +91,4 @@ const deleteFabric = async (req, res) => {
     }
 };
 
-module.exports = { getFabrics, addFabric, updateFabric, deleteFabric, upload };
+module.exports = { getFabrics, getFabricById, addFabric, updateFabric, deleteFabric, upload };

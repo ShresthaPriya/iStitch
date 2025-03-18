@@ -22,7 +22,6 @@ const measurementRoutes = require("./routes/measurementRoute");
 const guideRoutes = require("./routes/guideRoute");
 const metricsRoutes = require("./routes/metricsRoute");
 const designRoutes = require("./routes/designRoute");
-const userMeasurementRoutes = require("./routes/userMeasurementRoute");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -34,7 +33,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the uploads directory
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
-app.use('/public/images', express.static(path.join(__dirname, 'public/images')));
 
 // Cookie-based session
 app.use(
@@ -66,7 +64,6 @@ app.use("/api/measurements", measurementRoutes);
 app.use("/api/guides", guideRoutes);
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/designs", designRoutes);
-app.use("/api/user-measurements", userMeasurementRoutes);
 
 // Start the server
 const startServer = async () => {
