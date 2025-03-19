@@ -57,7 +57,7 @@ function FabricCollection() {
         </div>
       </div>
       <div className="view-all-container">
-        <a href="#viewAll" className="view-all-link">View all <span>▾</span></a>
+        <a href="#viewAll" className="view-all-link" style={{ paddingLeft: '10px' }}>View all <span>▾</span></a>
       </div>
       <div className="fabric-collection">
         {error && <div className="error-message">{error}</div>}
@@ -68,7 +68,7 @@ function FabricCollection() {
             ))}
             <div className="fabric-info">
               <h3>{fabric.name}</h3>
-              <p>${fabric.price}</p>
+              <p>Rs.{fabric.price}</p>
             </div>
             <button onClick={() => handleViewFabric(fabric._id)}>View Fabric</button>
           </div>
