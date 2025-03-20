@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus, FaBook } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Customer.css";
@@ -16,7 +17,7 @@ const Measurement = () => {
   const [viewingMeasurement, setViewingMeasurement] = useState(null);
   const [viewingGuide, setViewingGuide] = useState(null);
   const [error, setError] = useState("");
-
+  const navigate = useNavigate(); // Initialize useNavigate
   useEffect(() => {
     const fetchMeasurements = async () => {
       try {
@@ -163,7 +164,9 @@ const Measurement = () => {
   const handleViewGuide = (guide) => {
     setViewingGuide(guide);
   };
-
+  const handleUserIconClick = () => {
+    navigate('/admin-profile'); // Navigate to AdminProfile page
+};
   return (
     <div className="customer-container">
       <Sidebar />
@@ -176,7 +179,7 @@ const Measurement = () => {
           <div className="user-info">
             <span>Admin</span>
             <FaCog className="icon" />
-            <FaUser className="icon" />
+            <FaUser className="icon" onClick={handleUserIconClick} /> {/* Add onClick handler */}
           </div>
         </div>
         <div className="add-category-container">

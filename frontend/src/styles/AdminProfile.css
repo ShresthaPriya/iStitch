@@ -1,0 +1,46 @@
+.profile-container {
+    display: flex;
+}
+
+.profile-content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 250px; /* Adjust margin to avoid being covered by the sidebar */
+}
+
+.title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center; /* Center the heading text */
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    margin-left: 620px;
+    margin-top: 100px;
+}
+
+.profile-form label {
+    margin-bottom: 5px;
+}
+
+.profile-form input {
+    margin-bottom: 15px;
+    padding: 8px; /* Adjust padding to make input fields shorter */
+    font-size: 16px; /* Adjust font size to make input fields shorter */
+    width: 400px; /* Set a fixed width for input fields */
+}
+
+.profile-form button {
+    padding: 8px; /* Adjust padding to make buttons shorter */
+    font-size: 14px; /* Adjust font size to make buttons shorter */
+    margin-top: 10px;
+    cursor: pointer;
+    width: 150px; /* Set a fixed width for buttons */
+    background-color: #00008B; /* Set button color to dark blue */
+    color: white; /* Set text color to white */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Add border radius */
+    margin-left: 130px;
+}

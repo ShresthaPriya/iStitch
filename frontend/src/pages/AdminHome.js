@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { FaUser, FaCog, FaUsersCog, FaListAlt, FaClipboardList, FaShoppingBag, FaBox } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Dashboard.css";
@@ -13,6 +14,8 @@ const AdminHome = () => {
         totalSales: 0,
         totalItemCount: 0
     });
+    const [customers, setCustomers] = useState([]); // State to hold customer data
+    const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
         const fetchMetrics = async () => {
@@ -24,8 +27,22 @@ const AdminHome = () => {
             }
         };
 
+        const fetchCustomers = async () => {
+            try {
+                const response = await axios.get('http://localhost:4000/api/customers');
+                setCustomers(response.data.customers);
+            } catch (err) {
+                console.error("Error fetching customers:", err);
+            }
+        };
+
         fetchMetrics();
+        fetchCustomers();
     }, []);
+
+    const handleUserIconClick = () => {
+        navigate('/admin-profile'); // Navigate to AdminProfile page
+    };
 
     return (
         <div className="dashboard-container">
@@ -37,39 +54,48 @@ const AdminHome = () => {
                     <div className="user-info">
                         <span>{username}</span>
                         <FaCog className="icon" />
-                        <FaUser className="icon" />
+                        <FaUser className="icon" onClick={handleUserIconClick} /> {/* Add onClick handler */}
                     </div>
                 </div>
 
                 {/* Dashboard Metrics */}
                 <div className="metrics-grid">
-    <div className="metric-card customers">
-        <FaUsersCog className="metric-icon" />
-        <span className="metric-title">Customers</span>
-        <span className="metric-value">{metrics.customerCount}</span>
-    </div>
-    <div className="metric-card pending-orders">
-        <FaListAlt className="metric-icon" />
-        <span className="metric-title">Pending Orders</span>
-        <span className="metric-value">{metrics.pendingOrderCount}</span>
-    </div>
-    <div className="metric-card total-orders">
-        <FaClipboardList className="metric-icon" />
-        <span className="metric-title">Total Orders</span>
-        <span className="metric-value">{metrics.totalOrderCount}</span>
-    </div>
-    <div className="metric-card total-sales">
-        <FaShoppingBag className="metric-icon" />
-        <span className="metric-title">Total Sales</span>
-        <span className="metric-value">${metrics.totalSales.toFixed(2)}</span>
-    </div>
-    <div className="metric-card total-items">
-        <FaBox className="metric-icon" />
-        <span className="metric-title">Total Items</span>
-        <span className="metric-value">{metrics.totalItemCount}</span>
-    </div>
-</div>
+                    <div className="metric-card customers">
+                        <FaUsersCog className="metric-icon" />
+                        <span className="metric-title">Customers</span>
+                        <span className="metric-value">{metrics.customerCount}</span>
+                    </div>
+                    <div className="metric-card pending-orders">
+                        <FaListAlt className="metric-icon" />
+                        <span className="metric-title">Pending Orders</span>
+                        <span className="metric-value">{metrics.pendingOrderCount}</span>
+                    </div>
+                    <div className="metric-card total-orders">
+                        <FaClipboardList className="metric-icon" />
+                        <span className="metric-title">Total Orders</span>
+                        <span className="metric-value">{metrics.totalOrderCount}</span>
+                    </div>
+                    <div className="metric-card total-sales">
+                        <FaShoppingBag className="metric-icon" />
+                        <span className="metric-title">Total Sales</span>
+                        <span className="metric-value">${metrics.totalSales.toFixed(2)}</span>
+                    </div>
+                    <div className="metric-card total-items">
+                        <FaBox className="metric-icon" />
+                        <span className="metric-title">Total Items</span>
+                        <span className="metric-value">{metrics.totalItemCount}</span>
+                    </div>
+                </div>
 
+                {/* Registered Customers Section */}
+                <div className="customer-list">
+                    <h3 className="section-title">Registered Customers</h3>
+                    <ul>
+                        {customers.map(customer => (
+                            <li key={customer._id}>{customer.fullname} - {customer.email}</li> // Use fullname instead of name
+                        ))}
+                    </ul>
+                </div>
 
                 {/* Top-Selling Products Section */}
                 <div className="top-selling-products">

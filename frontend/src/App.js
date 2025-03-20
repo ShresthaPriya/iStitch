@@ -33,6 +33,7 @@ import Measurement from './pages/Measurement';
 import Sidebar from "./components/Sidebar";
 import Design from "./pages/Design";
 import CustomerMeasurements from './pages/CustomerMeasurements';
+import AdminProfile from './pages/AdminProfile';
 
 export const AppContext = createContext();
 
@@ -77,6 +78,7 @@ function App() {
               <Route path='/fabric-collection' element={<FabricCollection />} />
               <Route path='/fabric-details/:id' element={<FabricDetails />} />
               <Route path='/customer-measurements' element={<CustomerMeasurements />} />
+              <Route path='/admin-profile' element={<AdminProfile />} />
             </Routes>
           </Router>
         </AppContext.Provider>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Customer.css";
@@ -14,7 +15,7 @@ const Item = () => {
   const [viewingItem, setViewingItem] = useState(null);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // Success message state
-
+  const navigate = useNavigate(); // Initialize useNavigate
   useEffect(() => {
     const fetchItems = async () => {
       try {
@@ -129,7 +130,9 @@ const Item = () => {
   const closeSuccessMessage = () => {
     setSuccessMessage("");
   };
-
+  const handleUserIconClick = () => {
+    navigate('/admin-profile'); // Navigate to AdminProfile page
+};
   return (
     <div className="customer-container">
       <Sidebar />
@@ -142,7 +145,7 @@ const Item = () => {
           <div className="user-info">
             <span>Admin</span>
             <FaCog className="icon" />
-            <FaUser className="icon" />
+            <FaUser className="icon" onClick={handleUserIconClick} />
           </div>
         </div>
 

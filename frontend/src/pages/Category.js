@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Customer.css";
@@ -15,6 +16,7 @@ const Category = () => {
     fetchCategories();
   }, []);
 
+  const navigate = useNavigate(); // Initialize useNavigate
   const fetchCategories = async () => {
     try {
       const response = await axios.get('http://localhost:4000/api/categories');
@@ -71,6 +73,9 @@ const Category = () => {
     setShowModal(true);
   };
 
+  const handleUserIconClick = () => {
+    navigate('/admin-profile'); // Navigate to AdminProfile page
+};
   return (
     <div className="customer-container">
       <Sidebar />
@@ -83,7 +88,7 @@ const Category = () => {
           <div className="user-info">
             <span>Admin</span>
             <FaCog className="icon" />
-            <FaUser className="icon" />
+            <FaUser className="icon" onClick={handleUserIconClick} /> {/* Add onClick handler */}
           </div>
         </div>
 

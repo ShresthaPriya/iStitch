@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Customer.css";
@@ -12,7 +13,7 @@ const Fabric = () => {
   const [newFabric, setNewFabric] = useState({ name: "", price: "", description: "", images: [] });
   const [viewingFabric, setViewingFabric] = useState(null);
   const [error, setError] = useState("");
-
+  const navigate = useNavigate(); // Initialize useNavigate
   useEffect(() => {
     const fetchFabrics = async () => {
       try {
@@ -103,7 +104,9 @@ const Fabric = () => {
   const handleViewFabric = (fabric) => {
     setViewingFabric(fabric);
   };
-
+  const handleUserIconClick = () => {
+    navigate('/admin-profile'); // Navigate to AdminProfile page
+};
   return (
     <div className="customer-container">
       <Sidebar />
@@ -116,7 +119,7 @@ const Fabric = () => {
           <div className="user-info">
             <span>Admin</span>
             <FaCog className="icon" />
-            <FaUser className="icon" />
+            <FaUser className="icon" onClick={handleUserIconClick} /> {/* Add onClick handler */}
           </div>
         </div>
 

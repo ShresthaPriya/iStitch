@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Order.css";
@@ -13,7 +14,7 @@ const Order = () => {
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [error, setError] = useState(""); // Define the error state
-
+  const navigate = useNavigate(); // Initialize useNavigate
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -91,7 +92,9 @@ const Order = () => {
     // Implement the logic to view order details
     console.log(order);
   };
-
+  const handleUserIconClick = () => {
+    navigate('/admin-profile'); // Navigate to AdminProfile page
+};
   return (
     <div className="order-container">
       <Sidebar />
@@ -104,7 +107,7 @@ const Order = () => {
           <div className="user-info">
             <span>{username}</span>
             <FaCog className="icon" />
-            <FaUser className="icon" />
+            <FaUser className="icon" onClick={handleUserIconClick} /> {/* Add onClick handler */}
           </div>
         </div>
 
