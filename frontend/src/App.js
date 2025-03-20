@@ -33,6 +33,11 @@ import Measurement from './pages/Measurement';
 import Sidebar from "./components/Sidebar";
 import Design from "./pages/Design";
 import CustomerMeasurements from './pages/CustomerMeasurements';
+import HomePage from './pages/HomePage';
+import CategoryPage from './pages/CategoryPage';
+import MensPage from './pages/MensPage';
+import WomensPage from './pages/WomensPage';
+import AdminProfile from './pages/AdminProfile'; // Import AdminProfile
 
 export const AppContext = createContext();
 
@@ -77,6 +82,11 @@ function App() {
               <Route path='/fabric-collection' element={<FabricCollection />} />
               <Route path='/fabric-details/:id' element={<FabricDetails />} />
               <Route path='/customer-measurements' element={<CustomerMeasurements />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/category/:categoryId" element={<CategoryPage />} />
+              <Route path='/mens' element={<MensPage />} /> {/* Updated Route */}
+              <Route path='/women' element={<WomensPage />} /> {/* Updated Route */}
+              <Route path='/admin-profile' element={<AdminProfile />} /> {/* Add AdminProfile route */}
             </Routes>
           </Router>
         </AppContext.Provider>

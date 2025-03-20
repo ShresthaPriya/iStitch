@@ -8,10 +8,8 @@ import { AppContext } from "../App";
 function Navbar() {
   const { username } = useContext(AppContext);
   const [menuActive, setMenuActive] = useState(false);
-  const [shopDropdownActive, setShopDropdownActive] = useState(false);
+  const [profileDropdownActive, setProfileDropdownActive] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
-  const [activeCategory, setActiveCategory] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,39 +22,15 @@ function Navbar() {
       }
     };
 
-    const fetchSubcategories = async () => {
-      try {
-        const response = await axios.get("http://localhost:4000/api/subcategories");
-        setSubcategories(response.data.subcategories);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
     fetchCategories();
-    fetchSubcategories();
   }, []);
 
   const toggleMenu = () => {
     setMenuActive(!menuActive);
   };
 
-  const toggleShopDropdown = () => {
-    setShopDropdownActive(!shopDropdownActive);
-  };
-
-  const handleCategoryClick = (categoryId) => {
-    setActiveCategory(activeCategory === categoryId ? null : categoryId);
-  };
-
-  const handleSubcategoryClick = (categoryName, subcategoryName) => {
-    const encodedCategoryName = encodeURIComponent(categoryName.toLowerCase());
-    const encodedSubcategoryName = encodeURIComponent(subcategoryName.toLowerCase());
-    navigate(`/items/${encodedCategoryName}/${encodedSubcategoryName}`);
-  };
-
-  const getSubcategoriesForCategory = (categoryId) => {
-    return subcategories.filter((subcategory) => subcategory.category._id === categoryId);
+  const toggleProfileDropdown = () => {
+    setProfileDropdownActive(!profileDropdownActive);
   };
 
   return (
@@ -73,31 +47,8 @@ function Navbar() {
 
       <ul className={`nav-links ${menuActive ? "active" : ""}`}>
         <li><Link to="/home">Home</Link></li>
-        <li className="dropdown">
-          <Link to="#" onClick={toggleShopDropdown}>Shop <i className="fa fa-chevron-down"></i></Link>
-          {shopDropdownActive && (
-            <ul className="dropdown-menu">
-              {categories.map((category) => (
-                <li className="dropdown" key={category._id}>
-                  <Link to="#" onClick={() => handleCategoryClick(category._id)}>
-                    {category.name} <i className="fa fa-chevron-right"></i>
-                  </Link>
-                  {activeCategory === category._id && (
-                    <ul className="dropdown-menu sub-menu">
-                      {getSubcategoriesForCategory(category._id).map((subcategory) => (
-                        <li key={subcategory._id}>
-                          <Link to="#" onClick={() => handleSubcategoryClick(category.name, subcategory.name)}>
-                            {subcategory.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </li>
+        <li><Link to="/mens">Men's</Link></li>
+        <li><Link to="/women">Women's</Link></li>
         <li><Link to="/fabric-collection">Fabrics</Link></li>
         <li><Link to="/customer-measurements">Enter Measurements</Link></li>
       </ul>
@@ -123,17 +74,17 @@ function Navbar() {
         </div>
 
         <div className="profile-section">
-          <button className="profile-button">
-            <Link to="/login">
-              <i className="fa-solid fa-user"></i>
-            </Link>
+          <button className="profile-button" onClick={toggleProfileDropdown}>
+            <i className="fa-solid fa-user"></i>
             {username && <span className="profile-badge">1</span>}
           </button>
-          {username && (
+          {username && profileDropdownActive && (
             <div className="username-dropdown">
               <i className="fa fa-chevron-down dropdown-icon"></i>
               <ul className="dropdown-menu">
-                <li><Link to="/profile">Profile</Link></li>
+                <li><Link to="/order-history">Order History</Link></li>
+                <li><Link to="/saved-measurements">Saved Measurements</Link></li>
+                <li><Link to="/manage-account">Manage Account</Link></li>
                 <li><Link to="/logout">Logout</Link></li>
               </ul>
             </div>

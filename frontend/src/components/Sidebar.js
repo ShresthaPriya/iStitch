@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from "react-router-dom";
-import { FaUsers, FaClipboardList, FaBox, FaTags, FaHome, FaBolt, FaRuler, FaPaintBrush } from "react-icons/fa";
+import { FaUsers, FaClipboardList, FaBox, FaTags, FaHome, FaBolt, FaRuler, FaPaintBrush, FaUser } from "react-icons/fa";
 import "../styles/Sidebar.css";
 
 const Sidebar = () => {
@@ -46,6 +46,11 @@ const Sidebar = () => {
         <li>
           <NavLink to="/admin/designs" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaPaintBrush className="icon" /> Designs
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/admin-profile" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+            <FaUser className="icon" /> Admin Profile
           </NavLink>
         </li>
       </ul>

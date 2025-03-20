@@ -1,0 +1,21 @@
+.category-page {
+  padding: 20px;
+}
+
+.items-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.item-card {
+  border: 1px solid #ddd;
+  padding: 10px;
+  width: 200px;
+  text-align: center;
+}
+
+.item-image {
+  width: 100%;
+  height: auto;
+}
