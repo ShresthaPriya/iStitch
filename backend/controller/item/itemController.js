@@ -1,21 +1,15 @@
 const Item = require("../../models/ItemSchema");
 const multer = require("multer");
-const fs = require("fs");
+// const fs = require("fs");
 const path = require("path");
-
-// Ensure the uploads directory exists
-const uploadsDir = path.join(__dirname, "../public/images");
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Configure Multer for file uploads
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadsDir);
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../../public/images')); // Corrected path
     },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
+    filename: function (req, file, cb) {
+        const filename = Date.now() + '-' + file.originalname;
+        console.log('Saving file as:', filename); // Logging filename
+        cb(null, filename);
     }
 });
 
@@ -28,6 +22,18 @@ const getItems = async (req, res) => {
         res.status(200).json({ success: true, items });
     } catch (err) {
         console.error("Error fetching items:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// Get items by category
+const getItemsByCategory = async (req, res) => {
+    const { category } = req.params;
+    try {
+        const items = await Item.find({ category }).populate("category");
+        res.status(200).json({ success: true, items });
+    } catch (err) {
+        console.error("Error fetching items by category:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 };
@@ -45,7 +51,7 @@ const addItem = async (req, res) => {
             return res.status(400).json({ success: false, error: "All fields are required" });
         }
 
-        const images = req.files.map(file => file.path);
+        const images = req.files.map(file => file.filename);
 
         try {
             const newItem = new Item({ name, category, price, description, images });
@@ -53,6 +59,8 @@ const addItem = async (req, res) => {
             res.status(201).json({ success: true, item: newItem });
         } catch (err) {
             console.error("Error adding item:", err);
+            console.error("Request body:", req.body);
+            console.error("Uploaded files:", req.files);
             res.status(500).json({ success: false, error: err.message });
         }
     });
@@ -72,13 +80,15 @@ const updateItem = async (req, res) => {
             return res.status(400).json({ success: false, error: "All fields are required" });
         }
 
-        const images = req.files.map(file => file.path);
+        const images = req.files.map(file => file.filename);
 
         try {
             const updatedItem = await Item.findByIdAndUpdate(id, { name, category, price, description, images }, { new: true });
             res.status(200).json({ success: true, item: updatedItem });
         } catch (err) {
             console.error("Error updating item:", err);
+            console.error("Request body:", req.body);
+            console.error("Uploaded files:", req.files);
             res.status(500).json({ success: false, error: err.message });
         }
     });
@@ -96,4 +106,5 @@ const deleteItem = async (req, res) => {
     }
 };
 
-module.exports = { getItems, addItem, updateItem, deleteItem };
+module.exports = { getItems, addItem, updateItem, deleteItem, getItemsByCategory, upload };
+

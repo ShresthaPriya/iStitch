@@ -3,7 +3,7 @@ const Category = require("../../models/CategorySchema");
 // Get all categories
 const getCategories = async (req, res) => {
     try {
-        const categories = await Category.find().populate("subcategories");
+        const categories = await Category.find();
         res.status(200).json({ success: true, categories });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -12,12 +12,12 @@ const getCategories = async (req, res) => {
 
 // Add a new category
 const addCategory = async (req, res) => {
-    const { name, gender, subcategories } = req.body;
+    const { name, gender } = req.body;
     if (!name || !gender) {
         return res.status(400).json({ success: false, error: "Name and gender are required" });
     }
     try {
-        const newCategory = new Category({ name, gender, subcategories });
+        const newCategory = new Category({ name, gender });
         await newCategory.save();
         res.status(201).json({ success: true, category: newCategory });
     } catch (err) {
@@ -28,12 +28,12 @@ const addCategory = async (req, res) => {
 // Update a category
 const updateCategory = async (req, res) => {
     const { id } = req.params;
-    const { name, gender, subcategories } = req.body;
+    const { name, gender } = req.body;
     if (!name || !gender) {
         return res.status(400).json({ success: false, error: "Name and gender are required" });
     }
     try {
-        const updatedCategory = await Category.findByIdAndUpdate(id, { name, gender, subcategories }, { new: true });
+        const updatedCategory = await Category.findByIdAndUpdate(id, { name, gender }, { new: true });
         res.status(200).json({ success: true, category: updatedCategory });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
