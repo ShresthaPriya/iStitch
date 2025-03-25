@@ -76,16 +76,14 @@ function Navbar() {
         <div className="profile-section">
           <button className="profile-button" onClick={toggleProfileDropdown}>
             <i className="fa-solid fa-user"></i>
-            {username && <span className="profile-badge">1</span>}
           </button>
-          {username && profileDropdownActive && (
-            <div className="username-dropdown">
-              <i className="fa fa-chevron-down dropdown-icon"></i>
+          {profileDropdownActive && (
+            <div className="profile-dropdown">
               <ul className="dropdown-menu">
+                <li><Link to="/manage-profile">Manage Profile</Link></li>
                 <li><Link to="/order-history">Order History</Link></li>
                 <li><Link to="/saved-measurements">Saved Measurements</Link></li>
-                <li><Link to="/manage-account">Manage Account</Link></li>
-                <li><Link to="/logout">Logout</Link></li>
+                <li><Link to="/logout">Log Out</Link></li>
               </ul>
             </div>
           )}

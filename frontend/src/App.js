@@ -23,7 +23,6 @@ import FabricDetails from './pages/FabricDetails';
 import FabricCollection from './components/FabricCollection';
 
 import Customer from './pages/Customer';
-import AdminHome from './pages/AdminHome';
 import Category from './pages/Category';
 // import Subcategory from './pages/Subcategory';
 import Item from './pages/Item';
@@ -33,7 +32,7 @@ import Measurement from './pages/Measurement';
 import Sidebar from "./components/Sidebar";
 import Design from "./pages/Design";
 import CustomerMeasurements from './pages/CustomerMeasurements';
-import HomePage from './pages/HomePage';
+import AdminHome from './pages/AdminHome';
 import CategoryPage from './pages/CategoryPage';
 import MensPage from './pages/MensPage';
 import WomensPage from './pages/WomensPage';
@@ -82,7 +81,7 @@ function App() {
               <Route path='/fabric-collection' element={<FabricCollection />} />
               <Route path='/fabric-details/:id' element={<FabricDetails />} />
               <Route path='/customer-measurements' element={<CustomerMeasurements />} />
-              <Route path="/" element={<HomePage />} />
+
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path='/mens' element={<MensPage />} /> {/* Updated Route */}
               <Route path='/women' element={<WomensPage />} /> {/* Updated Route */}
