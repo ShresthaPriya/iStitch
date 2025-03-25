@@ -4,9 +4,11 @@ import axios from "axios";
 import "../styles/Navbar.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { AppContext } from "../App";
+import { CartContext } from '../context/CartContext';
 
-function Navbar() {
+function Navbar({ onCartClick }) {
   const { username } = useContext(AppContext);
+  const { cart } = useContext(CartContext);
   const [menuActive, setMenuActive] = useState(false);
   const [profileDropdownActive, setProfileDropdownActive] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -67,9 +69,9 @@ function Navbar() {
           </button>
         </div>
         <div className="cart-section">
-          <button className="cart-button">
+          <button className="cart-button" onClick={onCartClick}>
             <i className="fa fa-shopping-cart"></i>
-            <span className="cart-badge">3</span>
+            <span className="cart-badge">{cart.length}</span>
           </button>
         </div>
 

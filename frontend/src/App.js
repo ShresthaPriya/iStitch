@@ -14,13 +14,15 @@ import Items from './components/Items';
 import ResetPasswordRequest from './pages/ResetPassword';
 import ProductCard from './components/ProductCard';
 import Cart from './components/Cart';
-import Checkout from './components/Checkout';
+import Checkout from './pages/Checkout'; // Import Checkout
+import CustomizeDress from './pages/CustomizeDress'; // Import CustomizeDress
+import ReviewOrder from './pages/ReviewOrder'; // Import ReviewOrder
 import ShirtMeasurements from './components/ShirtMeasurements';
 import PantMeasurements from './components/PantMeasurements';
 import BlazerMeasurements from './components/BlazerMeasurements';
 import BlouseMeasurements from './components/BlouseMeasurements';
 import FabricDetails from './pages/FabricDetails';
-import FabricCollection from './components/FabricCollection';
+import FabricCollection from './components/FabricCollection'; // Import FabricCollection
 
 import Customer from './pages/Customer';
 import AdminHome from './pages/AdminHome';
@@ -38,57 +40,64 @@ import CategoryPage from './pages/CategoryPage';
 import MensPage from './pages/MensPage';
 import WomensPage from './pages/WomensPage';
 import AdminProfile from './pages/AdminProfile'; // Import AdminProfile
+import { CartProvider } from './context/CartContext'; // Import CartProvider
+import CartSidebar from './components/CartSidebar'; // Import CartSidebar
 
 export const AppContext = createContext();
 
 function App() {
   const client = new QueryClient();
   const [fullname, setFullname] = useState(" ");
+  const [isCartOpen, setIsCartOpen] = useState(false); // Cart sidebar state
 
   return (
     <div className='App'>
       <QueryClientProvider client={client}>
         <AppContext.Provider value={{ fullname, setFullname }}>
-          <Router>
-            {/* <Sidebar /> */}
-            <Routes>
-              <Route path='/' element={<Splash />} />
-              <Route path='/auth/Register' element={<Register />} />
-              <Route path='/login' element={<Login />} />
-              <Route path='/forgetPassword' element={<ForgetPassword />} />
-              <Route path='/home' element={<Home />} />
-              <Route path='/admin' element={<AdminHome />} />
-              <Route path='/Splash' element={<Splash />} />
-              <Route path='/items' element={<Items />} />
-              {/* <Route path='/measurements' element={<Measurements />} /> */}
-              <Route path='/resetPassword' element={<ResetPasswordRequest />} />
-              <Route path='/product/:id' element={<ProductCard />} />
-              <Route path='/cart' element={<Cart />} />
-              <Route path='/checkout' element={<Checkout />} />
-              <Route path='/measurements/shirt' element={<ShirtMeasurements />} />
-              <Route path='/measurements/pant' element={<PantMeasurements />} />
-              <Route path='/measurements/blazer' element={<BlazerMeasurements />} />
-              <Route path='/measurements/blouse' element={<BlouseMeasurements />} />
-              <Route path='/admin/customers' element={<Customer />} />
-              <Route path='/admin/categories' element={<Category />} />
-              {/* <Route path='/admin/subcategories' element={<Subcategory />} /> */}
-              <Route path='/admin/products' element={<Item />} />
-              <Route path='/admin/orders' element={<Order />} />
-              <Route path='/admin/fabrics' element={<Fabric />} />
-              <Route path='/admin/measurements' element={<Measurement />} />
-              <Route path='/items/:category/:subcategory' element={<Items />} />
-              <Route path='/admin/designs' element={<Design />} />
-              <Route path='/fabric-details' element={<FabricDetails />} />
-              <Route path='/fabric-collection' element={<FabricCollection />} />
-              <Route path='/fabric-details/:id' element={<FabricDetails />} />
-              <Route path='/customer-measurements' element={<CustomerMeasurements />} />
-              <Route path="/" element={<HomePage />} />
-              <Route path="/category/:categoryId" element={<CategoryPage />} />
-              <Route path='/mens' element={<MensPage />} /> {/* Updated Route */}
-              <Route path='/women' element={<WomensPage />} /> {/* Updated Route */}
-              <Route path='/admin-profile' element={<AdminProfile />} /> {/* Add AdminProfile route */}
-            </Routes>
-          </Router>
+          <CartProvider> {/* Wrap the application with CartProvider */}
+            <Router>
+              <Routes>
+                <Route path='/' element={<Splash />} />
+                <Route path='/auth/Register' element={<Register />} />
+                <Route path='/login' element={<Login />} />
+                <Route path='/forgetPassword' element={<ForgetPassword />} />
+                <Route path='/home' element={<Home />} />
+                <Route path='/admin' element={<AdminHome />} />
+                <Route path='/Splash' element={<Splash />} />
+                <Route path='/items' element={<Items />} />
+                {/* <Route path='/measurements' element={<Measurements />} /> */}
+                <Route path='/resetPassword' element={<ResetPasswordRequest />} />
+                <Route path='/product/:id' element={<ProductCard />} />
+                <Route path='/cart' element={<Cart />} />
+                <Route path='/checkout' element={<Checkout />} /> {/* Add Checkout route */}
+                <Route path='/customize-dress' element={<CustomizeDress />} /> {/* Add CustomizeDress route */}
+                <Route path='/review-order' element={<ReviewOrder />} /> {/* Add ReviewOrder route */}
+                <Route path='/measurements/shirt' element={<ShirtMeasurements />} />
+                <Route path='/measurements/pant' element={<PantMeasurements />} />
+                <Route path='/measurements/blazer' element={<BlazerMeasurements />} />
+                <Route path='/measurements/blouse' element={<BlouseMeasurements />} />
+                <Route path='/admin/customers' element={<Customer />} />
+                <Route path='/admin/categories' element={<Category />} />
+                {/* <Route path='/admin/subcategories' element={<Subcategory />} /> */}
+                <Route path='/admin/products' element={<Item />} />
+                <Route path='/admin/orders' element={<Order />} />
+                <Route path='/admin/fabrics' element={<Fabric />} />
+                <Route path='/admin/measurements' element={<Measurement />} />
+                <Route path='/items/:category/:subcategory' element={<Items />} />
+                <Route path='/admin/designs' element={<Design />} />
+                <Route path='/fabric-details' element={<FabricDetails />} />
+                <Route path='/fabric-collection' element={<FabricCollection />} /> {/* Add FabricCollection route */}
+                <Route path='/fabric-details/:id' element={<FabricDetails />} />
+                <Route path='/customer-measurements' element={<CustomerMeasurements />} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/category/:categoryId" element={<CategoryPage />} />
+                <Route path='/mens' element={<MensPage />} /> {/* Updated Route */}
+                <Route path='/women' element={<WomensPage />} /> {/* Updated Route */}
+                <Route path='/admin-profile' element={<AdminProfile />} /> {/* Add AdminProfile route */}
+              </Routes>
+              <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} /> {/* Cart sidebar */}
+            </Router>
+          </CartProvider>
         </AppContext.Provider>
       </QueryClientProvider>
     </div>

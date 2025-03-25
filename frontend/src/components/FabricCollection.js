@@ -9,6 +9,7 @@ function FabricCollection() {
   const [fabrics, setFabrics] = useState([]);
   const [error, setError] = useState("");
   const [sortOrder, setSortOrder] = useState("default");
+  const [selectedFabric, setSelectedFabric] = useState(null); // Define selectedFabric
 
   useEffect(() => {
     const fetchFabrics = async () => {
@@ -24,12 +25,13 @@ function FabricCollection() {
     fetchFabrics();
   }, []);
 
-  const handleViewFabric = (id) => {
-    navigate(`/fabric-details/${id}`);
-  };
-
   const handleSortChange = (e) => {
     setSortOrder(e.target.value);
+  };
+
+  const handleSelectFabric = (fabric) => {
+    setSelectedFabric(fabric);
+    navigate('/customize-dress', { state: { fabric } });
   };
 
   const sortedFabrics = [...fabrics].sort((a, b) => {
@@ -62,7 +64,7 @@ function FabricCollection() {
       <div className="fabric-collection">
         {error && <div className="error-message">{error}</div>}
         {sortedFabrics.map((fabric) => (
-          <div key={fabric._id} className="fabric-card">
+          <div key={fabric._id} className={`fabric-card ${selectedFabric && selectedFabric._id === fabric._id ? 'selected' : ''}`}>
             {fabric.images.map((image, index) => (
               <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
             ))}
@@ -70,7 +72,7 @@ function FabricCollection() {
               <h3>{fabric.name}</h3>
               <p>${fabric.price}</p>
             </div>
-            <button onClick={() => handleViewFabric(fabric._id)}>View Fabric</button>
+            <button className="select-btn" onClick={() => handleSelectFabric(fabric)}>Select for Customization</button>
           </div>
         ))}
       </div>

@@ -1,0 +1,71 @@
+.admin-container {
+  display: flex;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 20px;
+}
+
+.admin-form {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.admin-form button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-form button:hover {
+  background-color: #0056b3;
+}
+
+.admin-items {
+  margin-top: 20px;
+}
+
+.admin-item {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.admin-item h3 {
+  margin: 0 0 10px;
+}
+
+.admin-item p {
+  margin: 0 0 10px;
+}
+
+.admin-item button {
+  padding: 5px 10px;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-item button:hover {
+  background-color: #c82333;
+}
