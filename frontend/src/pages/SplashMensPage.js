@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import axios from "axios"
 import SplashNavbar from "../components/SplashNavbar"
@@ -43,7 +42,7 @@ const SplashMensPage = () => {
           <div className="items-grid">
             {items.map((item, index) => (
               <div key={item._id} className="item-card">
-                <img src={item.images[0] || "/placeholder.svg"} alt={item.name} />
+                <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
                 <span className="material">{getMaterial(index)}</span>
                 <h3>{item.name}</h3>
                 <p>{item.description}</p>

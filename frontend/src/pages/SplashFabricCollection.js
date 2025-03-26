@@ -34,11 +34,11 @@ const SplashFabricCollection = () => {
                 <div className="fabric-collection">
                     {fabrics.map(fabric => (
                         <div key={fabric._id} className="fabric-card">
-                            <img src={fabric.image} alt={fabric.name} />
+                            <img src={`http://localhost:4000/images/${fabric.images[0]}`} alt={fabric.name} />
                             <h3>{fabric.name}</h3>
                             <p>{fabric.description}</p>
                             <p>${fabric.price}</p>
-                            <button onClick={() => handleViewFabric(fabric._id)}>View</button> {/* Add View button */}
+                            
                         </div>
                     ))}
                 </div>

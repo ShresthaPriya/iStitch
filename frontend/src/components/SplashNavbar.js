@@ -37,7 +37,11 @@ function SplashNavbar({ onCartClick }) {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    window.location.href = "http://localhost:3000";
+    window.location.href = "http://localhost:3000/splash-home";
+  };
+
+  const handleProfileClick = () => {
+    navigate("/login");
   };
 
   return (
@@ -66,21 +70,9 @@ function SplashNavbar({ onCartClick }) {
             <i className="fa fa-search"></i>
           </button>
         </div>
-        <div className="notification-section">
-          <button className="notification-button">
-            <i className="fa fa-bell"></i>
-            <span className="notification-badge">5</span>
-          </button>
-        </div>
-        <div className="cart-section">
-          <button className="cart-button" onClick={onCartClick}>
-            <i className="fa fa-shopping-cart"></i>
-            <span className="cart-badge">{cart.length}</span>
-          </button>
-        </div>
 
         <div className="profile-section">
-          <button className="profile-button" onClick={toggleProfileDropdown}>
+          <button className="profile-button" onClick={handleProfileClick}>
             <i className="fa-solid fa-user"></i>
             {username && <span className="profile-badge">1</span>}
           </button>

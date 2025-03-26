@@ -37,7 +37,7 @@ function Navbar({ onCartClick }) {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    window.location.href = "http://localhost:3000";
+    window.location.href = "http://localhost:3000/splash-home";
   };
 
   return (

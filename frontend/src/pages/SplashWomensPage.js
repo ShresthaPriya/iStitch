@@ -29,7 +29,7 @@ const SplashWomensPage = () => {
                 <div className="items-grid">
                     {items.map(item => (
                         <div key={item._id} className="item-card">
-                            <img src={item.images[0]} alt={item.name} />
+                            <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
                             <h3>{item.name}</h3>
                             <p>{item.description}</p>
                             <p>${item.price}</p>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Navbar from '../components/Navbar';
+import SplashNavbar from '../components/SplashNavbar'; // Import SplashNavbar
 import Footer from '../components/Footer';
 import "../styles/Auth.css";
 import "../styles/Login.css";
@@ -74,7 +74,7 @@ const Login = () => {
 
   return (
     <>
-      <Navbar />
+      <SplashNavbar /> {/* Use SplashNavbar */}
       <div className="login-container">
         <div className="Auth-page">
           <div className="Auth-container">

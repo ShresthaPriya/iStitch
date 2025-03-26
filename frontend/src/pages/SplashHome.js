@@ -3,9 +3,6 @@ import axios from "axios";
 import SplashNavbar from '../components/SplashNavbar';
 import Footer from '../components/Footer';
 import "../styles/Home.css";
-import CategoryGrid from "../components/CategoryGrid";
-// import FabricCollection from "../components/FabricCollection";
-
 
 const SplashHome = () => {
     const [items, setItems] = useState([]);
@@ -26,14 +23,13 @@ const SplashHome = () => {
 
     return (
         <>
-            <SplashNavbar />
+            <SplashNavbar/>
             <div className="home-page">
                 <h2>Welcome to iStitch</h2>
-                  <CategoryGrid />
                 <div className="items-grid">
                     {items.map(item => (
                         <div key={item._id} className="item-card">
-                            <img src={item.images[0]} alt={item.name} />
+                            <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
                             <h3>{item.name}</h3>
                             <p>{item.description}</p>
                             <p>${item.price}</p>
