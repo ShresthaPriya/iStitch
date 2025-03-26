@@ -40,8 +40,15 @@ import CategoryPage from './pages/CategoryPage';
 import MensPage from './pages/MensPage';
 import WomensPage from './pages/WomensPage';
 import AdminProfile from './pages/AdminProfile'; // Import AdminProfile
+import AdminUsers from './pages/AdminUsers'; // Import AdminUsers
 import { CartProvider } from './context/CartContext'; // Import CartProvider
 import CartSidebar from './components/CartSidebar'; // Import CartSidebar
+import UserProfile from './pages/UserProfile'; // Import UserProfile
+import OrderHistory from './pages/OrderHistory'; // Import OrderHistory
+import SplashMensPage from './pages/SplashMensPage'; // Import SplashMensPage
+import SplashWomensPage from './pages/SplashWomensPage'; // Import SplashWomensPage
+import SplashFabricCollection from './pages/SplashFabricCollection'; // Import SplashFabricCollection
+import SplashHome from './pages/SplashHome'; // Import SplashHome
 
 export const AppContext = createContext();
 
@@ -94,6 +101,13 @@ function App() {
                 <Route path='/mens' element={<MensPage />} /> {/* Updated Route */}
                 <Route path='/women' element={<WomensPage />} /> {/* Updated Route */}
                 <Route path='/admin-profile' element={<AdminProfile />} /> {/* Add AdminProfile route */}
+                <Route path='/admin/users' element={<AdminUsers />} /> {/* Add AdminUsers route */}
+                <Route path='/user-profile' element={<UserProfile />} /> {/* Add UserProfile route */}
+                <Route path='/order-history' element={<OrderHistory />} /> {/* Add OrderHistory route */}
+                <Route path='/splash-mens' element={<SplashMensPage />} /> {/* Add SplashMensPage route */}
+                <Route path='/splash-womens' element={<SplashWomensPage />} /> {/* Add SplashWomensPage route */}
+                <Route path='/splash-fabric-collection' element={<SplashFabricCollection />} /> {/* Add SplashFabricCollection route */}
+                <Route path='/splash-home' element={<SplashHome />} /> {/* Add SplashHome route */}
               </Routes>
               <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} /> {/* Cart sidebar */}
             </Router>

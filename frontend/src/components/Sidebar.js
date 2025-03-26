@@ -53,6 +53,11 @@ const Sidebar = () => {
             <FaUser className="icon" /> Admin Profile
           </NavLink>
         </li>
+        <li>
+          <NavLink to="/admin/users" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
+            <FaUsers className="icon" /> Users
+          </NavLink>
+        </li>
       </ul>
     </div>
   );

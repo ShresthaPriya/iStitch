@@ -4,14 +4,14 @@ import axios from "axios";
 import "../styles/Navbar.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { AppContext } from "../App";
+import { CartContext } from '../context/CartContext';
 
-function SplashNavbar() {
+function SplashNavbar({ onCartClick }) {
   const { username } = useContext(AppContext);
+  const { cart } = useContext(CartContext);
   const [menuActive, setMenuActive] = useState(false);
-  const [shopDropdownActive, setShopDropdownActive] = useState(false);
+  const [profileDropdownActive, setProfileDropdownActive] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
-  const [activeCategory, setActiveCategory] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,46 +24,27 @@ function SplashNavbar() {
       }
     };
 
-    const fetchSubcategories = async () => {
-      try {
-        const response = await axios.get("http://localhost:4000/api/subcategories");
-        setSubcategories(response.data.subcategories);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
     fetchCategories();
-    fetchSubcategories();
   }, []);
 
   const toggleMenu = () => {
     setMenuActive(!menuActive);
   };
 
-  const toggleShopDropdown = () => {
-    setShopDropdownActive(!shopDropdownActive);
+  const toggleProfileDropdown = () => {
+    setProfileDropdownActive(!profileDropdownActive);
   };
 
-  const handleCategoryClick = (categoryId) => {
-    setActiveCategory(activeCategory === categoryId ? null : categoryId);
-  };
-
-  const handleSubcategoryClick = (categoryName, subcategoryName) => {
-    const encodedCategoryName = encodeURIComponent(categoryName.toLowerCase());
-    const encodedSubcategoryName = encodeURIComponent(subcategoryName.toLowerCase());
-    navigate(`/items/${encodedCategoryName}/${encodedSubcategoryName}`);
-  };
-
-  const getSubcategoriesForCategory = (categoryId) => {
-    return subcategories.filter((subcategory) => subcategory.category._id === categoryId);
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    window.location.href = "http://localhost:3000";
   };
 
   return (
     <nav className="navbar">
       <div className="logo">
         <h1>
-          <Link to="/home" className="logo-link">iStitch</Link>
+          <Link to="/splash-home" className="logo-link">iStitch</Link>
         </h1>
       </div>
 
@@ -72,33 +53,10 @@ function SplashNavbar() {
       </div>
 
       <ul className={`nav-links ${menuActive ? "active" : ""}`}>
-        <li><Link to="/home">Home</Link></li>
-        <li className="dropdown">
-          <Link to="#" onClick={toggleShopDropdown}>Shop <i className="fa fa-chevron-down"></i></Link>
-          {shopDropdownActive && (
-            <ul className="dropdown-menu">
-              {categories.map((category) => (
-                <li className="dropdown" key={category._id}>
-                  <Link to="#" onClick={() => handleCategoryClick(category._id)}>
-                    {category.name} <i className="fa fa-chevron-right"></i>
-                  </Link>
-                  {activeCategory === category._id && (
-                    <ul className="dropdown-menu sub-menu">
-                      {getSubcategoriesForCategory(category._id).map((subcategory) => (
-                        <li key={subcategory._id}>
-                          <Link to="#" onClick={() => handleSubcategoryClick(category.name, subcategory.name)}>
-                            {subcategory.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </li>
-        <li><Link to="/fabric-collection">Fabrics</Link></li>
+        <li><Link to="/splash-home">Home</Link></li>
+        <li><Link to="/splash-mens">Men's</Link></li>
+        <li><Link to="/splash-womens">Women's</Link></li>
+        <li><Link to="/splash-fabric-collection">Fabrics</Link></li>
       </ul>
 
       <div className="search-and-profile">
@@ -108,20 +66,31 @@ function SplashNavbar() {
             <i className="fa fa-search"></i>
           </button>
         </div>
+        <div className="notification-section">
+          <button className="notification-button">
+            <i className="fa fa-bell"></i>
+            <span className="notification-badge">5</span>
+          </button>
+        </div>
+        <div className="cart-section">
+          <button className="cart-button" onClick={onCartClick}>
+            <i className="fa fa-shopping-cart"></i>
+            <span className="cart-badge">{cart.length}</span>
+          </button>
+        </div>
 
         <div className="profile-section">
-          <button className="profile-button">
-            <Link to="/login">
-              <i className="fa-solid fa-user"></i>
-            </Link>
+          <button className="profile-button" onClick={toggleProfileDropdown}>
+            <i className="fa-solid fa-user"></i>
             {username && <span className="profile-badge">1</span>}
           </button>
-          {username && (
+          {profileDropdownActive && (
             <div className="username-dropdown">
               <i className="fa fa-chevron-down dropdown-icon"></i>
               <ul className="dropdown-menu">
-                <li><Link to="/profile">Profile</Link></li>
-                <li><Link to="/logout">Logout</Link></li>
+                <li><Link to="/user-profile">Profile Setting</Link></li>
+                <li><Link to="/order-history">Order History</Link></li>
+                <li><button onClick={handleLogout}>Logout</button></li>
               </ul>
             </div>
           )}

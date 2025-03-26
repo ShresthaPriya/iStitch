@@ -35,6 +35,11 @@ function Navbar({ onCartClick }) {
     setProfileDropdownActive(!profileDropdownActive);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    window.location.href = "http://localhost:3000";
+  };
+
   return (
     <nav className="navbar">
       <div className="logo">
@@ -80,14 +85,13 @@ function Navbar({ onCartClick }) {
             <i className="fa-solid fa-user"></i>
             {username && <span className="profile-badge">1</span>}
           </button>
-          {username && profileDropdownActive && (
+          {profileDropdownActive && (
             <div className="username-dropdown">
               <i className="fa fa-chevron-down dropdown-icon"></i>
               <ul className="dropdown-menu">
+                <li><Link to="/user-profile">Profile Setting</Link></li>
                 <li><Link to="/order-history">Order History</Link></li>
-                <li><Link to="/saved-measurements">Saved Measurements</Link></li>
-                <li><Link to="/manage-account">Manage Account</Link></li>
-                <li><Link to="/logout">Logout</Link></li>
+                <li><button onClick={handleLogout}>Logout</button></li>
               </ul>
             </div>
           )}

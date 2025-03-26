@@ -5,13 +5,15 @@ const User = require('../models/User'); // Assuming you have a User model
 // Fetch all users
 router.get('/', async (req, res) => {
     try {
-        const users = await User.find();
-        res.json({ success: true, users });
+        const users = await User.find().select("-password -confirmPassword");
+        console.log("Fetched users:", users);
+        res.json(users); // Send an array directly
     } catch (err) {
         console.error("Error fetching users:", err);
-        res.json({ success: false, message: err.message });
+        res.status(500).json({ message: err.message });
     }
 });
+
 
 // Add a new user
 router.post('/', async (req, res) => {

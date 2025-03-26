@@ -5,13 +5,13 @@ import "../styles/AdminUsers.css";
 
 const AdminUsers = () => {
     const [users, setUsers] = useState([]);
-    const [newUser, setNewUser] = useState({ fullname: "", email: "", password: "" });
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
                 const response = await axios.get('http://localhost:4000/api/users');
-                setUsers(response.data.users || []);
+                console.log("Fetched users from API:", response.data); // Log entire response
+                setUsers(response.data); // Set the users data
             } catch (err) {
                 console.error("Error fetching users:", err);
             }
@@ -20,29 +20,10 @@ const AdminUsers = () => {
         fetchUsers();
     }, []);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setNewUser({ ...newUser, [name]: value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:4000/api/users', newUser);
-            setUsers([...users, response.data.user]);
-            setNewUser({ fullname: "", email: "", password: "" });
-        } catch (err) {
-            console.error("Error adding user:", err);
-        }
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:4000/api/users/${id}`);
-            setUsers(users.filter(user => user._id !== id));
-        } catch (err) {
-            console.error("Error deleting user:", err);
-        }
+    // Function to format the date in a user-friendly way
+    const formatDate = (date) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(date).toLocaleDateString(undefined, options);
     };
 
     return (
@@ -50,20 +31,31 @@ const AdminUsers = () => {
             <Sidebar />
             <div className="admin-content">
                 <h2>Users</h2>
-                <form onSubmit={handleSubmit} className="admin-form">
-                    <input type="text" name="fullname" value={newUser.fullname} onChange={handleChange} placeholder="Full Name" required />
-                    <input type="email" name="email" value={newUser.email} onChange={handleChange} placeholder="Email" required />
-                    <input type="password" name="password" value={newUser.password} onChange={handleChange} placeholder="Password" required />
-                    <button type="submit">Add User</button>
-                </form>
-                <div className="admin-items">
-                    {users.map(user => (
-                        <div key={user._id} className="admin-item">
-                            <h3>{user.fullname}</h3>
-                            <p>{user.email}</p>
-                            <button onClick={() => handleDelete(user._id)}>Delete</button>
-                        </div>
-                    ))}
+                <div className="admin-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {users.length > 0 ? (
+                                users.map((user) => (
+                                    <tr key={user._id}>
+                                        <td>{user.fullname}</td>
+                                        <td>{user.email}</td>
+                                        <td>{formatDate(user.createdAt)}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="3">No users found.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

@@ -1,15 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Navbar from '../components/Navbar';
+import SplashNavbar from '../components/SplashNavbar';
 import Footer from '../components/Footer';
-import CartSidebar from '../components/CartSidebar';
-import { CartContext } from '../context/CartContext';
 import "../styles/CategoryPage.css";
 
-const WomensPage = () => {
+const SplashWomensPage = () => {
     const [items, setItems] = useState([]);
-    const [isCartOpen, setIsCartOpen] = useState(false);
-    const { addToCart } = useContext(CartContext);
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -25,14 +21,9 @@ const WomensPage = () => {
         fetchItems();
     }, []);
 
-    const handleAddToCart = (item) => {
-        addToCart(item);
-        setIsCartOpen(true);
-    };
-
     return (
         <>
-            <Navbar onCartClick={() => setIsCartOpen(true)} />
+            <SplashNavbar />
             <div className="category-page">
                 <h2>Women's Clothing</h2>
                 <div className="items-grid">
@@ -42,15 +33,13 @@ const WomensPage = () => {
                             <h3>{item.name}</h3>
                             <p>{item.description}</p>
                             <p>${item.price}</p>
-                            <button onClick={() => handleAddToCart(item)}>Add to Cart</button>
                         </div>
                     ))}
                 </div>
             </div>
-            <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
             <Footer />
         </>
     );
 };
 
-export default WomensPage;
+export default SplashWomensPage;

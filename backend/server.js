@@ -22,6 +22,7 @@ const measurementRoutes = require("./routes/measurementRoute");
 const guideRoutes = require("./routes/guideRoute");
 const metricsRoutes = require("./routes/metricsRoute");
 const designRoutes = require("./routes/designRoute");
+const userRoutes = require("./routes/users");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -64,7 +65,7 @@ app.use("/api/measurements", measurementRoutes);
 app.use("/api/guides", guideRoutes);
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/designs", designRoutes);
-
+app.use("/api/users", userRoutes);
 // Start the server
 const startServer = async () => {
   try {

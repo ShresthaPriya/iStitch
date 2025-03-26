@@ -184,40 +184,48 @@
 
 /* Profile Dropdown */
 .username-dropdown {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.username-dropdown .dropdown-menu {
-  display: none;
   position: absolute;
-  top: 100%;
+  top: 60px; /* Adjusted to display below the icon */
   right: 0;
   background-color: white;
   color: black;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 250px; /* Increase the width of the dropdown */
+}
+
+.dropdown-menu {
   list-style: none;
-  border: 1px solid #ddd;
-  padding: 5px 0;
-  z-index: 10;
-  border-radius: 5px;
+  padding: 10px;
+  margin: 0;
+  font-size: 16px; /* Adjust font size */
 }
 
-.username-dropdown:hover .dropdown-menu {
-  display: block;
+.dropdown-menu li {
+  margin-bottom: 10px;
 }
 
-.username-dropdown .dropdown-menu li {
-  padding: 5px 15px;
+.dropdown-menu li:last-child {
+  margin-bottom: 0;
 }
 
-.username-dropdown .dropdown-menu li a {
-  text-decoration: none;
+.dropdown-menu a,
+.dropdown-menu button {
   color: black;
+  text-decoration: none;
+  font-size: 16px; /* Adjust font size */
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-.username-dropdown .dropdown-menu li:hover {
-  background-color: #f0bcbc;
+.dropdown-menu button:hover,
+.dropdown-menu a:hover {
+  background-color: #f4f4f4;
 }
 
 /* Responsive Styles */

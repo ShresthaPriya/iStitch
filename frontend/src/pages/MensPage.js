@@ -14,7 +14,7 @@ const MensPage = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/api/items');
+                const response = await axios.get(`http://localhost:4000/api/items/category/67da68cc5bdd84464f2494c4`);
                 setItems(response.data.items || []); // Ensure items is always an array
             } catch (err) {
                 console.error("Error fetching items:", err);
