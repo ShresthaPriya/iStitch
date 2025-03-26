@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import SplashNavbar from '../components/SplashNavbar';
 import Footer from '../components/Footer';
 import "../styles/FabricCollection.css";
 
 const SplashFabricCollection = () => {
     const [fabrics, setFabrics] = useState([]);
+    const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
         const fetchFabrics = async () => {
@@ -20,6 +22,10 @@ const SplashFabricCollection = () => {
         fetchFabrics();
     }, []);
 
+    const handleViewFabric = (fabricId) => {
+        navigate(`/fabricDetails/${fabricId}`); // Navigate to FabricDetails with fabric ID
+    };
+
     return (
         <>
             <SplashNavbar />
@@ -32,6 +38,7 @@ const SplashFabricCollection = () => {
                             <h3>{fabric.name}</h3>
                             <p>{fabric.description}</p>
                             <p>${fabric.price}</p>
+                            <button onClick={() => handleViewFabric(fabric._id)}>View</button> {/* Add View button */}
                         </div>
                     ))}
                 </div>

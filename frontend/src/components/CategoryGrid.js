@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+// Ensure Navbar is imported correctly
+import Navbar from './Navbar'; // If Navbar is a default export
 import "../styles/Products.css";
-import Navbar from './Navbar';
-
 const CategoryGrid = () => {
   const items = [
     { title: "Suits", image: require("../images/ProductCatPictures/suits.jpg"), id: "suits" },
@@ -10,9 +10,26 @@ const CategoryGrid = () => {
     { title: "Blouse", image: require("../images/ProductCatPictures/blouse.jpg"), id: "blouse" },
   ];
 
+  const heroBackground = require("../images/home.jpg"); // Use require for the hero background image
+
   return (
-    <>  
+    <>
       <Navbar />
+      <div
+        className="hero-section"
+        style={{
+          backgroundImage: `url(${heroBackground})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="hero-content">
+          <h1>Get the custom-designed garments at your doorstep with iStitch</h1>
+          <button className="explore-button" onClick={() => window.scrollTo(0, document.body.scrollHeight)}>
+            Explore
+          </button>
+        </div>
+      </div>
       <div className="products-container">
         <h2 className="products-title">What we have</h2>
         <div className="products-header">
