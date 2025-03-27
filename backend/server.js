@@ -23,6 +23,7 @@ const guideRoutes = require("./routes/guideRoute");
 const metricsRoutes = require("./routes/metricsRoute");
 const designRoutes = require("./routes/designRoute");
 const userRoutes = require("./routes/users");
+const cartRoutes = require("./routes/cart"); // Import cart routes
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -66,6 +67,8 @@ app.use("/api/guides", guideRoutes);
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/designs", designRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/cart", cartRoutes); // Add cart routes
+
 // Start the server
 const startServer = async () => {
   try {

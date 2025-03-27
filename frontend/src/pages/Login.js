@@ -57,6 +57,8 @@ const Login = () => {
         // Store user data in localStorage or Context API (if needed)
         localStorage.setItem("user", JSON.stringify(data.user));
         navigate("/home"); // Redirect to the home page or dashboard
+        window.location.reload(); // Reload the page to fetch the cart
+        
       } else {
         setError(data.error || "Login failed. Please try again.");
       }

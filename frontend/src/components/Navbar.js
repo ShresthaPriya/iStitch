@@ -7,98 +7,98 @@ import { AppContext } from "../App";
 import { CartContext } from '../context/CartContext';
 
 function Navbar({ onCartClick }) {
-  const { username } = useContext(AppContext);
-  const { cart } = useContext(CartContext);
-  const [menuActive, setMenuActive] = useState(false);
-  const [profileDropdownActive, setProfileDropdownActive] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const navigate = useNavigate();
+    const { username } = useContext(AppContext);
+    const { cart, logout } = useContext(CartContext); // Import logout from CartContext
+    const [menuActive, setMenuActive] = useState(false);
+    const [profileDropdownActive, setProfileDropdownActive] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("http://localhost:4000/api/categories");
-        setCategories(response.data.categories);
-      } catch (err) {
-        console.error(err);
-      }
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await axios.get("http://localhost:4000/api/categories");
+                setCategories(response.data.categories);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    const toggleMenu = () => {
+        setMenuActive(!menuActive);
     };
 
-    fetchCategories();
-  }, []);
+    const toggleProfileDropdown = () => {
+        setProfileDropdownActive(!profileDropdownActive);
+    };
 
-  const toggleMenu = () => {
-    setMenuActive(!menuActive);
-  };
+    const handleLogout = () => {
+        logout(); // Clear cart and user data
+        navigate("/login"); // Redirect to login page
+    };
 
-  const toggleProfileDropdown = () => {
-    setProfileDropdownActive(!profileDropdownActive);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    window.location.href = "http://localhost:3000/splash-home";
-  };
-
-  return (
-    <nav className="navbar">
-      <div className="logo">
-        <h1>
-          <Link to="/home" className="logo-link">iStitch</Link>
-        </h1>
-      </div>
-
-      <div className="menu-toggle" onClick={toggleMenu}>
-        <i className={menuActive ? "fa fa-times" : "fa fa-bars"}></i>
-      </div>
-
-      <ul className={`nav-links ${menuActive ? "active" : ""}`}>
-        <li><Link to="/home">Home</Link></li>
-        <li><Link to="/mens">Men's</Link></li>
-        <li><Link to="/women">Women's</Link></li>
-        <li><Link to="/fabric-collection">Fabrics</Link></li>
-        <li><Link to="/customer-measurements">Enter Measurements</Link></li>
-      </ul>
-
-      <div className="search-and-profile">
-        <div className="search-bar">
-          <input type="text" className="search-input" />
-          <button className="search-button">
-            <i className="fa fa-search"></i>
-          </button>
-        </div>
-        <div className="notification-section">
-          <button className="notification-button">
-            <i className="fa fa-bell"></i>
-            <span className="notification-badge">5</span>
-          </button>
-        </div>
-        <div className="cart-section">
-          <button className="cart-button" onClick={onCartClick}>
-            <i className="fa fa-shopping-cart"></i>
-            <span className="cart-badge">{cart.length}</span>
-          </button>
-        </div>
-
-        <div className="profile-section">
-          <button className="profile-button" onClick={toggleProfileDropdown}>
-            <i className="fa-solid fa-user"></i>
-            {username && <span className="profile-badge">1</span>}
-          </button>
-          {profileDropdownActive && (
-            <div className="username-dropdown">
-              <i className="fa fa-chevron-down dropdown-icon"></i>
-              <ul className="dropdown-menu">
-                <li><Link to="/user-profile">Profile Setting</Link></li>
-                <li><Link to="/order-history">Order History</Link></li>
-                <li><button onClick={handleLogout}>Logout</button></li>
-              </ul>
+    return (
+        <nav className="navbar">
+            <div className="logo">
+                <h1>
+                    <Link to="/home" className="logo-link">iStitch</Link>
+                </h1>
             </div>
-          )}
-        </div>
-      </div>
-    </nav>
-  );
+
+            <div className="menu-toggle" onClick={toggleMenu}>
+                <i className={menuActive ? "fa fa-times" : "fa fa-bars"}></i>
+            </div>
+
+            <ul className={`nav-links ${menuActive ? "active" : ""}`}>
+                <li><Link to="/home">Home</Link></li>
+                <li><Link to="/mens">Men's</Link></li>
+                <li><Link to="/women">Women's</Link></li>
+                <li><Link to="/fabric-collection">Fabrics</Link></li>
+                <li><Link to="/customer-measurements">Enter Measurements</Link></li>
+            </ul>
+
+            <div className="search-and-profile">
+                <div className="search-bar">
+                    <input type="text" className="search-input" />
+                    <button className="search-button">
+                        <i className="fa fa-search"></i>
+                    </button>
+                </div>
+                <div className="notification-section">
+                    <button className="notification-button">
+                        <i className="fa fa-bell"></i>
+                        <span className="notification-badge">5</span>
+                    </button>
+                </div>
+                <div className="cart-section">
+                    <button className="cart-button" onClick={onCartClick}>
+                        <i className="fa fa-shopping-cart"></i>
+                        <span className="cart-badge">{cart.length}</span>
+                    </button>
+                </div>
+
+                <div className="profile-section">
+                    <button className="profile-button" onClick={toggleProfileDropdown}>
+                        <i className="fa-solid fa-user"></i>
+                        {username && <span className="profile-badge">1</span>}
+                    </button>
+                    {profileDropdownActive && (
+                        <div className="username-dropdown">
+                            <i className="fa fa-chevron-down dropdown-icon"></i>
+                            <ul className="dropdown-menu">
+                                <li><Link to="/user-profile">Profile Setting</Link></li>
+                                <li><Link to="/order-history">Order History</Link></li>
+                                <li><button onClick={handleLogout}>Logout</button></li>
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </nav>
+    );
 }
 
 export default Navbar;

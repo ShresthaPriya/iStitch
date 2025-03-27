@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import Footer from '../components/Footer';
+import CartSidebar from '../components/CartSidebar';
 import "../styles/CustomerMeasurements.css";
 
 const CustomerMeasurements = () => {
@@ -8,6 +10,7 @@ const CustomerMeasurements = () => {
   const [userMeasurements, setUserMeasurements] = useState({});
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const userId = "64b8f8f8f8f8f8f8f8f8f8f8"; // Replace with actual user ID
 
   useEffect(() => {
@@ -46,7 +49,7 @@ const CustomerMeasurements = () => {
 
   return (
     <>
-      <Navbar />
+      <Navbar onCartClick={() => setIsCartOpen(true)} />
       <div className="measurements-container">
         <h2>Enter Your Measurements</h2>
         {error && <div className="error-message">{error}</div>}
@@ -104,6 +107,8 @@ const CustomerMeasurements = () => {
           </tbody>
         </table>
       </div>
+      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <Footer />
     </>
   );
 };

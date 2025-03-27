@@ -1,22 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import CartSidebar from '../components/CartSidebar';
 import CategoryGrid from "../components/CategoryGrid";
-// import FabricCollection from "../components/FabricCollection";
-import  "../styles/Home.css"
+import "../styles/Home.css";
 
 const Home = () => {
-  return (
-    <>
-      {/* <Navbar /> */}
-    
-      <CategoryGrid />
-      {/* <FabricCollection/> */}
-      <section>
-        <Footer />
-      </section>
-    </>
-  );
+    const [isCartOpen, setIsCartOpen] = useState(false);
+
+    return (
+        <>
+            <Navbar onCartClick={() => setIsCartOpen(true)} />
+            <div className="home-page">
+                <h2>Welcome to iStitch</h2>
+                <CategoryGrid includeNavbar={false} /> {/* Ensure no navbar is included */}
+            </div>
+            <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+            <Footer />
+        </>
+    );
 };
 
 export default Home;

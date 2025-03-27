@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-// Ensure Navbar is imported correctly
 import Navbar from './Navbar'; // If Navbar is a default export
 import "../styles/Products.css";
-const CategoryGrid = () => {
+
+const CategoryGrid = ({ includeNavbar = true }) => {
   const items = [
     { title: "Suits", image: require("../images/ProductCatPictures/suits.jpg"), id: "suits" },
     { title: "Kurta", image: require("../images/ProductCatPictures/kurta.jpg"), id: "kurta" },
@@ -14,7 +14,7 @@ const CategoryGrid = () => {
 
   return (
     <>
-      <Navbar />
+      {includeNavbar && <Navbar />} {/* Conditionally include the navbar */}
       <div
         className="hero-section"
         style={{

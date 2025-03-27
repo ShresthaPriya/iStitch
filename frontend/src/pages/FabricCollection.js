@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import CartSidebar from '../components/CartSidebar';
+import { CartContext } from '../context/CartContext';
 import "../styles/FabricCollection.css";
-import { useNavigate } from "react-router-dom";
 
 const FabricCollection = () => {
     const [fabrics, setFabrics] = useState([]);
-    const [selectedFabric, setSelectedFabric] = useState(null);
-    const navigate = useNavigate();
+    const [isCartOpen, setIsCartOpen] = useState(false); // State to control CartSidebar visibility
+    const { addToCart } = useContext(CartContext);
 
     useEffect(() => {
         const fetchFabrics = async () => {
@@ -23,35 +24,28 @@ const FabricCollection = () => {
         fetchFabrics();
     }, []);
 
-    const handleSelectFabric = (fabric) => {
-        setSelectedFabric(fabric);
-    };
-
-    const handleProceedToCustomization = () => {
-        if (selectedFabric) {
-            navigate('/customize-dress', { state: { fabric: selectedFabric } });
-        } else {
-            alert("Please select a fabric first.");
-        }
+    const handleAddToCart = (fabric) => {
+        addToCart(fabric); // Add fabric to the cart
+        setIsCartOpen(true); // Open the CartSidebar
     };
 
     return (
         <>
-            <Navbar />
+            <Navbar onCartClick={() => setIsCartOpen(true)} /> {/* Pass onCartClick to open CartSidebar */}
             <div className="fabric-collection-page">
                 <h2>Select Fabric</h2>
                 <div className="fabrics-grid">
                     {fabrics.map(fabric => (
-                        <div key={fabric._id} className={`fabric-card ${selectedFabric && selectedFabric._id === fabric._id ? 'selected' : ''}`}>
-                            <img src={fabric.image} alt={fabric.name} />
+                        <div key={fabric._id} className="fabric-card">
+                            <img src={`http://localhost:4000/images/${fabric.images[0]}`} alt={fabric.name} />
                             <h3>{fabric.name}</h3>
                             <p>{fabric.description}</p>
-                            <button className="select-btn" onClick={() => handleSelectFabric(fabric)}>Select for Customization</button>
+                            <button className="select-btn" onClick={() => handleAddToCart(fabric)}>Add to Cart</button>
                         </div>
                     ))}
                 </div>
-                <button className="proceed-btn" onClick={handleProceedToCustomization}>Proceed to Customization</button>
             </div>
+            <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} /> {/* CartSidebar integration */}
             <Footer />
         </>
     );
