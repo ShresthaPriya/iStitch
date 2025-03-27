@@ -1,60 +1,102 @@
-.user-profile-page {
-    padding: 20px;
-    max-width: 800px;
-    margin: 20px auto 0; /* Adjust margin to account for navbar height */
-    background: #fff;
+.user-profile-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    min-height: calc(100vh - 200px); /* Adjust height to account for fixed footer */
-}
-
-.user-profile-page h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.user-profile-form {
-    margin-bottom: 10px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-profile-container h1 {
+    font-size: 1.5rem;
+    color: #333333;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eeeeee;
+  }
+  
+  .profile-message {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
     border-radius: 4px;
-}
-
-.save-button {
+    font-size: 0.9rem;
+  }
+  
+  .profile-message.success {
+    background-color: #e6ffed;
+    color: #22863a;
+    border: 1px solid #b3e6c1;
+  }
+  
+  .profile-message.error {
+    background-color: #ffe6e6;
+    color: #cc0000;
+    border: 1px solid #ffb3b3;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #444444;
+  }
+  
+  .form-group input,
+  .form-group textarea {
     width: 100%;
-    padding: 10px;
-    background-color: #007bff;
+    padding: 0.75rem;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+  
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .form-group input:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
+  
+  .save-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #6366f1;
     color: white;
     border: none;
     border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    margin-top: 10px;
-}
-
-.save-button:hover {
-    background-color: #0056b3;
-}
-
-.footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: #f8f9fa;
-    padding: 10px 0;
-    text-align: center;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-}
+    transition: background-color 0.3s ease;
+  }
+  
+  .save-button:hover {
+    background-color: #4f46e5;
+  }
+  
+  .save-button:disabled {
+    background-color: #a5b4fc;
+    cursor: not-allowed;
+  }
+  
+  @media (max-width: 640px) {
+    .user-profile-container {
+      margin: 1rem;
+      padding: 1.5rem;
+    }
+  }

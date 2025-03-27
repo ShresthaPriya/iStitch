@@ -7,13 +7,14 @@ import { AppContext } from "../App";
 import { CartContext } from '../context/CartContext';
 
 function Navbar({ onCartClick }) {
-  const { username } = useContext(AppContext);
+  const { username, setUsername } = useContext(AppContext);
   const { cart } = useContext(CartContext);
   const [menuActive, setMenuActive] = useState(false);
   const [profileDropdownActive, setProfileDropdownActive] = useState(false);
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,8 +39,22 @@ function Navbar({ onCartClick }) {
   };
 
   const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
     localStorage.removeItem("user");
-    window.location.href = "http://localhost:3000";
+    localStorage.removeItem("token");
+    if (setUsername) {
+      setUsername(null); // Ensure setUsername is called only if it exists
+    }
+    setShowLogoutConfirm(false);
+    navigate("/");
+    window.location.reload(); // Optional: if you want to completely refresh the page
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
   };
 
   const handleSearch = async () => {
@@ -53,6 +68,20 @@ function Navbar({ onCartClick }) {
 
   return (
     <nav className="navbar">
+      {/* Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="logout-confirm-modal">
+          <div className="logout-confirm-content">
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to log out?</p>
+            <div className="logout-confirm-buttons">
+              <button onClick={confirmLogout} className="confirm-button">Yes, Logout</button>
+              <button onClick={cancelLogout} className="cancel-button">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="logo">
         <h1>
           <Link to="/home" className="logo-link">iStitch</Link>
@@ -76,7 +105,7 @@ function Navbar({ onCartClick }) {
           <input
             type="text"
             className="search-input"
-            placeholder="Search products or fabrics"
+            placeholder="Search.."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />

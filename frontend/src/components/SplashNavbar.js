@@ -75,7 +75,7 @@ function SplashNavbar({ onCartClick }) {
           <input
             type="text"
             className="search-input"
-            placeholder="Search products or fabrics"
+            placeholder="Search.."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -96,34 +96,12 @@ function SplashNavbar({ onCartClick }) {
             <p>No matching products or fabrics found.</p>
           </div>
         )}
-        <div className="notification-section">
-          <button className="notification-button">
-            <i className="fa fa-bell"></i>
-            <span className="notification-badge">5</span>
-          </button>
-        </div>
-        <div className="cart-section">
-          <button className="cart-button" onClick={onCartClick}>
-            <i className="fa fa-shopping-cart"></i>
-            <span className="cart-badge">{cart.length}</span>
-          </button>
-        </div>
+       
 
         <div className="profile-section">
-          <button className="profile-button" onClick={toggleProfileDropdown}>
-            <i className="fa-solid fa-user"></i>
-            {username && <span className="profile-badge">1</span>}
+          <button className="login-button" onClick={() => navigate("/login")}>
+            Login
           </button>
-          {profileDropdownActive && (
-            <div className="username-dropdown">
-              <i className="fa fa-chevron-down dropdown-icon"></i>
-              <ul className="dropdown-menu">
-                <li><Link to="/user-profile">Profile Setting</Link></li>
-                <li><Link to="/order-history">Order History</Link></li>
-                <li><button onClick={handleLogout}>Logout</button></li>
-              </ul>
-            </div>
-          )}
         </div>
       </div>
     </nav>

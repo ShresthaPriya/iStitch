@@ -56,11 +56,12 @@ function App() {
   const client = new QueryClient();
   const [fullname, setFullname] = useState(" ");
   const [isCartOpen, setIsCartOpen] = useState(false); // Cart sidebar state
+  const [username, setUsername] = useState(null); // Ensure both username and setUsername are defined
 
   return (
     <div className='App'>
       <QueryClientProvider client={client}>
-        <AppContext.Provider value={{ fullname, setFullname }}>
+        <AppContext.Provider value={{ fullname, setFullname, username, setUsername }}>
           <CartProvider> {/* Wrap the application with CartProvider */}
             <Router>
               <Routes>

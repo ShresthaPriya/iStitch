@@ -1,102 +1,276 @@
+/* Premium Fabric Collection Styles */
 .fabric-collection {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 40px;
+  padding: 40px;
+  max-width: 1600px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
 }
 
 .fabric-card {
   background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: hidden;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  padding-bottom: 25px
 }
 
 .fabric-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+ 
+.fabric-image-container {
+  position: relative;
+  overflow: hidden;
+  height: 280px;
 }
 
 .fabric-image {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+.fabric-card:hover .fabric-image {
+  transform: scale(1.05);
+}
+
+.fabric-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .fabric-info {
-  padding: 15px;
+  padding: 25px;
   text-align: center;
-}
-
-.fabric-info h3 {
-  margin: 10px 0;
-  font-size: 1.2em;
-  color: #333;
-}
-
-.fabric-info p {
-  margin: 5px 0;
-  color: #555;
-}
-
-.fabric-card button {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  margin: 10px auto;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.fabric-card button:hover {
-  background-color: #0056b3;
-}
-
-.fabric-header {
-  text-align: center;
-  margin: 20px 0;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.fabric-info h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.4em;
+  color: #222;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.fabric-info p {
+  margin: 0 0 20px 0;
+  color: #666;
+  font-size: 1em;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.price {
+  font-size: 1.6em;
+  color: #222;
+  font-weight: 700;
+  margin: 15px 0;
+  position: relative;
+  display: inline-block;
+}
+
+.price::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
+
+.fabric-card button {
+  background: transparent;
+  color: #6366f1;
+  border: 2px solid #6366f1;
+  padding: 12px 30px;
+  margin: 20px auto 0;
+  cursor: pointer;
+  border-radius: 30px;
+  transition: all 0.4s;
+  font-weight: 600;
+  letter-spacing: 1px;
+  width: auto;
+  min-width: 200px;
+}
+
+.fabric-card button:hover {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+}
+
+/* Header and Filter Styles */
+.fabric-header {
+  text-align: center;
+  margin: 60px 0 40px;
+  padding: 0 20px;
+}
+
+.fabric-header h1 {
+  font-size: 3rem;
+  color: #222;
+  margin-bottom: 20px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  position: relative;
+  display: inline-block;
+}
+
+.fabric-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
 }
 
 .sort-container {
   display: flex;
   align-items: center;
-  margin-top: 10px;
+  justify-content: center;
+  margin-top: 25px;
+  gap: 15px;
 }
 
 .sort-container label {
   margin-right: 10px;
+  color: #555;
+  font-weight: 400;
+  font-size: 0.9em;
+  letter-spacing: 1px;
+}
+
+.sort-container select {
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9em;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 15px;
+  padding-right: 40px;
+}
+
+.sort-container select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .view-all-container {
   text-align: center;
-  margin-bottom: 20px;
+  margin: 50px 0;
 }
 
 .view-all-link {
+  display: inline-block;
+  padding: 12px 30px;
+  background-color: transparent;
+  color: #6366f1;
+  font-weight: 600;
   text-decoration: none;
-  color: #007bff;
-  font-weight: bold;
-  transition: color 0.2s;
+  border-radius: 30px;
+  transition: all 0.4s;
+  border: 2px solid #6366f1;
+  letter-spacing: 1px;
 }
 
 .view-all-link:hover {
-  color: #0056b3;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
 }
 
 .error-message {
-  color: red;
+  color: #d32f2f;
   text-align: center;
-  margin-bottom: 20px;
+  margin: 30px 0;
+  padding: 20px;
+  background-color: rgba(211, 47, 47, 0.05);
+  border-radius: 8px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  border-left: 4px solid #d32f2f;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .fabric-collection {
+    gap: 30px;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .fabric-collection {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+    padding: 25px;
+  }
+  
+  .fabric-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .fabric-image-container {
+    height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fabric-collection {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .fabric-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .sort-container {
+    flex-direction: column;
+  }
+  
+  .fabric-card button {
+    min-width: 180px;
+    padding: 10px 20px;
+  }
 }
