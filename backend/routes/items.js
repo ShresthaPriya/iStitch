@@ -1,7 +1,20 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const Item = require('../models/Item');
 const Category = require('../models/Category');
+
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
 
 // Fetch all items route
 router.get('/items', async (req, res) => {
@@ -27,6 +40,25 @@ router.get('/items/category/:categoryName', async (req, res) => {
         res.json(items);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Add a new item with image upload
+router.post('/items', upload.single('image'), async (req, res) => {
+    try {
+        const { name, description, price, category } = req.body;
+        const newItem = new Item({
+            name,
+            description,
+            price,
+            category,
+            images: [req.file.filename] // Save the uploaded image filename
+        });
+        await newItem.save();
+        res.json({ success: true, item: newItem });
+    } catch (err) {
+        console.error("Error adding item:", err);
+        res.json({ success: false, message: err.message });
     }
 });
 

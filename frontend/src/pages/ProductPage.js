@@ -54,11 +54,14 @@ const ProductPage = () => {
         <div className="product-card-content">
           {/* Product Image */}
           <div className="product-image">
-            <img
-              src={`http://localhost:4000/uploads/${product.images[0]}`}
-              alt={product.name}
-              className="image"
-            />
+            {product.images.map((image, index) => (
+              <img
+                key={index}
+                src={`http://localhost:4000/images/${image}`}
+                alt={product.name}
+                className="image"
+              />
+            ))}
           </div>
 
           {/* Product Details */}
