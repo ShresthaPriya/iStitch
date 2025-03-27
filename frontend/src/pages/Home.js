@@ -14,9 +14,6 @@ import services2 from '../assets/img/icon/services2.svg';
 import services3 from '../assets/img/icon/services3.svg';
 import services4 from '../assets/img/icon/services4.svg';
 
-const redirectToLogin = () => {
-  window.location.href = "/login"; // Reusable function to redirect to login
-};
 
 const Home = () => {
   const exploreSectionRef = useRef(null); // Reference for the "Explore More" section
@@ -40,7 +37,7 @@ const Home = () => {
                   <div className="hero-caption">
                     <h1>Perfect Fit, Seamless Experience</h1>
                     <p>Experience the ease of digital tailoring with iStitch. Select your design, provide measurements, and get your custom outfit delivered hassle-free.</p>
-                    <button className="btn" onClick={redirectToLogin}>Explore Now</button> {/* Call reusable function */}
+                    <button className="btn" onClick={handleExploreClick}>Explore Now</button> {/* Call reusable function */}
                   </div>
                 </div>
               </div>
