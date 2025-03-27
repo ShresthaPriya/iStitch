@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import "../styles/Home.css";
@@ -14,8 +14,17 @@ import services2 from '../assets/img/icon/services2.svg';
 import services3 from '../assets/img/icon/services3.svg';
 import services4 from '../assets/img/icon/services4.svg';
 
+const redirectToLogin = () => {
+  window.location.href = "/login"; // Reusable function to redirect to login
+};
 
 const Home = () => {
+  const exploreSectionRef = useRef(null); // Reference for the "Explore More" section
+
+  const handleExploreClick = () => {
+    exploreSectionRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to the section
+  };
+
   return (
     <div className="main-wrapper">
       <Navbar />
@@ -31,7 +40,7 @@ const Home = () => {
                   <div className="hero-caption">
                     <h1>Perfect Fit, Seamless Experience</h1>
                     <p>Experience the ease of digital tailoring with iStitch. Select your design, provide measurements, and get your custom outfit delivered hassle-free.</p>
-                    <button className="btn" onClick={() => window.location.href = "/services"}>Explore More</button>
+                    <button className="btn" onClick={redirectToLogin}>Explore Now</button> {/* Call reusable function */}
                   </div>
                 </div>
               </div>
@@ -40,78 +49,78 @@ const Home = () => {
         </div>
       </div>
 
- {/* Services Offers Section */}
-<div className="clients-area section-padding40">
-  <div className="container">
-    <div className="row">
-      {/* Custom Tailoring */}
-      <div className="col-lg-4 col-md-6 col-sm-6">
-        <div className="single-offers mb-50 text-center">
-          <div className="offers-img" style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img 
-              src={offers1} 
-              alt="Tailor Sewing" 
-              style={{ 
-                maxHeight: '100%', 
-                maxWidth: '100%',
-                objectFit: 'contain'
-              }} 
-            />
-          </div>
-          <div className="offers-cap">
-            <span className="service-number">1</span>
-            <h3>Custom Tailoring</h3>
-            <p>Get your clothes tailored with precision, ensuring the perfect fit and quality craftsmanship.</p>
-          </div>
-        </div>
-      </div>
+      {/* Services Offers Section */}
+      <div className="clients-area section-padding40" ref={exploreSectionRef}> {/* Add ref here */}
+        <div className="container">
+          <div className="row">
+            {/* Custom Tailoring */}
+            <div className="col-lg-4 col-md-6 col-sm-6">
+              <div className="single-offers mb-50 text-center">
+                <div className="offers-img" style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img 
+                    src={offers1} 
+                    alt="Tailor Sewing" 
+                    style={{ 
+                      maxHeight: '100%', 
+                      maxWidth: '100%',
+                      objectFit: 'contain'
+                    }} 
+                  />
+                </div>
+                <div className="offers-cap">
+                  <span className="service-number">1</span>
+                  <h3>Custom Tailoring</h3>
+                  <p>Get your clothes tailored with precision, ensuring the perfect fit and quality craftsmanship.</p>
+                </div>
+              </div>
+            </div>
 
-      {/* Accurate Measurement */}
-      <div className="col-lg-4 col-md-6 col-sm-6">
-        <div className="single-offers mb-50 text-center">
-          <div className="offers-img" style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img 
-              src={offers2} 
-              alt="Measurement" 
-              style={{ 
-                maxHeight: '100%', 
-                maxWidth: '100%',
-                objectFit: 'contain'
-              }} 
-            />
-          </div>
-          <div className="offers-cap">
-            <span className="service-number">2</span>
-            <h3>Accurate Measurement</h3>
-            <p>Use our guided measurement tool to ensure accuracy and avoid size mismatches.</p>
-          </div>
-        </div>
-      </div>
+            {/* Accurate Measurement */}
+            <div className="col-lg-4 col-md-6 col-sm-6">
+              <div className="single-offers mb-50 text-center">
+                <div className="offers-img" style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img 
+                    src={offers2} 
+                    alt="Measurement" 
+                    style={{ 
+                      maxHeight: '100%', 
+                      maxWidth: '100%',
+                      objectFit: 'contain'
+                    }} 
+                  />
+                </div>
+                <div className="offers-cap">
+                  <span className="service-number">2</span>
+                  <h3>Accurate Measurement</h3>
+                  <p>Use our guided measurement tool to ensure accuracy and avoid size mismatches.</p>
+                </div>
+              </div>
+            </div>
 
-      {/* Premium Fabric Choices */}
-      <div className="col-lg-4 col-md-6 col-sm-6">
-        <div className="single-offers mb-50 text-center">
-          <div className="offers-img" style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img 
-              src={offers3} 
-              alt="Fabric Selection" 
-              style={{ 
-                maxHeight: '100%', 
-                maxWidth: '100%',
-                objectFit: 'contain'
-              }} 
-            />
-          </div>
-          <div className="offers-cap">
-            <span className="service-number">3</span>
-            <h3>Premium Fabric Choices</h3>
-            <p>Explore a wide range of high-quality fabrics and customize your outfit to your preference.</p>
+            {/* Premium Fabric Choices */}
+            <div className="col-lg-4 col-md-6 col-sm-6">
+              <div className="single-offers mb-50 text-center">
+                <div className="offers-img" style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img 
+                    src={offers3} 
+                    alt="Fabric Selection" 
+                    style={{ 
+                      maxHeight: '100%', 
+                      maxWidth: '100%',
+                      objectFit: 'contain'
+                    }} 
+                  />
+                </div>
+                <div className="offers-cap">
+                  <span className="service-number">3</span>
+                  <h3>Premium Fabric Choices</h3>
+                  <p>Explore a wide range of high-quality fabrics and customize your outfit to your preference.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
       {/* About Tailor Section */}
       <section className="visit-tailor-area fix">
@@ -123,8 +132,8 @@ const Home = () => {
         </div>
       </section>
 
-{/* Services Section */}
-<section className="categories-area section-padding40">
+      {/* Services Section */}
+      <section className="categories-area section-padding40">
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-6 col-lg-6 col-md-7 col-sm-9">
