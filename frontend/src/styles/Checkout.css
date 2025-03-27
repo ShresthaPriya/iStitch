@@ -150,6 +150,7 @@
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-height: calc(100vh - 200px); /* Adjust height to account for footer */
 }
 
 .checkout-page h2 {
@@ -190,4 +191,14 @@
 
 .checkout-btn:hover {
     background-color: #0056b3;
+}
+
+.footer {
+    position: relative; /* Change from fixed to relative */
+    bottom: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    text-align: center;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
