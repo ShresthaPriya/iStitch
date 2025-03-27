@@ -7,7 +7,8 @@
   font-family: 'Jacques Francois', serif;
   background-color:  rgba(228, 225, 225, 0.984);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 0px 30px;
+  padding: 0px 3%;
+  height: 80px;
   
 }
 
@@ -138,16 +139,24 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+
 .search-input {
+  display: flex;
+  align-items: center;
   border: none;
   outline: none;
   padding: 8px;
-  font-size: 8px; /* Increased font size */
+  font-size: 16px; /* Increased from 8px to 16px */
   background: none;
   color: #333;
   width: 100%;
 }
 
+.search-input::placeholder {
+  font-size: 16px; /* Explicitly setting placeholder font size */
+  color: #999;
+  align-items: center;
+}
 .search-button {
   background: none;
   border: none;

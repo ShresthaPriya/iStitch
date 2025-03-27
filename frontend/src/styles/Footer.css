@@ -7,6 +7,11 @@
   flex-direction: column;
   align-items: center;
   text-decoration-color: rgb(6, 7, 7);
+  position: fixed; /* Fix the footer at the bottom */
+  left: 0; /* Ensure it spans the entire width */
+  bottom: 0; /* Always positioned at the bottom */
+  width: 100%; /* Ensure it takes the full width */
+  z-index: 9999; /* Ensure it stays above other content */
 }
 
 .footer-content {
@@ -49,7 +54,6 @@
 .footer .payments {
   text-align: right;
   font-size: 1.2em;
-  ;
 }
 
 .footer .payments span {

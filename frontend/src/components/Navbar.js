@@ -12,6 +12,8 @@ function Navbar({ onCartClick }) {
   const [menuActive, setMenuActive] = useState(false);
   const [profileDropdownActive, setProfileDropdownActive] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,6 +42,15 @@ function Navbar({ onCartClick }) {
     window.location.href = "http://localhost:3000";
   };
 
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/search?query=${searchQuery}`);
+      setSearchResults(response.data.results || []);
+    } catch (err) {
+      console.error("Error fetching search results:", err);
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="logo">
@@ -62,11 +73,30 @@ function Navbar({ onCartClick }) {
 
       <div className="search-and-profile">
         <div className="search-bar">
-          <input type="text" className="search-input" />
-          <button className="search-button">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search products or fabrics"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button className="search-button" onClick={handleSearch}>
             <i className="fa fa-search"></i>
           </button>
         </div>
+        {searchResults.length > 0 ? (
+          <div className="search-results">
+            {searchResults.map((result, index) => (
+              <div key={index} className="search-result-item">
+                <Link to={`/details/${result._id}`}>{result.productName || result.name}</Link>
+              </div>
+            ))}
+          </div>
+        ) : searchQuery && (
+          <div className="search-results">
+            <p>No matching products or fabrics found.</p>
+          </div>
+        )}
         <div className="notification-section">
           <button className="notification-button">
             <i className="fa fa-bell"></i>

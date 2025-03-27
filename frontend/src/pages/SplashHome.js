@@ -3,7 +3,7 @@ import axios from "axios";
 import SplashNavbar from '../components/SplashNavbar';
 import Footer from '../components/Footer';
 import "../styles/Home.css";
-import CategoryGrid from "../components/CategoryGrid";
+// import CategoryGrid from "../components/CategoryGrid";
 // import FabricCollection from "../components/FabricCollection";
 
 
@@ -29,7 +29,7 @@ const SplashHome = () => {
             <SplashNavbar />
             <div className="home-page">
                 <h2>Welcome to iStitch</h2>
-                  <CategoryGrid />
+                  {/* <CategoryGrid /> */}
                 <div className="items-grid">
                     {items.map(item => (
                         <div key={item._id} className="item-card">
