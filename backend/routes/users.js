@@ -14,6 +14,33 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Fetch user by email
+router.get('/email/:email', async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.params.email }).select("-password -confirmPassword");
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json(user);
+    } catch (err) {
+        console.error("Error fetching user by email:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Fetch user by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select("-password -confirmPassword");
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json(user);
+    } catch (err) {
+        console.error("Error fetching user by ID:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // Add a new user
 router.post('/', async (req, res) => {

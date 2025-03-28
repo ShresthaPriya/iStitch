@@ -22,8 +22,9 @@ const measurementRoutes = require("./routes/measurementRoute");
 const guideRoutes = require("./routes/guideRoute");
 const metricsRoutes = require("./routes/metricsRoute");
 const designRoutes = require("./routes/designRoute");
-const userRoutes = require("./routes/users");
+const userRoutes = require("./routes/users"); // Import users route
 const cartRoutes = require("./routes/cart"); // Import cart routes
+const userMeasurementsRoutes = require("./routes/userMeasurements"); // Import userMeasurements route
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -66,8 +67,9 @@ app.use("/api/measurements", measurementRoutes);
 app.use("/api/guides", guideRoutes);
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/designs", designRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/users", userRoutes); // Register users route
 app.use("/api/cart", cartRoutes); // Add cart routes
+app.use("/api/user-measurements", userMeasurementsRoutes); // Register userMeasurements route
 
 // Start the server
 const startServer = async () => {

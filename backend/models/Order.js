@@ -35,12 +35,21 @@ const OrderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Paid'],
+        enum: ['Pending', 'Processing', 'Shipped', 'Delivered'],
         required: true
     },
-    khaltiPayload: {
-        type: Object // Store Khalti payment details
+    fullName: {
+        type: String,
+        required: true
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    contactNumber: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Order', OrderSchema);
+module.exports = mongoose.models.Order || mongoose.model('Order', OrderSchema);
