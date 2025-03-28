@@ -15,7 +15,7 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const customerRoutes = require("./routes/customerRoute");
 const categoryRoutes = require("./routes/categoryRoute");
-const orderRoutes = require("./routes/orderRoute");
+const orderRoutes = require("./routes/orderRoute"); // Import order routes
 const itemRoutes = require("./routes/itemRoutes");
 const fabricRoutes = require("./routes/fabricRoute");
 const measurementRoutes = require("./routes/measurementRoute");
@@ -59,7 +59,7 @@ app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/categories", categoryRoutes);
-app.use("/api/orders", orderRoutes);
+app.use("/api/orders", orderRoutes); // Add order routes
 app.use("/api/items", itemRoutes);
 app.use("/api/fabrics", fabricRoutes);
 app.use("/api/measurements", measurementRoutes);
