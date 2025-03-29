@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { CartContext } from '../context/CartContext';
@@ -10,35 +10,114 @@ const Checkout = () => {
     const { cart, clearCart } = useContext(CartContext);
     const user = JSON.parse(localStorage.getItem("user")); // Get logged-in user details
     const userEmail = user?.email;
-    const userId = user?._id; // Ensure userId is retrieved correctly
+    const userId = user?._id;
     const navigate = useNavigate();
+
+    const [contactNumber, setContactNumber] = useState("");
+    const [address, setAddress] = useState("");
+    const [error, setError] = useState("");
+    const [userMeasurements, setUserMeasurements] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Fetch user measurements when component mounts
+        const fetchUserMeasurements = async () => {
+            if (!userId) return;
+            
+            try {
+                setLoading(true);
+                const response = await axios.get(`http://localhost:4000/api/user-measurements/${userId}`);
+                if (response.data.success) {
+                    setUserMeasurements(response.data.measurements);
+                }
+                setLoading(false);
+            } catch (err) {
+                console.error("Error fetching user measurements:", err);
+                setUserMeasurements([]);
+                setLoading(false);
+            }
+        };
+
+        fetchUserMeasurements();
+    }, [userId]);
 
     const totalPrice = cart.reduce((total, item) => total + item.price, 0);
 
     const handleCashOnDelivery = async () => {
-        try {
-            // Fetch user details using email
-            const userResponse = await axios.get(`http://localhost:4000/api/users/email/${userEmail}`);
-            const user = userResponse.data;
+        if (!contactNumber.trim() || !address.trim()) {
+            setError("Please provide both contact number and address.");
+            return;
+        }
 
-            // Navigate to the review order page with the fetched data
-            navigate('/review-order', {
-                state: {
-                    orderDetails: {
-                        userId, // Pass userId to the order details
-                        items: cart,
-                        total: totalPrice,
-                        fullName: user.fullname || "N/A",
-                        address: user.address || "N/A", // Include address if available
-                        contactNumber: user.contactNumber || "N/A" // Include contact number if available
-                    }
-                }
-            });
+        try {
+            const orderPayload = {
+                customer: userId,
+                items: cart.map(item => ({
+                    productId: item._id,
+                    quantity: 1,
+                    price: Number(item.price)
+                })),
+                totalAmount: Number(totalPrice),
+                paymentMethod: "Cash On Delivery",
+                status: "Pending",
+                fullName: user.fullname || "N/A",
+                contactNumber: contactNumber.trim(),
+                address: address.trim()
+            };
+
+            console.log("Order Payload:", orderPayload);
+
+            const response = await axios.post("http://localhost:4000/api/orders", orderPayload);
+            console.log("Order Response:", response.data);
+            
+            if (response.data.success) {
+                alert("Order placed successfully!");
+                clearCart();
+                navigate('/order-history');
+            } else {
+                alert(response.data.message || "Failed to place order");
+            }
         } catch (err) {
-            console.error("Error fetching user details:", err.response?.data || err.message);
-            alert("Failed to proceed with Cash on Delivery. Please try again.");
+            console.error("Error placing order:", err.response?.data || err.message);
+            alert("Failed to place order. Please try again.");
         }
     };
+
+    if (loading) {
+        return (
+            <>
+                <Navbar />
+                <div className="checkout-page">
+                    <h2>Checkout</h2>
+                    <div className="loading-spinner">Loading...</div>
+                </div>
+                <Footer />
+            </>
+        );
+    }
+
+    // Redirect to measurements page if no measurements found
+    if (userMeasurements.length === 0) {
+        return (
+            <>
+                <Navbar />
+                <div className="checkout-page">
+                    <h2>Checkout</h2>
+                    <div className="no-measurements-message">
+                        <p>Please save your measurements before placing an order.</p>
+                        <p>This helps us tailor your items perfectly to your size.</p>
+                        <button 
+                            className="save-measurements-btn"
+                            onClick={() => navigate('/customer-measurements')}
+                        >
+                            Go to Measurements Page
+                        </button>
+                    </div>
+                </div>
+                <Footer />
+            </>
+        );
+    }
 
     return (
         <>
@@ -58,6 +137,47 @@ const Checkout = () => {
                 </div>
                 <div className="checkout-total">
                     <h3>Total: ${totalPrice.toFixed(2)}</h3>
+                    
+                    {/* Display user measurements summary */}
+                    <div className="measurements-summary">
+                        <h4>Your Measurements</h4>
+                        <div className="measurements-grid">
+                            {userMeasurements.map((measurement, index) => (
+                                <div key={index} className="measurement-item">
+                                    <span>{measurement.title}:</span> 
+                                    <span>{measurement.value} {measurement.unit}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <button 
+                            className="edit-measurements-link"
+                            onClick={() => navigate('/customer-measurements')}
+                        >
+                            Edit Measurements
+                        </button>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Contact Number</label>
+                        <input
+                            type="text"
+                            value={contactNumber}
+                            onChange={(e) => setContactNumber(e.target.value)}
+                            placeholder="Enter your contact number"
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Address</label>
+                        <input
+                            type="text"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            placeholder="Enter your address"
+                            required
+                        />
+                    </div>
+                    {error && <p className="error-message">{error}</p>}
                     <button className="checkout-btn" onClick={handleCashOnDelivery}>Cash On Delivery</button>
                 </div>
             </div>

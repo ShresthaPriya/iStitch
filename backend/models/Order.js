@@ -1,55 +1,36 @@
-const mongoose = require('mongoose');
+const Order = require('../models/OrderSchema');
 
-const OrderSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    items: [
-        {
-            productId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Item',
-                required: true
-            },
-            quantity: {
-                type: Number,
-                required: true,
-                default: 1
-            },
-            price: {
-                type: Number,
-                required: true
-            }
+const addOrder = async (req, res) => {
+    try {
+        let { userId, items, total, fullName, address, contactNumber, paymentMethod, status } = req.body;
+
+        // Ensure items is an array of objects
+        if (typeof items === 'string') {
+            items = JSON.parse(items);
         }
-    ],
-    total: {
-        type: Number,
-        required: true
-    },
-    paymentMethod: {
-        type: String,
-        enum: ['Cash On Delivery', 'Khalti'],
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered'],
-        required: true
-    },
-    fullName: {
-        type: String,
-        required: true
-    },
-    address: {
-        type: String,
-        required: true
-    },
-    contactNumber: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true });
 
-module.exports = mongoose.models.Order || mongoose.model('Order', OrderSchema);
+        if (!Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ success: false, error: "Items must be a non-empty array" });
+        }
+
+        const newOrder = new Order({
+            userId,
+            items,
+            total,
+            fullName,
+            address,
+            contactNumber,
+            paymentMethod,
+            status
+        });
+
+        await newOrder.save();
+        res.status(201).json({ success: true, message: "Order placed successfully", order: newOrder });
+
+    } catch (error) {
+        console.error("Error adding order:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+module.exports = { addOrder };

@@ -1,62 +1,174 @@
 .customize-dress-page {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
+    padding: 30px;
+    max-width: 900px;
+    margin: 20px auto;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
 .customize-dress-page h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    color: #333;
+    font-size: 28px;
 }
 
 .selected-fabric {
-    text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
 }
 
-.selected-fabric img {
-    width: 100px;
-    height: 100px;
+.selected-fabric h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #495057;
+    font-size: 20px;
+}
+
+.fabric-details {
+    display: flex;
+    align-items: center;
+}
+
+.fabric-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 10px;
+    margin-right: 20px;
+    border: 1px solid #dee2e6;
+}
+
+.fabric-info {
+    flex: 1;
+}
+
+.fabric-info h4 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #343a40;
+}
+
+.fabric-description {
+    margin: 0 0 10px;
+    color: #6c757d;
+}
+
+.fabric-price {
+    margin: 0;
+    font-weight: bold;
+    color: #007bff;
+    font-size: 16px;
 }
 
 .customization-form {
-    margin-bottom: 20px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #495057;
 }
 
+.form-group select,
 .form-group input,
-.form-group select {
+.form-group textarea {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.price-estimate {
+    background-color: #e9f7fe;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+    border-left: 4px solid #17a2b8;
+}
+
+.price-estimate h3 {
+    margin: 0 0 10px;
+    color: #17a2b8;
+    font-size: 20px;
+}
+
+.price-note {
+    margin: 0;
+    color: #6c757d;
+    font-size: 14px;
 }
 
 .proceed-btn {
     width: 100%;
-    padding: 10px;
-    background-color: #007bff;
+    padding: 12px;
+    background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.2s;
 }
 
 .proceed-btn:hover {
-    background-color: #0056b3;
+    background-color: #218838;
+}
+
+.proceed-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.back-button {
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.2s;
+}
+
+.back-button:hover {
+    background-color: #5a6268;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .fabric-details {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .fabric-image {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
 }

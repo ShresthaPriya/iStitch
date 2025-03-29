@@ -202,3 +202,96 @@
     text-align: center;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
+
+.no-measurements-message {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 20px;
+  margin: 30px auto;
+  max-width: 600px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.no-measurements-message p {
+  margin-bottom: 15px;
+}
+
+.save-measurements-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.save-measurements-btn:hover {
+  background-color: #218838;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #6c757d;
+}
+
+.measurements-summary {
+  background-color: #f8f9fa;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.measurements-summary h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #495057;
+  font-size: 16px;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+.measurements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.measurement-item {
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.edit-measurements-link {
+  background: none;
+  border: none;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  text-align: right;
+  display: block;
+  width: 100%;
+}
+
+.edit-measurements-link:hover {
+  color: #0056b3;
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 15px 0;
+  text-align: center;
+  border-left: 4px solid #dc3545;
+}

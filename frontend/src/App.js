@@ -16,13 +16,13 @@ import ProductCard from './components/ProductCard';
 import Cart from './components/Cart';
 import Checkout from './pages/Checkout'; // Import Checkout
 import CustomizeDress from './pages/CustomizeDress'; // Import CustomizeDress
-import ReviewOrder from './pages/ReviewOrder'; // Import ReviewOrder
 import ShirtMeasurements from './components/ShirtMeasurements';
 import PantMeasurements from './components/PantMeasurements';
 import BlazerMeasurements from './components/BlazerMeasurements';
 import BlouseMeasurements from './components/BlouseMeasurements';
 import FabricDetails from './pages/FabricDetails';
 import FabricCollection from './components/FabricCollection'; // Import FabricCollection
+import ReviewOrder from './pages/ReviewOrder'; // Import ReviewOrder
 
 import Customer from './pages/Customer';
 import AdminHome from './pages/AdminHome';
@@ -78,7 +78,6 @@ function App() {
                 <Route path='/cart' element={<Cart />} />
                 <Route path='/checkout' element={<Checkout />} /> {/* Add Checkout route */}
                 <Route path='/customize-dress' element={<CustomizeDress />} /> {/* Add CustomizeDress route */}
-                <Route path='/review-order' element={<ReviewOrder />} /> {/* Add ReviewOrder route */}
                 <Route path='/measurements/shirt' element={<ShirtMeasurements />} />
                 <Route path='/measurements/pant' element={<PantMeasurements />} />
                 <Route path='/measurements/blazer' element={<BlazerMeasurements />} />
@@ -108,6 +107,7 @@ function App() {
                 <Route path='/splash-womens' element={<SplashWomensPage />} /> {/* Add SplashWomensPage route */}
                 <Route path='/splash-fabric-collection' element={<SplashFabricCollection />} /> {/* Add SplashFabricCollection route */}
                 <Route path='/splash-home' element={<SplashHome />} /> {/* Add SplashHome route */}
+                <Route path='/review-order' element={<ReviewOrder />} /> {/* Add ReviewOrder route */}
               </Routes>
               <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} /> {/* Cart sidebar */}
             </Router>
