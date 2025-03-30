@@ -1,10 +1,11 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Navbar.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { AppContext } from "../App";
-import { CartContext } from '../context/CartContext';
+import { CartContext } from "../context/CartContext";
+import { debounce } from "lodash";
 
 function Navbar({ onCartClick }) {
   const { username, setUsername } = useContext(AppContext);
@@ -15,6 +16,8 @@ function Navbar({ onCartClick }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const profileRef = useRef(null);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,60 +26,75 @@ function Navbar({ onCartClick }) {
         const response = await axios.get("http://localhost:4000/api/categories");
         setCategories(response.data.categories);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching categories:", err);
       }
     };
 
     fetchCategories();
   }, []);
 
-  const toggleMenu = () => {
-    setMenuActive(!menuActive);
-  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileDropdownActive(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setSearchResults([]);
+      }
+    };
 
-  const toggleProfileDropdown = () => {
-    setProfileDropdownActive(!profileDropdownActive);
-  };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const handleLogout = () => {
-    setShowLogoutConfirm(true);
-  };
+  const toggleMenu = () => setMenuActive(!menuActive);
+  const toggleProfileDropdown = () => setProfileDropdownActive(!profileDropdownActive);
+  const handleLogout = () => setShowLogoutConfirm(true);
+  const cancelLogout = () => setShowLogoutConfirm(false);
 
   const confirmLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    if (setUsername) {
-      setUsername(null); // Ensure setUsername is called only if it exists
-    }
+    setUsername(null);
     setShowLogoutConfirm(false);
     navigate("/");
-    window.location.reload(); // Optional: if you want to completely refresh the page
   };
 
-  const cancelLogout = () => {
-    setShowLogoutConfirm(false);
-  };
+  const handleSearch = debounce(async () => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
 
-  const handleSearch = async () => {
     try {
       const response = await axios.get(`http://localhost:4000/api/search?query=${searchQuery}`);
-      setSearchResults(response.data.results || []);
+      setSearchResults(response.data.results.fabrics || []);
     } catch (err) {
       console.error("Error fetching search results:", err);
+    }
+  }, 300);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && searchResults.length > 0) {
+      navigate(`/fabric-details/${searchResults[0]._id}`);
+      setSearchResults([]);
     }
   };
 
   return (
     <nav className="navbar">
-      {/* Confirmation Modal */}
       {showLogoutConfirm && (
         <div className="logout-confirm-modal">
           <div className="logout-confirm-content">
             <h3>Confirm Logout</h3>
             <p>Are you sure you want to log out?</p>
             <div className="logout-confirm-buttons">
-              <button onClick={confirmLogout} className="confirm-button">Yes, Logout</button>
-              <button onClick={cancelLogout} className="cancel-button">Cancel</button>
+              <button onClick={confirmLogout} className="confirm-button">
+                Yes, Logout
+              </button>
+              <button onClick={cancelLogout} className="cancel-button">
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -101,31 +119,43 @@ function Navbar({ onCartClick }) {
       </ul>
 
       <div className="search-and-profile">
-        <div className="search-bar">
+        <div className="search-bar" ref={searchRef}>
           <input
             type="text"
             className="search-input"
             placeholder="Search.."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              handleSearch();
+            }}
+            onKeyDown={handleKeyDown}
           />
-          <button className="search-button" onClick={handleSearch}>
+          <button className="search-button">
             <i className="fa fa-search"></i>
           </button>
         </div>
-        {searchResults.length > 0 ? (
+
+        {searchResults.length > 0 && (
           <div className="search-results">
-            {searchResults.map((result, index) => (
-              <div key={index} className="search-result-item">
-                <Link to={`/details/${result._id}`}>{result.productName || result.name}</Link>
+            {searchResults.map((result) => (
+              <div key={result._id} className="search-result-item">
+                <h4
+                  className="fabric-name"
+                  onClick={() => navigate(`/fabric-details/${result._id}`)}
+                  style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+                >
+                  {result.name}
+                </h4>
+                <p>Price: ${result.price}</p>
+                {/* {result.images?.length > 0 && (
+                  <img src={result.images[0]} alt={result.name} className="fabric-image" />
+                )} */}
               </div>
             ))}
           </div>
-        ) : searchQuery && (
-          <div className="search-results">
-            <p>No matching products or fabrics found.</p>
-          </div>
         )}
+
         <div className="notification-section">
           <button className="notification-button">
             <i className="fa fa-bell"></i>
@@ -139,14 +169,13 @@ function Navbar({ onCartClick }) {
           </button>
         </div>
 
-        <div className="profile-section">
+        <div className="profile-section" ref={profileRef}>
           <button className="profile-button" onClick={toggleProfileDropdown}>
             <i className="fa-solid fa-user"></i>
             {username && <span className="profile-badge">1</span>}
           </button>
           {profileDropdownActive && (
             <div className="username-dropdown">
-              <i className="fa fa-chevron-down dropdown-icon"></i>
               <ul className="dropdown-menu">
                 <li><Link to="/user-profile">Profile Setting</Link></li>
                 <li><Link to="/order-history">Order History</Link></li>

@@ -48,7 +48,7 @@ const WomensPage = () => {
                 </div>
             </div>
             <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-            <Footer />
+            {/* <Footer /> */}
         </>
     );
 };

@@ -37,7 +37,7 @@ const SplashWomensPage = () => {
                     ))}
                 </div>
             </div>
-            <Footer />
+            {/* <Footer /> */}
         </>
     );
 };
