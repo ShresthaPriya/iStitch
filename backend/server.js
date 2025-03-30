@@ -23,6 +23,8 @@ const guideRoutes = require("./routes/guideRoute");
 const metricsRoutes = require("./routes/metricsRoute");
 const designRoutes = require("./routes/designRoute");
 const userRoutes = require("./routes/users");
+const userMeasurementRoutes = require("./routes/userMeasurementRoute");
+const searchRoutes = require("./routes/search");  // Correct path to search.js
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -66,6 +68,11 @@ app.use("/api/guides", guideRoutes);
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/designs", designRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/user-measurements", userMeasurementRoutes);
+
+// Use the search routes
+app.use("/api", searchRoutes); 
+
 // Start the server
 const startServer = async () => {
   try {
