@@ -21,7 +21,7 @@ router.post('/verify', async (req, res) => {
         };
         
         // Add Khalti secret key from environment variables or config
-        const khaltiSecretKey = "d5b20edd8d17452ba3d92f7bad48c6db"; // Use environment variable in production
+        const khaltiSecretKey = "46dddb5ea6fe4862928b7e6714683551"; // Use environment variable in production
         
         const response = await axios.post(
             "https://khalti.com/api/v2/payment/verify/", 

@@ -1,6 +1,6 @@
 // Configuration for Khalti Payment Gateway
 const khaltiConfig = {
-  publicKey: "test_public_key_e21400862d8d43e2acca4cfa5e9100e9", // Use test key provided
+  publicKey: "efbf264218eb46cf91d00c9d36b2d42b", // Use test key provided
   productIdentity: "iStitch", // This can be dynamic based on your app
   productName: "iStitch Custom Clothing",
   productUrl: "http://localhost:3000",

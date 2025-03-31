@@ -1,6 +1,11 @@
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/UserSchema"); // Ensure correct path to the User model
+
+// Ensure environment variables are set
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    throw new Error("Missing Google OAuth2 clientID or clientSecret in environment variables.");
+}
 
 const configureGoogleStrategy = () => {
   passport.use(
@@ -8,7 +13,7 @@ const configureGoogleStrategy = () => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL,
+        callbackURL: "/auth/google/callback",
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
