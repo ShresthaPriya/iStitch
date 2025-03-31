@@ -26,4 +26,8 @@ const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema(
     }
 }));
 
+<<<<<<< Updated upstream
 module.exports = User;
+=======
+module.exports = User;
+>>>>>>> Stashed changes

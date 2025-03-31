@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 
-const UserSchema = mongoose.Schema({
+// Clear Mongoose cache in development to prevent OverwriteModelError
+if (process.env.NODE_ENV === 'development') {
+    delete mongoose.models.User;
+    delete mongoose.modelSchemas.User;
+}
+
+const UserSchema = new mongoose.Schema({
     googleId: { 
         type: String, 
         unique: true 
@@ -18,14 +24,15 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    resetPasswordToken:{
+    resetPasswordToken: {
         type: String
     },
     resetPasswordExpires: {
         type: Date
     }, 
 },
-    {timestamps:true}
+    { timestamps: true }
 );
 
-module.exports = mongoose.model("User", UserSchema);
+// Use existing model if it exists, otherwise define a new one
+module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
