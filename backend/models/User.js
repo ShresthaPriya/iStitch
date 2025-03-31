@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
+// Check if the model already exists before creating a new one
+const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({
     fullname: {
         type: String,
         required: true
@@ -23,6 +24,6 @@ const UserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-});
+}));
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = User;

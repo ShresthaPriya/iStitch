@@ -21,6 +21,11 @@ const OrderSchema = new mongoose.Schema({
             required: true,
             default: 1
         },
+        size: {
+            type: String,
+            required: true,
+            default: "M"
+        },
         price: {
             type: Number,
             required: true
@@ -44,6 +49,15 @@ const OrderSchema = new mongoose.Schema({
         type: String,
         enum: ['Cash On Delivery', 'Khalti'],
         required: true
+    },
+    paymentToken: {
+        type: String,
+        default: null
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['Pending', 'Completed', 'Failed'],
+        default: 'Pending'
     },
     status: {
         type: String,

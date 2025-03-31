@@ -111,6 +111,48 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+// Change user password
+router.put('/:id/password', async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.params.id;
+        
+        // Find the user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        
+        // Check if current password matches
+        // In a production app, you would use bcrypt.compare here
+        if (user.password !== currentPassword) {
+            return res.status(401).json({
+                success: false,
+                message: "Current password is incorrect"
+            });
+        }
+        
+        // Update the password
+        // In a production app, you would hash the password with bcrypt
+        user.password = newPassword;
+        await user.save();
+        
+        res.json({
+            success: true,
+            message: "Password changed successfully"
+        });
+    } catch (err) {
+        console.error("Error changing password:", err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+});
+
 // Delete a user
 router.delete('/:id', async (req, res) => {
     try {

@@ -4,12 +4,12 @@ import Footer from '../components/Footer';
 import { CartContext } from '../context/CartContext';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import khaltiConfig from "../config/khaltiConfig";
 import "../styles/Checkout.css";
 
 const Checkout = () => {
-    const { cart, clearCart } = useContext(CartContext);
+    const { cart, clearCart, calculateTotal } = useContext(CartContext);
     const user = JSON.parse(localStorage.getItem("user")); // Get logged-in user details
-    const userEmail = user?.email;
     const userId = user?._id;
     const navigate = useNavigate();
 
@@ -18,8 +18,52 @@ const Checkout = () => {
     const [error, setError] = useState("");
     const [userMeasurements, setUserMeasurements] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [paymentMethod, setPaymentMethod] = useState("Cash On Delivery");
+    const [khaltiCheckout, setKhaltiCheckout] = useState(null);
 
     useEffect(() => {
+        // Create Khalti checkout instance
+        if (window.KhaltiCheckout) {
+            const config = { ...khaltiConfig };
+            
+            // Customize the event handlers with component-specific logic
+            config.eventHandler = {
+                onSuccess: async (payload) => {
+                    console.log("Payment successful:", payload);
+                    
+                    try {
+                        // Verify the payment server-side
+                        const verificationResponse = await axios.post(
+                            "http://localhost:4000/api/khalti/verify", 
+                            {
+                                token: payload.token,
+                                amount: payload.amount
+                            }
+                        );
+                        
+                        if (verificationResponse.data.success) {
+                            // Process the order with payment information
+                            await placeOrder("Khalti", payload.token);
+                        } else {
+                            alert("Payment verification failed. Please contact support.");
+                        }
+                    } catch (err) {
+                        console.error("Error during payment verification:", err);
+                        alert("Payment processing error. Please try again or contact support.");
+                    }
+                },
+                onError: (error) => {
+                    console.error("Khalti payment error:", error);
+                    setError("Payment failed. Please try again.");
+                },
+                onClose: () => {
+                    console.log("Khalti payment widget closed");
+                }
+            };
+            
+            setKhaltiCheckout(new window.KhaltiCheckout(config));
+        }
+        
         // Fetch user measurements when component mounts
         const fetchUserMeasurements = async () => {
             if (!userId) return;
@@ -41,9 +85,9 @@ const Checkout = () => {
         fetchUserMeasurements();
     }, [userId]);
 
-    const totalPrice = cart.reduce((total, item) => total + item.price, 0);
+    const totalPrice = calculateTotal();
 
-    const handleCashOnDelivery = async () => {
+    const placeOrder = async (paymentMethod, paymentToken = null) => {
         if (!contactNumber.trim() || !address.trim()) {
             setError("Please provide both contact number and address.");
             return;
@@ -54,15 +98,17 @@ const Checkout = () => {
                 customer: userId,
                 items: cart.map(item => ({
                     productId: item._id,
-                    quantity: 1,
+                    quantity: item.quantity || 1,
+                    size: item.selectedSize,
                     price: Number(item.price)
                 })),
                 totalAmount: Number(totalPrice),
-                paymentMethod: "Cash On Delivery",
-                status: "Pending",
+                paymentMethod,
+                status: paymentMethod === "Khalti" ? "Processing" : "Pending",
                 fullName: user.fullname || "N/A",
                 contactNumber: contactNumber.trim(),
-                address: address.trim()
+                address: address.trim(),
+                paymentToken // Include the payment token for Khalti payments
             };
 
             console.log("Order Payload:", orderPayload);
@@ -81,6 +127,44 @@ const Checkout = () => {
             console.error("Error placing order:", err.response?.data || err.message);
             alert("Failed to place order. Please try again.");
         }
+    };
+
+    const handleCashOnDelivery = () => {
+        placeOrder("Cash On Delivery");
+    };
+
+    const handleKhaltiPayment = () => {
+        if (!khaltiCheckout) {
+            alert("Payment system is not ready yet. Please try again later.");
+            return;
+        }
+        
+        if (!contactNumber.trim() || !address.trim()) {
+            setError("Please provide both contact number and address.");
+            return;
+        }
+        
+        // Clear any previous errors
+        setError("");
+        
+        const amountInPaisa = totalPrice * 100; // Convert to paisa (Khalti's smallest unit)
+        
+        khaltiCheckout.show({
+            amount: amountInPaisa,
+            mobile: contactNumber,
+            customer_info: {
+                name: user.fullname,
+                email: user.email,
+                address: address
+            },
+            product_details: cart.map(item => ({
+                identity: item._id,
+                name: item.name,
+                total_price: item.price * (item.quantity || 1) * 100,
+                quantity: item.quantity || 1,
+                unit_price: item.price * 100
+            }))
+        });
     };
 
     if (loading) {
@@ -125,12 +209,16 @@ const Checkout = () => {
             <div className="checkout-page">
                 <h2>Checkout</h2>
                 <div className="checkout-items">
-                    {cart.map(item => (
-                        <div key={item._id} className="checkout-item">
-                            <img src={item.images[0]} alt={item.name} />
+                    {cart.map((item, index) => (
+                        <div key={`${item._id}-${item.selectedSize}-${index}`} className="checkout-item">
+                            <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
                             <div>
                                 <h3>{item.name}</h3>
-                                <p>${item.price}</p>
+                                <p className="checkout-item-size">Size: {item.selectedSize}</p>
+                                <p className="checkout-item-quantity">Quantity: {item.quantity || 1}</p>
+                                <p className="checkout-item-price">
+                                    ${item.price} × {item.quantity || 1} = ${(item.price * (item.quantity || 1)).toFixed(2)}
+                                </p>
                             </div>
                         </div>
                     ))}
@@ -177,8 +265,41 @@ const Checkout = () => {
                             required
                         />
                     </div>
+                    
+                    <div className="payment-methods">
+                        <h4>Payment Method</h4>
+                        <div className="payment-options">
+                            <div 
+                                className={`payment-option ${paymentMethod === "Cash On Delivery" ? "selected" : ""}`}
+                                onClick={() => setPaymentMethod("Cash On Delivery")}
+                            >
+                                <div className="payment-radio">
+                                    <div className={`radio-inner ${paymentMethod === "Cash On Delivery" ? "selected" : ""}`}></div>
+                                </div>
+                                <div className="payment-label">Cash On Delivery</div>
+                            </div>
+                            <div 
+                                className={`payment-option ${paymentMethod === "Khalti" ? "selected" : ""}`}
+                                onClick={() => setPaymentMethod("Khalti")}
+                            >
+                                <div className="payment-radio">
+                                    <div className={`radio-inner ${paymentMethod === "Khalti" ? "selected" : ""}`}></div>
+                                </div>
+                                <div className="payment-label">
+                                    <img src="/khalti-logo.png" alt="Khalti" className="payment-logo" />
+                                    Khalti
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     {error && <p className="error-message">{error}</p>}
-                    <button className="checkout-btn" onClick={handleCashOnDelivery}>Cash On Delivery</button>
+                    
+                    {paymentMethod === "Cash On Delivery" ? (
+                        <button className="checkout-btn" onClick={handleCashOnDelivery}>Place Order - Cash On Delivery</button>
+                    ) : (
+                        <button className="checkout-btn khalti-btn" onClick={handleKhaltiPayment}>Pay with Khalti</button>
+                    )}
                 </div>
             </div>
             <Footer />

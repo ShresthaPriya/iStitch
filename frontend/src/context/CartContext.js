@@ -27,7 +27,8 @@ export const CartProvider = ({ children }) => {
             try {
                 const cartItems = updatedCart.map(item => ({
                     productId: item._id,
-                    quantity: item.quantity || 1
+                    quantity: item.quantity || 1,
+                    size: item.selectedSize // Add selected size to cart item
                 }));
                 await axios.post("http://localhost:4000/api/cart/save", {
                     userId,
@@ -40,16 +41,22 @@ export const CartProvider = ({ children }) => {
     };
 
     const addToCart = (item) => {
-        const existingItem = cart.find(cartItem => cartItem._id === item._id);
+        // Check if identical item (same ID and size) already exists in cart
+        const existingItemIndex = cart.findIndex(cartItem => 
+            cartItem._id === item._id && cartItem.selectedSize === item.selectedSize
+        );
+        
         let updatedCart;
 
-        if (existingItem) {
-            updatedCart = cart.map(cartItem =>
-                cartItem._id === item._id
+        if (existingItemIndex !== -1) {
+            // If identical item exists, increment its quantity
+            updatedCart = cart.map((cartItem, index) => 
+                index === existingItemIndex
                     ? { ...cartItem, quantity: (cartItem.quantity || 1) + 1 }
                     : cartItem
             );
         } else {
+            // Otherwise, add new item to cart
             updatedCart = [...cart, { ...item, quantity: 1 }];
         }
 
@@ -57,8 +64,10 @@ export const CartProvider = ({ children }) => {
         saveCartToDatabase(updatedCart);
     };
 
-    const removeFromCart = (id) => {
-        const updatedCart = cart.filter(item => item._id !== id);
+    const removeFromCart = (id, size) => {
+        const updatedCart = cart.filter(item => 
+            !(item._id === id && item.selectedSize === size)
+        );
         setCart(updatedCart);
         saveCartToDatabase(updatedCart);
     };
@@ -73,8 +82,20 @@ export const CartProvider = ({ children }) => {
         localStorage.removeItem("user"); // Clear user data
     };
 
+    // Calculate total price with item quantities
+    const calculateTotal = () => {
+        return cart.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
+    };
+
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, logout }}>
+        <CartContext.Provider value={{ 
+            cart, 
+            addToCart, 
+            removeFromCart, 
+            clearCart, 
+            logout,
+            calculateTotal
+        }}>
             {children}
         </CartContext.Provider>
     );

@@ -84,66 +84,116 @@
 }
 
 .size-selection {
-  margin-bottom: 24px;
+  margin: 20px 0;
 }
 
 .size-title {
-  font-size: 1.125rem;
+  margin-bottom: 10px;
+  font-size: 16px;
   font-weight: 500;
-  margin-bottom: 8px;
 }
 
 .size-buttons {
   display: flex;
+  gap: 10px;
   flex-wrap: wrap;
-  gap: 12px;
 }
 
 .size-button {
   padding: 8px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .size-button.selected {
-  background-color: #1f2937;
+  background-color: #333;
   color: white;
+  border-color: #333;
 }
 
 .size-button:hover {
-  border-color: #1f2937;
+  border-color: #333;
+}
+
+.inventory-low {
+  font-size: 10px;
+  color: #e74c3c;
+  font-weight: 400;
+}
+
+.size-error {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 8px;
 }
 
 .action-buttons {
   display: flex;
-  gap: 16px;
-  padding-top: 16px;
+  gap: 15px;
+  margin-top: 20px;
 }
 
 .add-to-cart-button,
 .customize-button {
   padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 1.125rem;
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .add-to-cart-button {
-  background-color: #dc2626;
+  background-color: #2ecc71;
   color: white;
 }
 
 .add-to-cart-button:hover {
-  border-color: #dc2626;
+  background-color: #27ae60;
+}
+
+.add-to-cart-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .customize-button {
-  background-color: #1f2937;
+  background-color: #3498db;
   color: white;
 }
 
 .customize-button:hover {
-  border-color: #1f2937;
+  background-color: #2980b9;
+}
+
+.out-of-stock-message {
+  margin-top: 15px;
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.product-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
+.product-error {
+  text-align: center;
+  padding: 30px;
+  color: #e74c3c;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fdf0f0;
+  border-radius: 8px;
+}
+
+.no-sizes {
+  color: #666;
+  font-style: italic;
 }

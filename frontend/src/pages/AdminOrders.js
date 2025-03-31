@@ -80,7 +80,8 @@ const AdminOrders = () => {
                                     {order.items.map((item, index) => (
                                         <div key={index} className="order-item-row">
                                             {item.productId?.name || "Custom Item"} 
-                                            {item.customDetails?.itemType && ` (${item.customDetails.itemType})`} 
+                                            {item.customDetails?.itemType && ` (${item.customDetails.itemType})`}
+                                            {item.size && ` - Size: ${item.size}`} {/* Display size */}
                                             (x{item.quantity})
                                             {item.customDetails?.fabricName && 
                                                 <div className="fabric-detail">Fabric: {item.customDetails.fabricName}</div>
