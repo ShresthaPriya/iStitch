@@ -1,183 +1,410 @@
-import { useState, useEffect } from "react";
-import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import Sidebar from "../components/Sidebar";
 import axios from "axios";
 import "../styles/Order.css";
-import Sidebar from "../components/Sidebar";
 
 const Order = () => {
-  const [username] = useState("Admin");
-  const [showModal, setShowModal] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [newOrder, setNewOrder] = useState({ customer: "", items: [], totalAmount: 0, status: "Pending" });
   const [orders, setOrders] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [error, setError] = useState(""); // Define the error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [userMeasurements, setUserMeasurements] = useState(null);
+  const [loadingMeasurements, setLoadingMeasurements] = useState(false);
+  const [showMeasurements, setShowMeasurements] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/orders');
-        setOrders(response.data.orders);
+        setLoading(true);
+        const response = await axios.get("http://localhost:4000/api/orders");
+        
+        if (response.data.success) {
+          // Make sure to get the userId field from customer field if it's not directly available
+          const ordersWithUserId = response.data.orders.map(order => ({
+            ...order,
+            userId: order.userId || order.customer // Ensure userId is set even if only customer field exists
+          }));
+          setOrders(ordersWithUserId);
+        } else {
+          setError(response.data.message || "Failed to fetch orders");
+        }
       } catch (err) {
         console.error("Error fetching orders:", err);
-      }
-    };
-
-    const fetchCustomers = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/customers');
-        setCustomers(response.data.customers);
-      } catch (err) {
-        console.error("Error fetching customers:", err);
+        setError("Failed to load orders. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchOrders();
-    fetchCustomers();
   }, []);
 
-  // Handle form input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNewOrder({ ...newOrder, [name]: value });
-  };
-
-  // Add or Edit order
-  const handleAddOrder = async () => {
+  const handleStatusChange = async (orderId, newStatus) => {
     try {
-      if (editMode) {
-        const response = await axios.put(`http://localhost:4000/api/orders/${selectedOrderId}`, newOrder);
-        setOrders(
-          orders.map((order) =>
-            order._id === selectedOrderId ? { ...order, ...response.data.order } : order
-          )
-        );
-        setEditMode(false);
-        setSelectedOrderId(null);
+      const response = await axios.put(`http://localhost:4000/api/orders/${orderId}`, {
+        status: newStatus
+      });
+
+      if (response.data.success) {
+        // Update the orders list with the new status
+        setOrders(orders.map(order => 
+          order._id === orderId ? { ...order, status: newStatus } : order
+        ));
+        
+        // Update selected order if it's the one being changed
+        if (selectedOrder && selectedOrder._id === orderId) {
+          setSelectedOrder({ ...selectedOrder, status: newStatus });
+        }
       } else {
-        const response = await axios.post('http://localhost:4000/api/orders', newOrder);
-        setOrders([...orders, response.data.order]);
+        alert(response.data.message || "Failed to update order status");
       }
-      setShowModal(false);
-      setNewOrder({ customer: "", items: [], totalAmount: 0, status: "Pending" });
     } catch (err) {
-      console.error('Error adding/updating order:', err);
-      setError(`Error adding/updating order: ${err.response?.data?.error || err.message}`);
+      console.error("Error updating order status:", err);
+      alert("Failed to update order status. Please try again.");
     }
   };
 
-  // Delete order
-  const handleDeleteOrder = async (id) => {
+  const viewOrderDetails = async (order) => {
+    setSelectedOrder(order);
+    setShowMeasurements(false); // Reset measurements view when opening a new order
+    setUserMeasurements(null); // Clear previous measurements
+    
+    // Fetch product details for each item in the order
     try {
-      await axios.delete(`http://localhost:4000/api/orders/${id}`);
-      setOrders(orders.filter((order) => order._id !== id));
+      // Create a copy of the order with enhanced items
+      const orderWithProductNames = { ...order };
+      const enhancedItems = await Promise.all(
+        order.items.map(async (item) => {
+          try {
+            if (item.productId) {
+              const productId = typeof item.productId === 'object' 
+                ? item.productId._id 
+                : item.productId;
+              
+              console.log(`Fetching product details for ID: ${productId}`);
+              
+              // Use the correct API endpoint to fetch product details
+              const response = await axios.get(`http://localhost:4000/api/items/${productId}`);
+              console.log("Product API response:", response.data);
+              
+              if (response.data && response.data.item) {
+                console.log(`Found product name: ${response.data.item.name}`);
+                return {
+                  ...item,
+                  productName: response.data.item.name || 'Product #' + productId.substring(0, 6)
+                };
+              }
+            }
+            return { 
+              ...item, 
+              productName: `Product #${typeof item.productId === 'object' ? item.productId._id.substring(0, 6) : item.productId.substring(0, 6)}` 
+            };
+          } catch (err) {
+            console.error(`Error fetching product details for ID ${item.productId}:`, err);
+            return { 
+              ...item, 
+              productName: `Product #${typeof item.productId === 'object' ? item.productId._id.substring(0, 6) : item.productId.substring(0, 6)}` 
+            };
+          }
+        })
+      );
+      
+      orderWithProductNames.items = enhancedItems;
+      setSelectedOrder(orderWithProductNames);
     } catch (err) {
-      console.error('Error deleting order:', err);
-      setError(`Error deleting order: ${err.response?.data?.error || err.message}`);
+      console.error("Error enhancing order items:", err);
     }
   };
 
-  // Edit order
-  const handleEditOrder = (order) => {
-    setNewOrder(order);
-    setSelectedOrderId(order._id);
-    setEditMode(true);
-    setShowModal(true);
+  const closeOrderDetails = () => {
+    setSelectedOrder(null);
   };
 
-  // View order
-  const handleViewOrder = (order) => {
-    // Implement the logic to view order details
-    console.log(order);
+  const fetchUserMeasurements = async (userId) => {
+    if (!userId) {
+      console.error("Cannot fetch measurements: No userId provided");
+      alert("User ID not found for this order.");
+      return;
+    }
+    
+    try {
+      setLoadingMeasurements(true);
+      console.log(`Fetching measurements for user ID: ${userId}`);
+      
+      const response = await axios.get(`http://localhost:4000/api/user-measurements/${userId}`);
+      console.log("Measurements API response:", response.data);
+      
+      if (response.data.success && response.data.measurements && response.data.measurements.length > 0) {
+        setUserMeasurements(response.data.measurements);
+        setShowMeasurements(true);
+      } else {
+        console.warn("No measurements found in response:", response.data);
+        alert("No measurements found for this user.");
+      }
+    } catch (err) {
+      console.error("Error fetching user measurements:", err);
+      alert(`Failed to load user measurements: ${err.message}`);
+    } finally {
+      setLoadingMeasurements(false);
+    }
+  };
+
+  const toggleMeasurements = () => {
+    if (showMeasurements) {
+      // If already showing, just hide them
+      setShowMeasurements(false);
+    } else {
+      // If not showing and no measurements loaded yet, fetch them
+      if (!userMeasurements && selectedOrder) {
+        const userIdToFetch = selectedOrder.userId || selectedOrder.customer;
+        console.log("Attempting to fetch measurements for user:", userIdToFetch);
+        fetchUserMeasurements(userIdToFetch);
+      } else {
+        // If we already have measurements, just show them
+        setShowMeasurements(true);
+      }
+    }
+  };
+
+  const getFilteredOrders = () => {
+    if (statusFilter === "all") return orders;
+    return orders.filter(order => order.status === statusFilter);
+  };
+
+  const formatDate = (dateString) => {
+    const options = { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit', 
+      minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Enhanced formatObjectId function to handle more complex object structures
+  const formatObjectId = (field) => {
+    if (!field) return 'N/A';
+    if (typeof field === 'object') {
+      // If it's an object with _id property, return the _id
+      if (field._id) return String(field._id);
+      // Otherwise, stringify the object for safe display
+      return JSON.stringify(field);
+    }
+    // If it's already a string or number, return as is
+    return String(field);
+  };
+
+  const getPaymentStatus = (order) => {
+    // If payment method is Khalti, show "Paid" since Khalti payments are verified immediately
+    if (order.paymentMethod === "Khalti") {
+      return "Paid";
+    }
+    // Otherwise return the stored payment status or default to "Pending"
+    return order.paymentStatus || "Pending";
+  };
+
+  // Function to render measurement value with appropriate units
+  const renderMeasurementValue = (value, unit = "inches") => {
+    if (!value && value !== 0) return "N/A";
+    return `${value} ${unit}`;
   };
 
   return (
-    <div className="order-container">
+    <div className="admin-content-container">
       <Sidebar />
-
-      {/* Main Content */}
-      <div className="main-content">
-        {/* Top Bar */}
-        <div className="top-bar">
-          <h2 className="title">Orders</h2>
-          <div className="user-info">
-            <span>{username}</span>
-            <FaCog className="icon" />
-            <FaUser className="icon" />
-          </div>
-        </div>
-
-        {/* Add Order Button */}
-        <div className="add-category-container">
-          <button className="add-category-btn" onClick={() => { setShowModal(true); setEditMode(false); }}>
-            <FaPlus className="add-icon" /> Add Order
-          </button>
-        </div>
-
-        {/* Orders Table */}
-        <div className="orders-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Total Amount</th>
-                <th>Status</th>
-                <th>Operations</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order._id}>
-                  <td>{order.customer.name}</td>
-                  <td>{order.items.join(", ")}</td>
-                  <td>{order.totalAmount}</td>
-                  <td>{order.status}</td>
-                  <td className="operations">
-                    <FaEdit className="edit-icon" onClick={() => handleEditOrder(order)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDeleteOrder(order._id)} />
-                    <FaEye className="view-icon" onClick={() => handleViewOrder(order)} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Add/Edit Order Modal */}
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>{editMode ? "Edit Order" : "Add New Order"}</h3>
-            {error && <p className="error">{error}</p>}
-            <label>Customer:</label>
-            <select name="customer" value={newOrder.customer} onChange={handleChange} required>
-              <option value="">Select Customer</option>
-              {customers.map(customer => (
-                <option key={customer._id} value={customer._id}>{customer.name}</option>
-              ))}
-            </select>
-            <label>Items:</label>
-            <input type="text" name="items" value={newOrder.items.join(", ")} onChange={(e) => setNewOrder({ ...newOrder, items: e.target.value.split(", ") })} required />
-            <label>Total Amount:</label>
-            <input type="number" name="totalAmount" value={newOrder.totalAmount} onChange={handleChange} required />
-            <label>Status:</label>
-            <select name="status" value={newOrder.status} onChange={handleChange} required>
+      <div className="orders-container">
+        <h2>Order Management</h2>
+        
+        <div className="order-filters">
+          <label>
+            Filter by Status:
+            <select 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="status-filter"
+            >
+              <option value="all">All Orders</option>
               <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
             </select>
-            <div className="modal-actions">
-              <button className="add-btn" onClick={handleAddOrder}>
-                {editMode ? "Update" : "Add"}
-              </button>
-              <button className="close-btn" onClick={() => setShowModal(false)}>Cancel</button>
+          </label>
+        </div>
+        
+        {loading ? (
+          <div className="loading">Loading orders...</div>
+        ) : error ? (
+          <div className="error-message">{error}</div>
+        ) : getFilteredOrders().length > 0 ? (
+          <div className="orders-table-container">
+            <table className="orders-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Payment Method</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getFilteredOrders().map((order) => (
+                  <tr key={order._id}>
+                    <td>{order._id.substring(order._id.length - 6)}</td>
+                    <td>{order.fullName}</td>
+                    <td>{formatDate(order.createdAt)}</td>
+                    <td>${(order.total || order.totalAmount).toFixed(2)}</td>
+                    <td>{order.paymentMethod}</td>
+                    <td>
+                      <span className={`status-badge status-${order.status.toLowerCase()}`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button 
+                        className="view-btn" 
+                        onClick={() => viewOrderDetails(order)}
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="no-orders">No orders found</div>
+        )}
+
+        {selectedOrder && (
+          <div className="order-details-modal">
+            <div className="modal-content">
+              <span className="close-btn" onClick={closeOrderDetails}>&times;</span>
+              <h3>Order Details</h3>
+              
+              <div className="order-detail-section">
+                <h4>Order Information</h4>
+                <p><strong>Order ID:</strong> {selectedOrder._id}</p>
+                <p><strong>Date Placed:</strong> {formatDate(selectedOrder.createdAt)}</p>
+                <p><strong>Total Amount:</strong> ${(selectedOrder.total || selectedOrder.totalAmount).toFixed(2)}</p>
+                <p><strong>Status:</strong> 
+                  <select 
+                    value={selectedOrder.status}
+                    onChange={(e) => handleStatusChange(selectedOrder._id, e.target.value)}
+                    className="status-dropdown"
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
+                </p>
+              </div>
+              
+              <div className="order-detail-section">
+                <h4>Customer Information</h4>
+                <p><strong>Customer ID:</strong> {formatObjectId(selectedOrder.userId || selectedOrder.customer)}</p>
+                <p><strong>Name:</strong> {selectedOrder.fullName}</p>
+                <p><strong>Contact Number:</strong> {selectedOrder.contactNumber}</p>
+                <p><strong>Address:</strong> {selectedOrder.address}</p>
+                <button 
+                  className="view-measurements-btn" 
+                  onClick={toggleMeasurements}
+                  disabled={loadingMeasurements}
+                >
+                  {loadingMeasurements 
+                    ? "Loading..." 
+                    : showMeasurements 
+                      ? "Hide Measurements" 
+                      : "View Measurements"}
+                </button>
+              </div>
+              
+              {/* Measurements section - conditionally rendered */}
+              {showMeasurements && (
+                <div className="order-detail-section measurements-section">
+                  <h4>Customer Measurements</h4>
+                  {userMeasurements && userMeasurements.length > 0 ? (
+                    <div className="measurements-grid">
+                      {userMeasurements.map((measurement, index) => (
+                        <div key={index} className="measurement-card">
+                          <h5>{measurement.type || "Measurement"} Measurements</h5>
+                          <div className="measurement-details">
+                            {Object.entries(measurement).map(([key, value]) => {
+                              // Skip non-measurement fields
+                              if (["_id", "__v", "user", "type", "createdAt", "updatedAt", "unit"].includes(key)) {
+                                return null;
+                              }
+                              return (
+                                <p key={key}>
+                                  <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</strong> {renderMeasurementValue(value)}
+                                </p>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p>No measurement data found for this customer.</p>
+                  )}
+                </div>
+              )}
+              
+              <div className="order-detail-section">
+                <h4>Payment Information</h4>
+                <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</p>
+                <p><strong>Payment Status:</strong> {getPaymentStatus(selectedOrder)}</p>
+                {selectedOrder.paymentToken && (
+                  <p><strong>Payment Token:</strong> {selectedOrder.paymentToken}</p>
+                )}
+              </div>
+              
+              <div className="order-detail-section">
+                <h4>Order Items</h4>
+                <table className="items-table">
+                  <thead>
+                    <tr>
+                      <th>Product Name</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                      <th>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrder.items.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.productName || 'Unknown Product'}</td>
+                        <td>{item.quantity}</td>
+                        <td>${item.price.toFixed(2)}</td>
+                        <td>${(item.price * item.quantity).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {selectedOrder.isCustomOrder && (
+                <div className="order-detail-section">
+                  <h4>Custom Order Details</h4>
+                  <p><strong>Custom Order:</strong> Yes</p>
+                  {/* Display custom order details if available */}
+                </div>
+              )}
+              
+              <div className="modal-actions">
+                <button className="close-modal-btn" onClick={closeOrderDetails}>Close</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
