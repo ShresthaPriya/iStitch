@@ -13,6 +13,9 @@ const OrderHistory = () => {
     const userId = user?._id;
     const navigate = useNavigate();
 
+    // New state to track enhanced orders with product names
+    const [enhancedOrders, setEnhancedOrders] = useState([]);
+
     useEffect(() => {
         const fetchOrders = async () => {
             try {
@@ -35,6 +38,9 @@ const OrderHistory = () => {
                 if (response.data.success && Array.isArray(response.data.orders)) {
                     setOrders(response.data.orders);
                     console.log("Orders retrieved:", response.data.orders.length);
+                    
+                    // Enhance orders with product names
+                    enhanceOrdersWithProductNames(response.data.orders);
                 } else {
                     console.warn("No orders found or invalid response format");
                     setOrders([]);
@@ -61,6 +67,51 @@ const OrderHistory = () => {
 
         fetchOrders();
     }, [userId]);
+
+    // Function to enhance orders with product names
+    const enhanceOrdersWithProductNames = async (orders) => {
+        try {
+            const ordersWithProducts = await Promise.all(
+                orders.map(async (order) => {
+                    const enhancedItems = await Promise.all(
+                        order.items.map(async (item) => {
+                            try {
+                                if (item.productId) {
+                                    const productId = typeof item.productId === 'object' 
+                                        ? item.productId._id 
+                                        : item.productId;
+                                    
+                                    const response = await axios.get(`http://localhost:4000/api/items/${productId}`);
+                                    if (response.data && response.data.item) {
+                                        return {
+                                            ...item,
+                                            productName: response.data.item.name || `Product #${productId.substring(0, 6)}`
+                                        };
+                                    }
+                                }
+                                return { 
+                                    ...item, 
+                                    productName: 'Unknown Product' 
+                                };
+                            } catch (err) {
+                                console.error("Error fetching product details:", err);
+                                return { ...item, productName: 'Unknown Product' };
+                            }
+                        })
+                    );
+                    
+                    return {
+                        ...order,
+                        items: enhancedItems
+                    };
+                })
+            );
+            
+            setEnhancedOrders(ordersWithProducts);
+        } catch (err) {
+            console.error("Error enhancing orders with product names:", err);
+        }
+    };
 
     // Function to format date
     const formatDate = (dateString) => {
@@ -91,9 +142,9 @@ const OrderHistory = () => {
                         <p>{error}</p>
                         <button onClick={() => window.location.reload()} className="shop-now-btn">Try Again</button>
                     </div>
-                ) : orders.length > 0 ? (
+                ) : (enhancedOrders.length > 0 || orders.length > 0) ? (
                     <div className="orders-container">
-                        {orders.map((order) => (
+                        {(enhancedOrders.length > 0 ? enhancedOrders : orders).map((order) => (
                             <div key={order._id} className="order-card">
                                 <div className="order-header">
                                     <div>
@@ -110,7 +161,7 @@ const OrderHistory = () => {
                                         <h4>Items</h4>
                                         {order.items.map((item, index) => (
                                             <div key={index} className="order-item">
-                                                <span>{item.quantity}x Item</span>
+                                                <span>{item.quantity}x {item.productName || 'Item'}</span>
                                                 <span>${item.price.toFixed(2)}</span>
                                             </div>
                                         ))}
