@@ -23,6 +23,7 @@ import BlouseMeasurements from './components/BlouseMeasurements';
 import FabricDetails from './pages/FabricDetails';
 import FabricCollection from './components/FabricCollection'; // Import FabricCollection
 import ReviewOrder from './pages/ReviewOrder'; // Import ReviewOrder
+import OrderConfirmation from './pages/OrderConfirmation'; // Import OrderConfirmation
 
 import Customer from './pages/Customer';
 import AdminHome from './pages/AdminHome';
@@ -108,6 +109,7 @@ function App() {
                 <Route path='/splash-fabric-collection' element={<SplashFabricCollection />} /> {/* Add SplashFabricCollection route */}
                 <Route path='/splash-home' element={<SplashHome />} /> {/* Add SplashHome route */}
                 <Route path='/review-order' element={<ReviewOrder />} /> {/* Add ReviewOrder route */}
+                <Route path='/order-confirmation' element={<OrderConfirmation />} /> {/* Add OrderConfirmation route */}
               </Routes>
               <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} /> {/* Cart sidebar */}
             </Router>

@@ -11,17 +11,14 @@ router.delete('/:id', deleteOrder);
 
 // Save a new order
 router.post('/', async (req, res) => {
-    const { customer, userId, items, total, totalAmount, paymentMethod, status, fullName, contactNumber, address, isCustomOrder } = req.body;
+    const { userId, customer, items, total, totalAmount, paymentMethod, status, fullName, contactNumber, address, paymentToken } = req.body;
 
     // Log the received payload for debugging
     console.log("Received Order Payload:", req.body);
 
-    // Validate required fields - support both customer and userId
-    const customerId = customer || userId;
-    const orderTotal = totalAmount || total;
-
-    if (!customerId || !items || !orderTotal || !paymentMethod || !status || !fullName || !contactNumber || !address) {
-        console.error("Missing required fields:", { customerId, items, orderTotal, paymentMethod, status, fullName, contactNumber, address });
+    // Validate required fields
+    if (!userId || !customer || !items || !total || !totalAmount || !paymentMethod || !status || !fullName || !contactNumber || !address) {
+        console.error("Missing required fields:", { userId, customer, items, total, totalAmount, paymentMethod, status, fullName, contactNumber, address });
         return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
@@ -34,25 +31,25 @@ router.post('/', async (req, res) => {
     try {
         console.log("Attempting to save order to the database...");
         const newOrder = new OrderModel({
-            userId: customerId,
-            customer: customerId,
-            items: items,
-            total: orderTotal,
-            totalAmount: orderTotal,
+            userId, // Ensure userId is included
+            customer,
+            items,
+            total, // Ensure total is included
+            totalAmount,
             paymentMethod,
             status,
             fullName,
             contactNumber,
             address,
-            isCustomOrder: isCustomOrder || false
+            paymentToken
         });
         
         await newOrder.save();
         console.log("Order saved successfully:", newOrder);
-        res.json({ success: true, order: newOrder });
+        res.json({ success: true, message: "Order created successfully", order: newOrder });
     } catch (err) {
-        console.error("Error saving order:", err);
-        res.status(500).json({ success: false, message: err.message });
+        console.error("Error creating order:", err);
+        res.status(500).json({ success: false, message: "Failed to create order", error: err.message });
     }
 });
 

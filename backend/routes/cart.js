@@ -5,28 +5,43 @@ const Item = require('../models/Item');
 
 // Save or update the cart for a user
 router.post('/save', async (req, res) => {
-    const { userId, cartItems } = req.body;
-
     try {
-        let cart = await Cart.findOne({ userId });
+        const { userId, items } = req.body;
 
-        if (cart) {
-            // Update existing cart
-            cart.items = cartItems;
-            await cart.save();
-        } else {
-            // Create new cart
-            cart = new Cart({
-                userId,
-                items: cartItems
-            });
-            await cart.save();
+        if (!userId || !items) {
+            return res.status(400).json({ success: false, message: "User ID and items are required" });
         }
 
-        res.json({ success: true, cart });
+        const cart = await Cart.findOne({ userId });
+
+        if (!cart) {
+            // Create a new cart if it doesn't exist
+            const newCart = new Cart({ userId, items });
+            await newCart.save();
+            return res.json({ success: true, message: "Cart saved successfully", cart: newCart });
+        }
+
+        // Update the existing cart
+        cart.items = items;
+
+        try {
+            await cart.save();
+            res.json({ success: true, message: "Cart updated successfully", cart });
+        } catch (err) {
+            if (err.name === 'VersionError') {
+                console.error("Version conflict detected. Retrying...");
+                // Reload the cart and retry saving
+                const freshCart = await Cart.findOne({ userId });
+                freshCart.items = items;
+                await freshCart.save();
+                res.json({ success: true, message: "Cart updated successfully after retry", cart: freshCart });
+            } else {
+                throw err;
+            }
+        }
     } catch (err) {
         console.error("Error saving cart:", err);
-        res.status(500).json({ success: false, message: err.message });
+        res.status(500).json({ success: false, message: "Failed to save cart", error: err.message });
     }
 });
 

@@ -25,7 +25,8 @@ const designRoutes = require("./routes/designRoute");
 const userRoutes = require("./routes/users"); // Import users route
 const cartRoutes = require("./routes/cart"); // Import cart routes
 const userMeasurementsRoutes = require("./routes/userMeasurements"); // Import userMeasurements route
-const khaltiRoutes = require('./routes/khaltiRoutes'); // Add Khalti routes
+const khaltiRoutes = require('./routes/khaltiRoutes.js'); // Import Khalti routes
+
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -71,7 +72,8 @@ app.use("/api/designs", designRoutes);
 app.use("/api/users", userRoutes); // Register users route
 app.use("/api/cart", cartRoutes); // Add cart routes
 app.use("/api/user-measurements", userMeasurementsRoutes); // Register userMeasurements route
-app.use("/api/khalti", khaltiRoutes); // Register Khalti routes
+app.use('/api/khalti', khaltiRoutes); // Use Khalti routes
+
 
 // Start the server
 connectDB().then(() => {

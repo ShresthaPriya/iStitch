@@ -1,0 +1,132 @@
+.order-confirmation-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.order-confirmation-container h1 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+.processing-message,
+.verifying-message,
+.success-message,
+.error-message,
+.canceled-message {
+    padding: 30px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.processing-message,
+.verifying-message {
+    background-color: #f8f9fa;
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.canceled-message {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.partial-success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 30px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.partial-success-message .error-text {
+    color: #856404;
+    background-color: #fff3cd;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 15px 0;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #09f;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+.success-icon,
+.error-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.success-icon {
+    color: #28a745;
+}
+
+.error-icon {
+    color: #dc3545;
+}
+
+.order-info {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.view-orders-btn,
+.try-again-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.view-orders-btn:hover,
+.try-again-btn:hover {
+    background-color: #0056b3;
+}
+
+.contact-support-btn {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.contact-support-btn:hover {
+    background-color: #138496;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

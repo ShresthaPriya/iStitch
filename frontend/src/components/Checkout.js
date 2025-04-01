@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Checkout.css'; // Import custom CSS
-import visaLogo from '../images/payment/visa.jpg';
-import khaltiLogo from '../images/payment/khalti.png';
 // import codLogo from '../images/payment/cod.png';
 import Navbar from './Navbar';
 
@@ -127,16 +125,6 @@ const Checkout = () => {
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 />
                 <img src={visaLogo} alt="Visa" className="payment-logo" />
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="khalti"
-                  checked={paymentMethod === 'khalti'}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                />
-                <img src={khaltiLogo} alt="Khalti" className="payment-logo" />
               </label>
               <label>
                 <input

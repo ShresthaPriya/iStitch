@@ -4,7 +4,6 @@ import Footer from '../components/Footer';
 import { CartContext } from '../context/CartContext';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import khaltiConfig from "../config/khaltiConfig";
 import "../styles/Checkout.css";
 
 const Checkout = () => {
@@ -19,51 +18,10 @@ const Checkout = () => {
     const [userMeasurements, setUserMeasurements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [paymentMethod, setPaymentMethod] = useState("Cash On Delivery");
-    const [khaltiCheckout, setKhaltiCheckout] = useState(null);
+
+    const totalPrice = calculateTotal();
 
     useEffect(() => {
-        // Create Khalti checkout instance
-        if (window.KhaltiCheckout) {
-            const config = { ...khaltiConfig };
-            
-            // Customize the event handlers with component-specific logic
-            config.eventHandler = {
-                onSuccess: async (payload) => {
-                    console.log("Payment successful:", payload);
-                    
-                    try {
-                        // Verify the payment server-side
-                        const verificationResponse = await axios.post(
-                            "http://localhost:4000/api/khalti/verify", 
-                            {
-                                token: payload.token,
-                                amount: payload.amount
-                            }
-                        );
-                        
-                        if (verificationResponse.data.success) {
-                            // Process the order with payment information
-                            await placeOrder("Khalti", payload.token);
-                        } else {
-                            alert("Payment verification failed. Please contact support.");
-                        }
-                    } catch (err) {
-                        console.error("Error during payment verification:", err);
-                        alert("Payment processing error. Please try again or contact support.");
-                    }
-                },
-                onError: (error) => {
-                    console.error("Khalti payment error:", error);
-                    setError("Payment failed. Please try again.");
-                },
-                onClose: () => {
-                    console.log("Khalti payment widget closed");
-                }
-            };
-            
-            setKhaltiCheckout(new window.KhaltiCheckout(config));
-        }
-        
         // Fetch user measurements when component mounts
         const fetchUserMeasurements = async () => {
             if (!userId) return;
@@ -85,8 +43,6 @@ const Checkout = () => {
         fetchUserMeasurements();
     }, [userId]);
 
-    const totalPrice = calculateTotal();
-
     const placeOrder = async (paymentMethod, paymentToken = null) => {
         if (!contactNumber.trim() || !address.trim()) {
             setError("Please provide both contact number and address.");
@@ -95,6 +51,7 @@ const Checkout = () => {
 
         try {
             const orderPayload = {
+                userId: userId, // Add userId field
                 customer: userId,
                 items: cart.map(item => ({
                     productId: item._id,
@@ -102,6 +59,7 @@ const Checkout = () => {
                     size: item.selectedSize,
                     price: Number(item.price)
                 })),
+                total: Number(totalPrice), // Add total field
                 totalAmount: Number(totalPrice),
                 paymentMethod,
                 status: paymentMethod === "Khalti" ? "Processing" : "Pending",
@@ -133,38 +91,55 @@ const Checkout = () => {
         placeOrder("Cash On Delivery");
     };
 
-    const handleKhaltiPayment = () => {
-        if (!khaltiCheckout) {
-            alert("Payment system is not ready yet. Please try again later.");
-            return;
-        }
-        
+    const handleKhaltiPayment = async () => {
         if (!contactNumber.trim() || !address.trim()) {
             setError("Please provide both contact number and address.");
             return;
         }
-        
-        // Clear any previous errors
-        setError("");
-        
-        const amountInPaisa = totalPrice * 100; // Convert to paisa (Khalti's smallest unit)
-        
-        khaltiCheckout.show({
-            amount: amountInPaisa,
-            mobile: contactNumber,
-            customer_info: {
-                name: user.fullname,
-                email: user.email,
-                address: address
-            },
-            product_details: cart.map(item => ({
-                identity: item._id,
-                name: item.name,
-                total_price: item.price * (item.quantity || 1) * 100,
-                quantity: item.quantity || 1,
-                unit_price: item.price * 100
-            }))
-        });
+
+        // Store contact number and address in localStorage
+        // to access them after Khalti payment completion
+        localStorage.setItem("checkoutPhone", contactNumber.trim());
+        localStorage.setItem("checkoutAddress", address.trim());
+
+        try {
+            const paymentData = {
+                amount: totalPrice * 100, // Convert to paisa
+                purchaseOrderId: `order_${Date.now()}`,
+                purchaseOrderName: "iStitch Custom Clothing",
+                returnUrl: "http://localhost:3000/order-confirmation"
+            };
+            
+            console.log("Initiating Khalti payment with:", paymentData);
+            
+            // Test the backend connectivity first
+            try {
+                const testResponse = await axios.get("http://localhost:4000/api/khalti/test");
+                console.log("Test endpoint response:", testResponse.data);
+            } catch (testErr) {
+                console.error("Test endpoint failed:", testErr);
+            }
+            
+            const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
+
+            console.log("Khalti initiate response:", response.data);
+
+            if (response.data.success) {
+                window.location.href = response.data.paymentUrl; // Redirect to Khalti payment URL
+            } else {
+                alert("Failed to initiate Khalti payment. Please try again.");
+            }
+        } catch (err) {
+            console.error("Error initiating Khalti payment:", err);
+            console.error("Error status:", err.response?.status);
+            console.error("Error details:", err.response?.data || err.message);
+            
+            if (err.response?.status === 404) {
+                alert("Payment service endpoint not found. Please contact support.");
+            } else {
+                alert(`Failed to initiate Khalti payment: ${err.message || "Unknown error"}`);
+            }
+        }
     };
 
     if (loading) {
@@ -226,25 +201,6 @@ const Checkout = () => {
                 <div className="checkout-total">
                     <h3>Total: ${totalPrice.toFixed(2)}</h3>
                     
-                    {/* Display user measurements summary */}
-                    <div className="measurements-summary">
-                        <h4>Your Measurements</h4>
-                        <div className="measurements-grid">
-                            {userMeasurements.map((measurement, index) => (
-                                <div key={index} className="measurement-item">
-                                    <span>{measurement.title}:</span> 
-                                    <span>{measurement.value} {measurement.unit}</span>
-                                </div>
-                            ))}
-                        </div>
-                        <button 
-                            className="edit-measurements-link"
-                            onClick={() => navigate('/customer-measurements')}
-                        >
-                            Edit Measurements
-                        </button>
-                    </div>
-
                     <div className="form-group">
                         <label>Contact Number</label>
                         <input

@@ -1,22 +1,21 @@
-// Configuration for Khalti Payment Gateway
-const khaltiConfig = {
-  publicKey: "efbf264218eb46cf91d00c9d36b2d42b", // Use test key provided
-  productIdentity: "iStitch", // This can be dynamic based on your app
-  productName: "iStitch Custom Clothing",
-  productUrl: "http://localhost:3000",
-  eventHandler: {
-    onSuccess: function (payload) {
-      // Handle successful payment - params will be passed from the component
-      console.log("Payment successful:", payload);
-    },
-    onError: function (error) {
-      console.error("Khalti payment error:", error);
-      alert("Payment failed. Please try again.");
-    },
-    onClose: function () {
-      console.log("Khalti payment widget closed");
+// This file is no longer needed as we've switched to server-side integration
+// Keep for reference only
+const khaltiConfig = (totalPrice, onSuccessCallback) => ({
+    publicKey: "test_public_key_efbf264218eb46cf91d00c9d36b2d42b", // Use test public key for testing
+    productIdentity: "iStitch",
+    productName: "iStitch Custom Clothing",
+    productUrl: "http://localhost:3000",
+    eventHandler: {
+        onSuccess: onSuccessCallback,
+        onError: (error) => {
+            console.error("Khalti Payment Error:", error);
+            alert("Payment failed. Please try again.");
+        },
+        onClose: () => {
+            console.log("Khalti Payment Widget Closed");
+        }
     }
-  }
-};
+});
 
 export default khaltiConfig;
+

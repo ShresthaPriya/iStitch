@@ -4,11 +4,12 @@ const OrderSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
+        required: true // Ensure userId is required
     },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User",
+        required: true
     },
     items: [{
         productId: {
@@ -23,7 +24,7 @@ const OrderSchema = new mongoose.Schema({
         },
         size: {
             type: String,
-            required: true,
+            required: false,
             default: "M"
         },
         price: {
@@ -40,10 +41,11 @@ const OrderSchema = new mongoose.Schema({
     }],
     total: {
         type: Number,
-        required: true
+        required: true // Ensure total is required
     },
     totalAmount: {
-        type: Number
+        type: Number,
+        required: true
     },
     paymentMethod: {
         type: String,
