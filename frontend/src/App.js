@@ -49,6 +49,7 @@ import SplashMensPage from './pages/SplashMensPage'; // Import SplashMensPage
 import SplashWomensPage from './pages/SplashWomensPage'; // Import SplashWomensPage
 import SplashFabricCollection from './pages/SplashFabricCollection'; // Import SplashFabricCollection
 import SplashHome from './pages/SplashHome'; // Import SplashHome
+import ProductDetails from './pages/ProductDetails'; // Import ProductDetails
 
 export const AppContext = createContext();
 
@@ -109,6 +110,7 @@ function App() {
                 <Route path='/splash-womens' element={<SplashWomensPage />} /> {/* Add SplashWomensPage route */}
                 <Route path='/splash-fabric-collection' element={<SplashFabricCollection />} /> {/* Add SplashFabricCollection route */}
                 <Route path='/splash-home' element={<SplashHome />} /> {/* Add SplashHome route */}
+                <Route path='/product-details' element={<ProductDetails />} /> {/* Add ProductDetails route */}
               </Routes>
               <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} /> {/* Cart sidebar */}
             </Router>
