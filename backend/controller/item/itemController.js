@@ -123,7 +123,6 @@
 
 // module.exports = { getItems, getItemById, addItem, updateItem, deleteItem, getItemsByCategory, upload };
 
-
 const Item = require("../../models/ItemSchema");
 const multer = require("multer");
 const path = require("path");
@@ -132,19 +131,18 @@ const mongoose = require("mongoose");
 // Multer storage configuration
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        console.log("Uploading file to:", path.join(__dirname, '../../public/images'));
-        cb(null, path.join(__dirname, '../../public/images'));
+        cb(null, path.join(__dirname, '../../public/images')); // Path to store images
     },
     filename: function (req, file, cb) {
         const filename = Date.now() + '-' + file.originalname;
-        console.log("File will be saved as:", filename);
+        console.log('Saving file as:', filename);
         cb(null, filename);
     }
 });
 
 const upload = multer({ storage: storage }).array('images', 3);
 
-// ✅ Get all items
+// Get all items
 const getItems = async (req, res) => {
     try {
         const items = await Item.find().populate("category");
@@ -155,7 +153,7 @@ const getItems = async (req, res) => {
     }
 };
 
-// ✅ Get item by ID
+// Get item by ID
 const getItemById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -165,12 +163,12 @@ const getItemById = async (req, res) => {
         }
         res.status(200).json({ success: true, item });
     } catch (err) {
-        console.error("Error fetching item by ID:", err);
+        console.error("Error fetching item:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 };
 
-// ✅ Get items by category
+// Get items by category
 const getItemsByCategory = async (req, res) => {
     const { category } = req.params;
     if (!mongoose.Types.ObjectId.isValid(category)) {
@@ -186,23 +184,23 @@ const getItemsByCategory = async (req, res) => {
     }
 };
 
-// ✅ Add a new item
+// Add a new item
 const addItem = async (req, res) => {
+    const { name, category, price, description } = req.body;
+
+    if (!name || !category || !price || !description) {
+        return res.status(400).json({ success: false, error: "All fields are required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+        return res.status(400).json({ success: false, error: "Invalid category ID" });
+    }
+
+    const images = req.files.map(file => file.filename); // Only store filename
+
     try {
-        const { name, category, price, description } = req.body;
-
-        if (!name || !category || !price || !description) {
-            return res.status(400).json({ success: false, error: "All fields are required" });
-        }
-
-        if (!mongoose.Types.ObjectId.isValid(category)) {
-            return res.status(400).json({ success: false, error: "Invalid category ID" });
-        }
-
-        const images = req.files.map(file => `/images/${file.filename}`);
         const newItem = new Item({ name, category, price, description, images });
         await newItem.save();
-
         res.status(201).json({ success: true, item: newItem });
     } catch (err) {
         console.error("Error adding item:", err);
@@ -210,31 +208,34 @@ const addItem = async (req, res) => {
     }
 };
 
-// ✅ Update an item
+// Update an item
 const updateItem = async (req, res) => {
+    const { id } = req.params;
+    const { name, category, price, description } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, error: "Invalid item ID" });
+    }
+
+    if (!name || !category || !price || !description) {
+        return res.status(400).json({ success: false, error: "All fields are required" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+        return res.status(400).json({ success: false, error: "Invalid category ID" });
+    }
+
+    const images = req.files.map(file => file.filename); // Only store filename
+
     try {
-        const { id } = req.params;
-        const { name, category, price, description } = req.body;
-
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, error: "Invalid item ID" });
-        }
-
-        if (!name || !category || !price || !description) {
-            return res.status(400).json({ success: false, error: "All fields are required" });
-        }
-
-        if (!mongoose.Types.ObjectId.isValid(category)) {
-            return res.status(400).json({ success: false, error: "Invalid category ID" });
-        }
-
-        const images = req.files.map(file => `/images/${file.filename}`);
-        const updatedItem = await Item.findByIdAndUpdate(id, { name, category, price, description, images }, { new: true });
-
+        const updatedItem = await Item.findByIdAndUpdate(
+            id,
+            { name, category, price, description, images },
+            { new: true }
+        );
         if (!updatedItem) {
             return res.status(404).json({ success: false, error: "Item not found" });
         }
-
         res.status(200).json({ success: true, item: updatedItem });
     } catch (err) {
         console.error("Error updating item:", err);
@@ -242,7 +243,7 @@ const updateItem = async (req, res) => {
     }
 };
 
-// ✅ Delete an item
+// Delete an item
 const deleteItem = async (req, res) => {
     const { id } = req.params;
 
@@ -262,4 +263,12 @@ const deleteItem = async (req, res) => {
     }
 };
 
-module.exports = { getItems, getItemById, addItem, updateItem, deleteItem, getItemsByCategory, upload };
+module.exports = {
+    getItems,
+    getItemById,
+    getItemsByCategory,
+    addItem,
+    updateItem,
+    deleteItem,
+    upload
+};
