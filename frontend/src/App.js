@@ -50,6 +50,7 @@ import SplashMensPage from './pages/SplashMensPage'; // Import SplashMensPage
 import SplashWomensPage from './pages/SplashWomensPage'; // Import SplashWomensPage
 import SplashFabricCollection from './pages/SplashFabricCollection'; // Import SplashFabricCollection
 import SplashHome from './pages/SplashHome'; // Import SplashHome
+import ProductDetails from './pages/ProductDetails'; // Import ProductDetails
 
 export const AppContext = createContext();
 
@@ -57,11 +58,12 @@ function App() {
   const client = new QueryClient();
   const [fullname, setFullname] = useState(" ");
   const [isCartOpen, setIsCartOpen] = useState(false); // Cart sidebar state
+  const [username, setUsername] = useState(null); // Ensure both username and setUsername are defined
 
   return (
     <div className='App'>
       <QueryClientProvider client={client}>
-        <AppContext.Provider value={{ fullname, setFullname }}>
+        <AppContext.Provider value={{ fullname, setFullname, username, setUsername }}>
           <CartProvider> {/* Wrap the application with CartProvider */}
             <Router>
               <Routes>
@@ -110,6 +112,7 @@ function App() {
                 <Route path='/splash-home' element={<SplashHome />} /> {/* Add SplashHome route */}
                 <Route path='/review-order' element={<ReviewOrder />} /> {/* Add ReviewOrder route */}
                 <Route path='/order-confirmation' element={<OrderConfirmation />} /> {/* Add OrderConfirmation route */}
+                <Route path='/product-details' element={<ProductDetails />} /> {/* Add ProductDetails route */}
               </Routes>
               <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} /> {/* Cart sidebar */}
             </Router>

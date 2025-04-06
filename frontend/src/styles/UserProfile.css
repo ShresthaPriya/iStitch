@@ -1,8 +1,8 @@
-.user-profile-page {
-    padding: 20px;
-    max-width: 800px;
-    margin: 20px auto 0; /* Adjust margin to account for navbar height */
-    background: #fff;
+.user-profile-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     min-height: calc(100vh - 200px); /* Adjust height to account for footer */

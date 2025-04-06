@@ -51,7 +51,7 @@ const FabricDetails = () => {
               <h3>{fabric.name}</h3>
               <p>{fabric.description}</p>
               <p className="price">${fabric.price}</p>
-              <button className="favourite-button" onClick={() => addToFavourite(fabric._id)}>Add to Favourite</button>
+              {/* <button className="favourite-button" onClick={() => addToFavourite(fabric._id)}>Add to Favourite</button> */}
             </div>
           </div>
         )}

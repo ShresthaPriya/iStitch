@@ -1,125 +1,167 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Auth.css";
+import Navbar from '../components/Navbar';
+
 import axios from "axios";
 
 const Signup = () => {
-  const [fullname, setFullname] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [formData, setFormData] = useState({
+    fullname: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match!");
       return;
     }
 
     try {
       setLoading(true);
-
-      const response = await axios.post("http://localhost:4000/auth/register", {
-        fullname,
-        email,
-        password,
-        confirmPassword,
-      });
-
-      setLoading(false);
-
-      const data = response.data;
-      if (data.success) {
-        alert("Signup successful!");
-        navigate("/login");
+      const response = await axios.post("http://localhost:4000/auth/register", formData);
+      
+      if (response.data.success) {
+        navigate("/login", { state: { successMessage: "Signup successful! Please login." } });
       } else {
-        setError(data.error || "Signup failed.");
+        setError(response.data.error || "Signup failed.");
       }
     } catch (error) {
+      setError(error.response?.data?.message || "An error occurred. Please try again.");
+    } finally {
       setLoading(false);
-      console.error("Error during Signup:", error);
-      setError("An error occurred. Please try again.");
     }
   };
 
-  // Google Authentication
   const googleAuth = () => {
     window.open("http://localhost:4000/auth/google/callback", "_self");
   };
 
   return (
-    <div className="Auth-page">
-      {/* <div className="left-side">
-      <img src={require("../images/iStitch.png")} alt="Signup Illustration" />
-        </div> */}
-      <div className="Auth-container">
-      
-        <div className="Auth-form">
-          <h2>Sign Up</h2>
-          <form onSubmit={handleSubmit}>
-            <label>Full Name</label>
+    <>
+    <Navbar />
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>Create Account</h2>
+          <p>Join us today and start your journey</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="fullname">Full Name</label>
             <input
               type="text"
-              value={fullname}
-              onChange={(e) => setFullname(e.target.value)}
-              placeholder="Enter your full name"
+              id="fullname"
+              name="fullname"
+              value={formData.fullname}
+              onChange={handleChange}
+              placeholder=""
               required
             />
-            <label>Email</label>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email Address</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter email address"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder=""
               required
             />
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
-              required
-            />
-            <div className="policy-checkbox">
-              <label>
-                <input type="checkbox" required />
-                <p> I agree with all the terms and conditions.</p>
-               
-              </label>
-            </div>
-            {error && <div className="error-message">{error}</div>}
-
-            <button type="submit">Sign Up</button>
-          </form>
-          <div className="Auth-footer">
-            <p>
-              Already have an account? <a href="/login">Log in</a>
-            </p>
           </div>
-          <button className="google_btn" onClick={googleAuth}>
-            <img src={require("../images/google.png")} alt="google icon" />
-            <span>Sign Up with Google</span>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="password-input">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder=""
+                required
+              />
+              <button 
+                type="button" 
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <i className="fas fa-eye-slash"></i>
+                ) : (
+                  <i className="fas fa-eye"></i>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <div className="form-group checkbox-group">
+            <input type="checkbox" id="terms" required />
+            <label htmlFor="terms">
+              I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
+            </label>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i> Creating Account...
+              </>
+            ) : (
+              "Sign Up"
+            )}
           </button>
+        </form>
+
+        <div className="auth-divider">
+          <span>OR</span>
         </div>
-        {/* <div className="Auth-image">
-          <img src={require("../images/iStitch.png")} alt="Signup Illustration" />
-        </div> */}
+
+        <button className="google-auth-button" onClick={googleAuth}>
+          <img src={require("../images/google.png")} alt="Google logo" />
+          <span>Continue with Google</span>
+        </button>
+
+        <div className="auth-footer">
+          Already have an account? <a href="/login">Log in</a>
+        </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -21,7 +21,7 @@ const ItemSchema = mongoose.Schema({
     images: {
         type: [String], // Array of image URLs
         validate: [arrayLimit, '{PATH} exceeds the limit of 3']
-    }
+    },
 }, { timestamps: true });
 
 function arrayLimit(val) {

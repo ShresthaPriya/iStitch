@@ -12,6 +12,8 @@ function SplashNavbar({ onCartClick }) {
   const [menuActive, setMenuActive] = useState(false);
   const [profileDropdownActive, setProfileDropdownActive] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,6 +46,15 @@ function SplashNavbar({ onCartClick }) {
     navigate("/login");
   };
 
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/search?query=${searchQuery}`);
+      setSearchResults(response.data.results || []);
+    } catch (err) {
+      console.error("Error fetching search results:", err);
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="logo">
@@ -65,8 +76,14 @@ function SplashNavbar({ onCartClick }) {
 
       <div className="search-and-profile">
         <div className="search-bar">
-          <input type="text" className="search-input" />
-          <button className="search-button">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search.."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button className="search-button" onClick={handleSearch}>
             <i className="fa fa-search"></i>
           </button>
         </div>
@@ -76,16 +93,6 @@ function SplashNavbar({ onCartClick }) {
             <i className="fa-solid fa-user"></i>
             {username && <span className="profile-badge">1</span>}
           </button>
-          {profileDropdownActive && (
-            <div className="username-dropdown">
-              <i className="fa fa-chevron-down dropdown-icon"></i>
-              <ul className="dropdown-menu">
-                <li><Link to="/user-profile">Profile Setting</Link></li>
-                <li><Link to="/order-history">Order History</Link></li>
-                <li><button onClick={handleLogout}>Logout</button></li>
-              </ul>
-            </div>
-          )}
         </div>
       </div>
     </nav>
