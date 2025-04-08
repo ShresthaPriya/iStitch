@@ -32,7 +32,7 @@ const SplashWomensPage = () => {
                             <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
                             <h3>{item.name}</h3>
                             <p>{item.description}</p>
-                            <p>${item.price}</p>
+                            <p>Rs.{item.price}</p>
                         </div>
                     ))}
                 </div>

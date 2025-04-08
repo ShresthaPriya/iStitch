@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import SplashNavbar from '../components/SplashNavbar'; // Import SplashNavbar
 import Footer from '../components/Footer';
+import Navbar from '../components/Navbar';
 import "../styles/Auth.css";
 
 const Login = () => {

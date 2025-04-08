@@ -46,7 +46,7 @@ const SplashMensPage = () => {
                 <span className="material">{getMaterial(index)}</span>
                 <h3>{item.name}</h3>
                 <p>{item.description}</p>
-                <p className="price">${item.price}</p>
+                <p className="price">Rs.{item.price}</p>
               </div>
             ))}
           </div>

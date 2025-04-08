@@ -4,7 +4,6 @@ import Footer from '../components/Footer';
 import CartSidebar from '../components/CartSidebar';
 import "../styles/UserProfile.css";
 import axios from "axios";
-import Navbar from "../components/Navbar";
 import "../styles/UserProfile.css";
 
 const UserProfile = () => {
