@@ -74,6 +74,7 @@ const Item = () => {
     newItem.images.forEach((image) => {
       if (image) formData.append("images", image);
     });
+    
 
     try {
       if (editMode) {
@@ -237,7 +238,8 @@ const Item = () => {
             <input type="number" name="price" value={newItem.price} onChange={handleChange} required />
             <label>Description:</label>
             <textarea name="description" value={newItem.description} onChange={handleChange} required />
-            <label>Images:</label>
+  
+                      <label>Images:</label>
             {newItem.images.map((image, index) => (
               <div key={index} className="image-input-group">
                 <input

@@ -9,7 +9,7 @@ const Fabric = () => {
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedFabricId, setSelectedFabricId] = useState(null);
-  const [newFabric, setNewFabric] = useState({ name: "", price: "", description: "", images: [] });
+  const [newFabric, setNewFabric] = useState({ name: "", price: "", description: "", images: [], products: [] });
   const [viewingFabric, setViewingFabric] = useState(null);
   const [error, setError] = useState("");
 
@@ -38,12 +38,19 @@ const Fabric = () => {
     setNewFabric({ ...newFabric, images: files });
   };
 
+  // Handle products input changes
+  const handleProductsChange = (e) => {
+    const { value } = e.target;
+    setNewFabric({ ...newFabric, products: value.split(",").map(product => product.trim()) });
+  };
+
   // Add or Edit fabric
   const handleAddFabric = async () => {
     const formData = new FormData();
     formData.append("name", newFabric.name);
     formData.append("price", newFabric.price);
     formData.append("description", newFabric.description);
+    formData.append("products", newFabric.products.join(","));
     for (let i = 0; i < newFabric.images.length; i++) {
       formData.append("images", newFabric.images[i]);
     }
@@ -73,7 +80,7 @@ const Fabric = () => {
         setFabrics([...fabrics, response.data.fabric]);
       }
       setShowModal(false);
-      setNewFabric({ name: "", price: "", description: "", images: [] });
+      setNewFabric({ name: "", price: "", description: "", images: [], products: [] });
     } catch (err) {
       console.error('Error adding/updating fabric:', err);
       setError(`Error adding/updating fabric: ${err.response?.data?.error || err.message}`);
@@ -135,6 +142,7 @@ const Fabric = () => {
                 <th>Fabric Name</th>
                 <th>Price</th>
                 <th>Description</th>
+                <th>Products</th> {/* Added Products Column */}
                 <th>Images</th>
                 <th>Operations</th>
               </tr>
@@ -145,6 +153,7 @@ const Fabric = () => {
                   <td>{fabric.name}</td>
                   <td>{fabric.price}</td>
                   <td>{fabric.description}</td>
+                  <td>{fabric.products.length > 0 ? fabric.products.join(", ") : "No Products"}</td> {/* Display Products as a String */}
                   <td>
                     {fabric.images.map((image, index) => (
                       <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} width="50" />
@@ -174,6 +183,8 @@ const Fabric = () => {
             <input type="number" name="price" value={newFabric.price} onChange={handleChange} required />
             <label>Description:</label>
             <textarea name="description" value={newFabric.description} onChange={handleChange} required />
+            <label>Products (comma-separated):</label>
+            <input type="text" name="products" value={newFabric.products.join(", ")} onChange={handleProductsChange} />
             <label>Images:</label>
             <input type="file" name="images" onChange={handleFileChange} multiple accept="image/*" required />
             <div className="modal-actions">
@@ -193,6 +204,7 @@ const Fabric = () => {
             <h3>{viewingFabric.name} Details</h3>
             <p><strong>Price:</strong> {viewingFabric.price}</p>
             <p><strong>Description:</strong> {viewingFabric.description}</p>
+            <p><strong>Products:</strong> {viewingFabric.products.length > 0 ? viewingFabric.products.join(", ") : "No Products"}</p> {/* Display Products */}
             <div>
               <strong>Images:</strong>
               <div className="images-container">
