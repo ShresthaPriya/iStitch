@@ -17,6 +17,7 @@ function Navbar({ onCartClick }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [searchBarVisible, setSearchBarVisible] = useState(false);
 
   const profileRef = useRef(null);
   const searchRef = useRef(null);
@@ -41,6 +42,7 @@ function Navbar({ onCartClick }) {
       }
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setSearchResults([]);
+        setSearchBarVisible(false);
       }
     };
 
@@ -79,6 +81,7 @@ function Navbar({ onCartClick }) {
     if (e.key === "Enter" && searchResults.length > 0) {
       navigate(`/fabric-details/${searchResults[0]._id}`);
       setSearchResults([]);
+      setSearchBarVisible(false);
     }
   };
 
@@ -120,22 +123,31 @@ function Navbar({ onCartClick }) {
       </ul>
 
       <div className="search-and-profile">
-        <div className="search-bar" ref={searchRef}>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search.."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              handleSearch();
-            }}
-            onKeyDown={handleKeyDown}
-          />
-          <button className="search-button">
+        <div className="search-icon-only">
+          <button
+            className="search-toggle-button"
+            onClick={() => setSearchBarVisible((prev) => !prev)}
+          >
             <i className="fa fa-search"></i>
           </button>
         </div>
+
+        {searchBarVisible && (
+          <div className="search-bar" ref={searchRef}>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                handleSearch();
+              }}
+              onKeyDown={handleKeyDown}
+              autoFocus
+            />
+          </div>
+        )}
 
         {searchResults.length > 0 && (
           <div className="search-results">
@@ -153,13 +165,6 @@ function Navbar({ onCartClick }) {
             ))}
           </div>
         )}
-
-        <div className="notification-section">
-          <button className="notification-button">
-            <i className="fa fa-bell"></i>
-            <span className="notification-badge">5</span>
-          </button>
-        </div>
 
         <div className="cart-section">
           <button className="cart-button" onClick={onCartClick}>

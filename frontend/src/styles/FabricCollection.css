@@ -53,6 +53,7 @@
   transform: translateX(-50%);
 }
 
+
 .fabric-header h2::after {
   content: '';
   position: absolute;
@@ -63,7 +64,28 @@
   height: 3px;
   background: linear-gradient(90deg, #6366f1, #8b5cf6);
 }
-
+.fabric-collection-page h2{
+  font-size: 2.8rem;
+  color: #222;
+  margin: 5px 0 60px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-align: center;
+  position: relative;
+  display: inline-block;
+  left: 5%;
+  transform: translateX(-50%);
+}
+.fabric-collection-page h2::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
 .fabric-card:hover .fabric-image {
   transform: scale(1.05);
 }
@@ -141,7 +163,14 @@
   width: auto;
   min-width: 200px;
 }
-
+.login-msg {
+  color: #6366f1;
+  font-size: 14px;
+  margin-top: 10px;
+  font-weight: 500;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
 .fabric-card button:hover {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;

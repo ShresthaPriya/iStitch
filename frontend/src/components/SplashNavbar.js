@@ -1,10 +1,12 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Navbar.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { AppContext } from "../App";
 import { CartContext } from '../context/CartContext';
+import { debounce } from "lodash";
+
 
 function SplashNavbar({ onCartClick }) {
   const { username } = useContext(AppContext);
@@ -14,6 +16,11 @@ function SplashNavbar({ onCartClick }) {
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [searchBarVisible, setSearchBarVisible] = useState(false);
+
+  const searchRef = useRef(null);
+    const profileRef = useRef(null);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +36,21 @@ function SplashNavbar({ onCartClick }) {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileDropdownActive(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setSearchResults([]);
+        setSearchBarVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const toggleMenu = () => {
     setMenuActive(!menuActive);
   };
@@ -37,23 +59,33 @@ function SplashNavbar({ onCartClick }) {
     setProfileDropdownActive(!profileDropdownActive);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    window.location.href = "http://localhost:3000/splash-home";
-  };
+  
 
   const handleProfileClick = () => {
     navigate("/login");
   };
 
-  const handleSearch = async () => {
-    try {
-      const response = await axios.get(`http://localhost:4000/api/search?query=${searchQuery}`);
-      setSearchResults(response.data.results || []);
-    } catch (err) {
-      console.error("Error fetching search results:", err);
-    }
-  };
+  const handleSearch = debounce(async () => {
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        return;
+      }
+  
+      try {
+        const response = await axios.get(`http://localhost:4000/api/search?query=${searchQuery}`);
+        setSearchResults(response.data.results.fabrics || []);
+      } catch (err) {
+        console.error("Error fetching search results:", err);
+      }
+    }, 300);
+  
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter" && searchResults.length > 0) {
+        navigate(`/fabric-details/${searchResults[0]._id}`);
+        setSearchResults([]);
+        setSearchBarVisible(false);
+      }
+    };
 
   return (
     <nav className="navbar">
@@ -75,18 +107,49 @@ function SplashNavbar({ onCartClick }) {
       </ul>
 
       <div className="search-and-profile">
-        <div className="search-bar">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search.."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button className="search-button" onClick={handleSearch}>
+      <div className="search-icon-only">
+          <button
+            className="search-toggle-button"
+            onClick={() => setSearchBarVisible((prev) => !prev)}
+          >
             <i className="fa fa-search"></i>
           </button>
         </div>
+
+        {searchBarVisible && (
+          <div className="search-bar" ref={searchRef}>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                handleSearch();
+              }}
+              onKeyDown={handleKeyDown}
+              autoFocus
+            />
+          </div>
+        )}
+
+        {searchResults.length > 0 && (
+          <div className="search-results">
+            {searchResults.map((result) => (
+              <div key={result._id} className="search-result-item">
+                <h4
+                  className="fabric-name"
+                  onClick={() => navigate(`/fabric-details/${result._id}`)}
+                  style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+                >
+                  {result.name}
+                </h4>
+                <p>Price: ${result.price}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
 
         <div className="profile-section">
           <button className="profile-button" onClick={handleProfileClick}>
