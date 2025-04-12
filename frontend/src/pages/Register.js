@@ -48,7 +48,7 @@ const Signup = () => {
   };
 
   const googleAuth = () => {
-    window.open("http://localhost:4000/auth/google/callback", "_self");
+    window.open("http://localhost:4000/auth/google/signup", "_self"); // Use the signup endpoint
   };
 
   return (
@@ -153,7 +153,7 @@ const Signup = () => {
 
         <button className="google-auth-button" onClick={googleAuth}>
           <img src={require("../images/google.png")} alt="Google logo" />
-          <span>Continue with Google</span>
+          <span>Signup with Google</span>
         </button>
 
         <div className="auth-footer">
