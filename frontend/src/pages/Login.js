@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import SplashNavbar from '../components/SplashNavbar'; // Import SplashNavbar
 import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
+
 import "../styles/Auth.css";
 
 const Login = () => {
@@ -53,7 +53,7 @@ const Login = () => {
 
   return (
     <>
-      <Navbar />
+      <SplashNavbar />
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-header">
@@ -146,7 +146,7 @@ const Login = () => {
           </div>
         </div>
       </div>
-      {/* <Footer /> */}
+      { <Footer />}
     </>
   );
 };
