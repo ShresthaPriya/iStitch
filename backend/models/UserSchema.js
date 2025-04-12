@@ -22,9 +22,11 @@ const UserSchema = new mongoose.Schema({
     }, 
     password: {
         type: String,
-        required: true,
+        required: function () {
+            // Password is required only if the user is not created via Google OAuth
+            return !this.googleId;
+        },
         default: null
-        
     },
     resetPasswordToken: {
         type: String
@@ -32,6 +34,8 @@ const UserSchema = new mongoose.Schema({
     resetPasswordExpires: {
         type: Date
     }, 
+    acceptedTerms: { type: Boolean, default: false },  // New field to track terms acceptance
+
 },
     { timestamps: true }
 );

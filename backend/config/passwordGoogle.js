@@ -1,11 +1,6 @@
-const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const User = require("../models/UserSchema"); // Ensure correct path to the User model
-
-// Ensure environment variables are set
-if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-    throw new Error("Missing Google OAuth2 clientID or clientSecret in environment variables.");
-}
+const passport = require("passport");
+const User = require("../models/UserSchema");
 
 const configureGoogleStrategy = () => {
   passport.use(
@@ -13,24 +8,40 @@ const configureGoogleStrategy = () => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "/auth/google/callback",
+        callbackURL: process.env.GOOGLE_CALLBACK_URL,
+        passReqToCallback: true, // Pass the request object to the callback
       },
-      async (accessToken, refreshToken, profile, done) => {
+      async (req, accessToken, refreshToken, profile, done) => {
         try {
+          const action = req.query.state; // Get the action (signup or login) from the state parameter
+
           // Check if user exists in the database
           const existingUser = await User.findOne({ googleId: profile.id });
-          if (existingUser) {
-            return done(null, existingUser);
+
+          if (action === "signup") {
+            if (existingUser) {
+              return done(null, false, { message: "User already exists. Please log in instead." });
+            }
+
+            // Create a new user for sign-up
+            const newUser = await User.create({
+              googleId: profile.id,
+              fullname: profile.displayName,
+              email: profile.emails[0].value,
+            });
+
+            return done(null, newUser);
           }
 
-          // If user does not exist, create a new one
-          const newUser = await User.create({
-            googleId: profile.id,
-            fullname: profile.displayName,
-            email: profile.emails[0].value,
-          });
+          if (action === "login") {
+            if (existingUser) {
+              return done(null, existingUser); // Log in the user
+            }
 
-          done(null, newUser);
+            return done(null, false, { message: "Please sign up with Google first." });
+          }
+
+          return done(null, false, { message: "Invalid action." });
         } catch (err) {
           done(err, null);
         }

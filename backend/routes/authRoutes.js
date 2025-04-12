@@ -18,10 +18,34 @@ router.post("/register", addCredentials); // Register route
 router.post("/login", Login); // Login route
 
 // Initiates Google login
-router.get("/google", googleAuth);
+router.get("/google/login", passport.authenticate("google", {
+  scope: ["profile", "email"],
+  session: true,
+  state: "login", // Pass state to indicate login
+}));
+
+// Initiates Google sign-up
+router.get("/google/signup", passport.authenticate("google", {
+  scope: ["profile", "email"],
+  session: true,
+  state: "signup", // Pass state to indicate sign-up
+}));
 
 // Google callback URL
-router.get("/google/callback", googleCallback);
+router.get("/google/callback", (req, res, next) => {
+  passport.authenticate("google", {
+    failureRedirect: `${process.env.CLIENT_URL}/login?error=Authentication failed. Please sign up first.`,
+  })(req, res, next);
+}, (req, res) => {
+  const action = req.query.state; // Retrieve the action (signup or login) from the state parameter
+  if (action === "signup") {
+    return res.redirect(`${process.env.CLIENT_URL}/home?action=signup`);
+  }
+  if (action === "login") {
+    return res.redirect(`${process.env.CLIENT_URL}/home?action=login`);
+  }
+  return res.redirect(`${process.env.CLIENT_URL}/login?error=Invalid action`);
+});
 
 // Login success handler
 router.get("/login/success", loginSuccess);
