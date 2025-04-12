@@ -3,172 +3,312 @@
     max-width: 900px;
     margin: 20px auto;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-}
-
-.customize-dress-page h2 {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(190, 146, 120, 0.1);
+  }
+  
+  .customize-dress-page h2 {
     text-align: center;
     margin-bottom: 30px;
-    color: #333;
-    font-size: 28px;
-}
-
-.selected-fabric {
+    color: black;
+    font-size: 32px;
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 15px;
+  }
+  
+  .customize-dress-page h2::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: #6366f1;
+    border-radius: 3px;
+  }
+  
+  .selected-fabric {
     margin-bottom: 30px;
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.selected-fabric h3 {
+    background-color: #faf7f5;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(190, 146, 120, 0.2);
+    box-shadow: 0 4px 15px rgba(190, 146, 120, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .selected-fabric:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(190, 146, 120, 0.1);
+  }
+  
+  .selected-fabric h3,
+  .customization-form h3 {
     margin-top: 0;
     margin-bottom: 20px;
-    color: #495057;
-    font-size: 20px;
-}
-
-.fabric-details {
+    color: #6366f1;
+    font-size: 22px;
+    font-weight: 600;
     display: flex;
     align-items: center;
-}
-
-.fabric-image {
-    width: 120px;
-    height: 120px;
+  }
+  
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background-color:#6366f1;
+    color: white;
+    border-radius: 50%;
+    margin-right: 12px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .fabric-details {
+    display: flex;
+    align-items: center;
+  }
+  
+  .fabric-image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-right: 25px;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  }
+  
+  .fabric-image {
+    width: 140px;
+    height: 140px;
     object-fit: cover;
-    border-radius: 8px;
-    margin-right: 20px;
-    border: 1px solid #dee2e6;
-}
-
-.fabric-info {
+    border-radius: 10px;
+    border: 1px solid rgba(190, 146, 120, 0.3);
+    transition: transform 0.3s ease;
+  }
+  
+  .fabric-image:hover {
+    transform: scale(1.05);
+  }
+  
+  .fabric-info {
     flex: 1;
-}
-
-.fabric-info h4 {
-    margin: 0 0 10px;
-    font-size: 18px;
-    color: #343a40;
-}
-
-.fabric-description {
-    margin: 0 0 10px;
+  }
+  
+  .fabric-info h4 {
+    margin: 0 0 12px;
+    font-size: 20px;
+    color: #4a4a4a;
+    font-weight: 600;
+  }
+  
+  .fabric-description {
+    margin: 0 0 12px;
     color: #6c757d;
-}
-
-.fabric-price {
+    line-height: 1.5;
+  }
+  
+  .fabric-price {
     margin: 0;
     font-weight: bold;
-    color: #007bff;
-    font-size: 16px;
-}
-
-.customization-form {
+    color: #6366f1;
+    font-size: 18px;
+    padding: 8px 15px;
+    background-color: rgba(190, 146, 120, 0.1);
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .icon,
+  .form-icon,
+  .info-icon,
+  .button-icon {
+    margin-right: 8px;
+  }
+  
+  .customization-form {
     background-color: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(190, 146, 120, 0.2);
+    box-shadow: 0 4px 15px rgba(190, 146, 120, 0.05);
+  }
+  
+  .form-group {
+    margin-bottom: 25px;
+  }
+  
+  .form-group label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #4a4a4a;
+    font-size: 16px;
+  }
+  
+  .form-group select,
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid rgba(190, 146, 120, 0.3);
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background-color: #faf7f5;
+    color: #4a4a4a;
+  }
+  
+  .form-group select:focus,
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: #6366f1;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(190, 146, 120, 0.2);
+    background-color: #fff;
+  }
+  
+  .form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23BE9278' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+  }
+  
+  .price-estimate {
+    background-color: rgba(190, 146, 120, 0.1);
     padding: 20px;
     border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #495057;
-}
-
-.form-group select,
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
-    font-size: 16px;
-    transition: border-color 0.2s;
-}
-
-.form-group select:focus,
-.form-group input:focus,
-.form-group textarea:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.price-estimate {
-    background-color: #e9f7fe;
-    padding: 15px;
-    border-radius: 5px;
-    margin: 20px 0;
-    border-left: 4px solid #17a2b8;
-}
-
-.price-estimate h3 {
+    margin: 25px 0;
+    border-left: 4px solid #6366f1;
+  }
+  
+  .price-estimate h3 {
     margin: 0 0 10px;
-    color: #17a2b8;
-    font-size: 20px;
-}
-
-.price-note {
+    color: #6366f1;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  
+  .price-note {
     margin: 0;
     color: #6c757d;
     font-size: 14px;
-}
-
-.proceed-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #28a745;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+  }
+  
+  .proceed-btn {
+    background: transparent;
+  color: #6366f1;
+  border: 2px solid #6366f1;
+  padding: 12px 30px;
+  margin: 20px auto 0;
+  cursor: pointer;
+  border-radius: 30px;
+  transition: all 0.4s;
+  font-weight: 600;
+  letter-spacing: 1px;
+  width: auto;
+  min-width: 200px;
+  }
+  
+  .proceed-btn:hover {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: white;
-    border: none;
-    border-radius: 5px;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+  }
+  
+  /* .proceed-btn:disabled {
+    /* background-color: #d1c0b5; */
+    /* box-shadow: none; */
+  /* } */ 
+  
+  .back-button {
+    padding: 12px 24px;
+    background-color: transparent;
+    color: #be9278;
+    border: 2px solid #be9278;
+    border-radius: 8px;
     cursor: pointer;
     margin-top: 20px;
-    font-size: 16px;
+    transition: all 0.3s ease;
     font-weight: 500;
-    transition: background-color 0.2s;
-}
-
-.proceed-btn:hover {
-    background-color: #218838;
-}
-
-.proceed-btn:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-.back-button {
-    padding: 10px 20px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.2s;
-}
-
-.back-button:hover {
-    background-color: #5a6268;
-}
-
-/* Media queries for responsiveness */
-@media (max-width: 768px) {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .back-button:hover {
+    background-color: rgba(190, 146, 120, 0.1);
+    transform: translateX(-3px);
+  }
+  
+  .no-fabric-message {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #6c757d;
+  }
+  
+  /* Media queries for responsiveness */
+  @media (max-width: 768px) {
+    .customize-dress-page {
+      padding: 20px;
+      margin: 15px;
+    }
+  
     .fabric-details {
-        flex-direction: column;
-        text-align: center;
+      flex-direction: column;
+      text-align: center;
     }
-    
-    .fabric-image {
-        margin-right: 0;
-        margin-bottom: 15px;
+  
+    .fabric-image-container {
+      margin-right: 0;
+      margin-bottom: 20px;
     }
-}
+  
+    .selected-fabric,
+    .customization-form {
+      padding: 20px;
+    }
+  
+    .customize-dress-page h2 {
+      font-size: 28px;
+    }
+  
+    .selected-fabric h3,
+    .customization-form h3,
+    .price-estimate h3 {
+      font-size: 20px;
+    }
+  
+    .fabric-price {
+      justify-content: center;
+    }
+  }
+  
+  /* Animation for loading state */
+  @keyframes pulse {
+    0% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.6;
+    }
+  }
+  
+  .loading {
+    animation: pulse 1.5s infinite;
+  }
+  

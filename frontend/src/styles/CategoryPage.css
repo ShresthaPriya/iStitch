@@ -10,13 +10,13 @@
 .category-page h2 {
   font-size: 2.8rem;
   color: #222;
-  margin: 60px 0 40px;
+  margin: 5px 0 60px;
   font-weight: 300;
   letter-spacing: 2px;
   text-align: center;
   position: relative;
   display: inline-block;
-  left: 50%;
+  left: 10%;
   transform: translateX(-50%);
 }
 

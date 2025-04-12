@@ -48,15 +48,19 @@ function FabricCollection() {
     <>
       <Navbar />
       <div className="fabric-header">
-        <h3 className="fabric-title">Fabrics</h3>
-        <div className="sort-container">
-          <label htmlFor="sort">Sort by price:</label>
-          <select id="sort" value={sortOrder} onChange={handleSortChange}>
-            <option value="default">Default</option>
-            <option value="low-to-high">Low to High</option>
-            <option value="high-to-low">High to Low</option>
-          </select>
-        </div>
+      <h2>Fabrics</h2>
+      <div className="sort-container">
+  <div className="sort-label">Sort by:</div>
+  <select 
+        className="sort-dropdown"
+        value={sortOrder}
+        onChange={handleSortChange}
+      >
+        <option value="default">Default</option>
+        <option value="low-to-high">Price: Low to High</option>
+        <option value="high-to-low">Price: High to Low</option>
+      </select>
+    </div>
       </div>
       <div className="view-all-container">
         <a href="#viewAll" className="view-all-link">View all <span>▾</span></a>
@@ -70,7 +74,7 @@ function FabricCollection() {
             ))}
             <div className="fabric-info">
               <h3>{fabric.name}</h3>
-              <p>${fabric.price}</p>
+              <p>Rs. {fabric.price}</p>
             </div>
             <button className="select-btn" onClick={() => handleSelectFabric(fabric)}>Select for Customization</button>
           </div>
