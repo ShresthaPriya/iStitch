@@ -5,6 +5,8 @@ import { CartContext } from '../context/CartContext';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/Checkout.css";
+import khaltiLogo from "../images/payment/khalti.png";
+
 
 const Checkout = () => {
     const { cart, clearCart, calculateTotal } = useContext(CartContext);
@@ -242,8 +244,8 @@ const Checkout = () => {
                                     <div className={`radio-inner ${paymentMethod === "Khalti" ? "selected" : ""}`}></div>
                                 </div>
                                 <div className="payment-label">
-                                    <img src="/khalti-logo.png" alt="Khalti" className="payment-logo" />
-                                    Khalti
+                                <img src={khaltiLogo} alt="Khalti" className="payment-logo" />
+ Khalti
                                 </div>
                             </div>
                         </div>

@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import SplashNavbar from '../components/SplashNavbar'; // Import SplashNavbar
-import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "../styles/Auth.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -17,6 +16,25 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (location.search.includes("error")) {
+      setError(new URLSearchParams(location.search).get("error"));
+    }
+  }, [location]);
+
+  useEffect(() => {
+    // Check if token and user info are present in the URL
+    const params = new URLSearchParams(location.search);
+    const token = params.get("token");
+    const user = params.get("user");
+
+    if (token && user) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", user);
+      navigate("/home", { state: { successMessage: "Login successful!" } });
+    }
+  }, [location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,13 +48,17 @@ const Login = () => {
     try {
       setLoading(true);
       const response = await axios.post("http://localhost:4000/login", formData);
-      
+
       if (response.data.success) {
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("token", response.data.token); // Ensure token is stored
+        localStorage.setItem("user", JSON.stringify(response.data.user)); // Store user info
         if (rememberMe) {
           localStorage.setItem("userEmail", formData.email);
         }
-        navigate(location.state?.from || "/home");
+
+        navigate(location.state?.from || "/home", {
+          state: { successMessage: "Login successful!" },
+        });
       } else {
         setError(response.data.error || "Login failed.");
       }
@@ -48,7 +70,7 @@ const Login = () => {
   };
 
   const googleAuth = () => {
-    window.open("http://localhost:4000/auth/google/callback", "_self");
+    window.open("http://localhost:4000/auth/google/login", "_self"); // Use the login endpoint
   };
 
   return (
@@ -62,6 +84,7 @@ const Login = () => {
             {location.state?.successMessage && (
               <div className="success-message">{location.state.successMessage}</div>
             )}
+            {error && <div className="error-message">{error}</div>}
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
@@ -90,25 +113,21 @@ const Login = () => {
                   placeholder="••••••••"
                   required
                 />
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="toggle-password"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? (
-                    <i className="fas fa-eye-slash"></i>
-                  ) : (
-                    <i className="fas fa-eye"></i>
-                  )}
+                  {showPassword ? <i className="fas fa-eye-slash"></i> : <i className="fas fa-eye"></i>}
                 </button>
               </div>
             </div>
 
             <div className="form-options">
               <div className="checkbox-group">
-                <input 
-                  type="checkbox" 
-                  id="rememberMe" 
+                <input
+                  type="checkbox"
+                  id="rememberMe"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
@@ -122,13 +141,7 @@ const Login = () => {
             {error && <div className="error-message">{error}</div>}
 
             <button type="submit" className="auth-button" disabled={loading}>
-              {loading ? (
-                <>
-                  <i className="fas fa-spinner fa-spin"></i> Logging in...
-                </>
-              ) : (
-                "Log In"
-              )}
+              {loading ? <i className="fas fa-spinner fa-spin"></i> : "Log In"}
             </button>
           </form>
 
@@ -138,7 +151,7 @@ const Login = () => {
 
           <button className="google-auth-button" onClick={googleAuth}>
             <img src={require("../images/google.png")} alt="Google logo" />
-            <span>Continue with Google</span>
+            <span>Login with Google</span>
           </button>
 
           <div className="auth-footer">

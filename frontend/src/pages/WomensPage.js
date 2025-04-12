@@ -3,7 +3,7 @@ import axios from "axios";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartSidebar from '../components/CartSidebar';
-import { CartContext } from '../context/CartContext';
+import { CartContext } from '../context/CartContext'; // Import CartContext
 import "../styles/CategoryPage.css";
 import { useNavigate } from "react-router-dom";
 
