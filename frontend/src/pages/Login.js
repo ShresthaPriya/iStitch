@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Auth.css";
-import SplashNavbar from "../components/SplashNavbar";
+import Navbar from "../components/Navbar";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -50,15 +50,6 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    // Validate email format before submission
-    if (!validateEmail(formData.email)) {
-      setFieldErrors({
-        ...fieldErrors,
-        email: "Please enter a valid email address",
-      });
-      return;
-    }
-
     try {
       setLoading(true);
       const response = await axios.post("http://localhost:4000/auth/login", {
@@ -67,8 +58,9 @@ const Login = () => {
       });
 
       if (response.data.success) {
-        localStorage.setItem("token", response.data.token);
-        navigate("/home"); // Redirect to dashboard on success
+        localStorage.setItem("token", response.data.token); // Save token in localStorage
+        localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user info in localStorage
+        navigate("/home"); // Redirect to home page
       }
     } catch (error) {
       // Handle specific backend errors
@@ -96,7 +88,7 @@ const Login = () => {
 
   return (
     <>
-      <Splash3Navbar />
+      <Navbar />
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-header">
