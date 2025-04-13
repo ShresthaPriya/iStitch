@@ -34,7 +34,12 @@ const addCredentials = async (req, res) => {
         // Check if user already exists
         const existsUser = await User.findOne({ email });
         if (existsUser) {
-            return res.status(400).json({ success: false, error: "Email already exists." });
+            return res.status(400).json({
+                success: false,
+                field: "email",
+                code: "duplicate",
+                message: "This email is already registered. Please use a different email or log in."
+                });
         }
 
         // Hash the password
