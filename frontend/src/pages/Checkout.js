@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import "../styles/Checkout.css";
 import khaltiLogo from "../images/payment/khalti.png";
 
-
 const Checkout = () => {
     const { cart, clearCart, calculateTotal } = useContext(CartContext);
     const user = JSON.parse(localStorage.getItem("user")); // Get logged-in user details
@@ -45,52 +44,70 @@ const Checkout = () => {
         fetchUserMeasurements();
     }, [userId]);
 
-    const placeOrder = async (paymentMethod, paymentToken = null) => {
-        if (!contactNumber.trim() || !address.trim()) {
-            setError("Please provide both contact number and address.");
-            return;
-        }
-
+    const handlePlaceOrder = async (e) => {
+        e.preventDefault();
+        
         try {
+            // Get the user information from localStorage
+            const userInfo = JSON.parse(localStorage.getItem('user'));
+            
+            if (!userInfo || !userInfo._id) {
+                setError('User information not found. Please login again.');
+                return;
+            }
+            
+            // Calculate the total amount
+            const totalAmount = calculateTotal();
+            
+            // Prepare the order items from the cart
+            const orderItems = cart.map(item => ({
+                productId: item._id, // Ensure this field is included
+                quantity: item.quantity || 1,
+                price: item.price,
+                size: item.selectedSize || 'default',
+            }));
+            
+            // Create the order payload - ensure totalAmount is included
             const orderPayload = {
-                userId: userId, // Add userId field
-                customer: userId,
-                items: cart.map(item => ({
-                    productId: item._id,
-                    quantity: item.quantity || 1,
-                    size: item.selectedSize,
-                    price: Number(item.price)
-                })),
-                total: Number(totalPrice), // Add total field
-                totalAmount: Number(totalPrice),
-                paymentMethod,
-                status: paymentMethod === "Khalti" ? "Processing" : "Pending",
+                userId: userInfo._id,
+                customer: userInfo._id,
                 fullName: user.fullname || "N/A",
                 contactNumber: contactNumber.trim(),
                 address: address.trim(),
-                paymentToken // Include the payment token for Khalti payments
+                items: orderItems,
+                totalAmount: totalAmount, // Explicitly set totalAmount
+                status: paymentMethod === "Khalti" ? "Processing" : "Pending",
+                paymentMethod: paymentMethod,
+                paymentToken: null // For COD, no token is needed
             };
-
-            console.log("Order Payload:", orderPayload);
-
-            const response = await axios.post("http://localhost:4000/api/orders", orderPayload);
-            console.log("Order Response:", response.data);
             
+            console.log('Order Payload:', orderPayload);
+            
+            // Send the order to the backend
+            const response = await axios.post('http://localhost:4000/api/orders', orderPayload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            console.log('Order Response:', response.data);
+            
+            // Clear the cart after successful order
             if (response.data.success) {
-                alert("Order placed successfully!");
                 clearCart();
-                navigate('/order-history');
-            } else {
-                alert(response.data.message || "Failed to place order");
+                // Redirect to order confirmation page
+                navigate('/order-confirmation', { state: { orderId: response.data.order._id } });
             }
-        } catch (err) {
-            console.error("Error placing order:", err.response?.data || err.message);
-            alert("Failed to place order. Please try again.");
+            
+        } catch (error) {
+            console.error('Error placing order:', error.response?.data || error);
+            setError(error.response?.data?.error || 'Failed to place order. Please try again.');
         }
     };
 
     const handleCashOnDelivery = () => {
-        placeOrder("Cash On Delivery");
+        handlePlaceOrder({ preventDefault: () => {} });
     };
 
     const handleKhaltiPayment = async () => {

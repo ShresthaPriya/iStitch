@@ -1,17 +1,37 @@
 import React, { createContext, useState, useEffect } from 'react';
+import axios from 'axios'; // Import axios for potential API calls
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
     // Initialize cart from localStorage if available
     const [cart, setCart] = useState(() => {
-        const savedCart = localStorage.getItem('cart');
-        return savedCart ? JSON.parse(savedCart) : [];
+        try {
+            const savedCart = localStorage.getItem('cart');
+            return savedCart ? JSON.parse(savedCart) : [];
+        } catch (error) {
+            console.error("Error loading cart from localStorage:", error);
+            return [];
+        }
     });
 
     // Save cart to localStorage whenever it changes
     useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cart));
+        try {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            // If user is logged in, we could also update cart in database
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (token && user) {
+                // Optional: Sync with backend if you want server-side cart storage
+                // This would require implementing the corresponding API endpoint
+                // updateCartInDatabase(cart);
+            }
+        } catch (error) {
+            console.error("Error saving cart to localStorage:", error);
+        }
     }, [cart]);
 
     // Add an item to the cart
@@ -27,11 +47,11 @@ export const CartProvider = ({ children }) => {
                 const updatedCart = [...prevCart];
                 updatedCart[existingItemIndex] = {
                     ...updatedCart[existingItemIndex],
-                    quantity: (updatedCart[existingItemIndex].quantity || 1) + quantity
+                    quantity: updatedCart[existingItemIndex].quantity + quantity
                 };
                 return updatedCart;
             } else {
-                // Otherwise, add as a new item
+                // If it doesn't exist, add it to the cart
                 return [...prevCart, { ...item, selectedSize, quantity }];
             }
         });
@@ -39,17 +59,17 @@ export const CartProvider = ({ children }) => {
 
     // Remove an item from the cart
     const removeFromCart = (itemId, selectedSize) => {
-        setCart(prevCart => prevCart.filter(
-            item => !(item._id === itemId && item.selectedSize === selectedSize)
+        setCart(prevCart => prevCart.filter(item => 
+            !(item._id === itemId && item.selectedSize === selectedSize)
         ));
     };
 
-    // Update an item's quantity
-    const updateQuantity = (itemId, selectedSize, quantity) => {
+    // Update the quantity of an item in the cart
+    const updateQuantity = (itemId, selectedSize, newQuantity) => {
         setCart(prevCart => {
             return prevCart.map(item => {
                 if (item._id === itemId && item.selectedSize === selectedSize) {
-                    return { ...item, quantity };
+                    return { ...item, quantity: newQuantity };
                 }
                 return item;
             });

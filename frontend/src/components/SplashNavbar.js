@@ -3,10 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Navbar.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { AppContext } from "../App";
+import { AppContext } from "../context/AppContext"; // Updated to use the new AppContext
 import { CartContext } from '../context/CartContext';
 import { debounce } from "lodash";
-
 
 function SplashNavbar({ onCartClick }) {
   const { username } = useContext(AppContext);

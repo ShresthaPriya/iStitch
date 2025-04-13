@@ -3,13 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Navbar.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { AppContext } from "../App";
+import { AppContext } from "../context/AppContext"; // Updated to use the new AppContext
 import { CartContext } from "../context/CartContext";
 import { debounce } from "lodash";
 
 function Navbar({ onCartClick }) {
-  const { username, setUsername } = useContext(AppContext);
-  const { cart } = useContext(CartContext);
+  // Use optional chaining to avoid errors if context is undefined
+  const appContext = useContext(AppContext);
+  const { username, setUsername } = appContext || { username: null, setUsername: () => {} };
+  
+  const cartContext = useContext(CartContext);
+  const { cart } = cartContext || { cart: [] };
 
   const [menuActive, setMenuActive] = useState(false);
   const [profileDropdownActive, setProfileDropdownActive] = useState(false);
