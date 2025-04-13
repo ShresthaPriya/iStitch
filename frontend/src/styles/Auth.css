@@ -6,6 +6,8 @@
   --text-light: #64748b;
   --border-color: #e2e8f0;
   --error-color: #ef4444;
+  --error-bg: #fef2f2;
+  --error-border: #fee2e2;
   --success-color: #10b981;
   --google-blue: #4285f4;
   --white: #ffffff;
@@ -102,12 +104,43 @@ body {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
+/* Input Error Styles */
+.input-error {
+  border-color: var(--error-color) !important;
+  background-color: var(--error-bg);
+  box-shadow: 0 0 0 1px var(--error-color);
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+  border-color: var(--error-color) !important;
+}
+
+/* Field Error Message */
+.field-error {
+  color: var(--error-color);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.field-error::before {
+  content: "⚠️";
+  font-size: 0.75rem;
+}
+
 .password-input {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .password-input input {
-  padding-right: 2.5rem;
+  width: 100%;
+  padding-right: 2.5rem; /* Ensure enough space for the icon */
 }
 
 .toggle-password {
@@ -115,11 +148,22 @@ body {
   right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
+  background: transparent;
   border: none;
-  color: var(--text-light);
+  color: #000000;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0;
+  margin: 0;
+  width: 1.25rem; /* Fixed width for stability */
+  height: 1.25rem; /* Fixed height for stability */
+  display: grid; /* Better centering than flex for icons */
+  place-items: center;
+}
+
+.toggle-password i {
+  font-size: 1rem;
+  display: block;
+  /* Remove line-height: 0 (can cause misalignment) */
 }
 
 .checkbox-group {
@@ -262,11 +306,23 @@ body {
 /* Messages */
 .error-message {
   padding: 0.75rem 1rem;
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: var(--error-bg);
   color: var(--error-color);
+  border: 1px solid var(--error-border);
   border-radius: var(--radius-sm);
   font-size: 0.875rem;
+  font-weight: 500;
   text-align: center;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.error-message::before {
+  content: "⚠️";
+  font-size: 1rem;
 }
 
 .success-message {
@@ -287,6 +343,17 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Shake animation for error fields */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.input-error:focus {
+  animation: shake 0.6s;
 }
 
 /* Responsive */

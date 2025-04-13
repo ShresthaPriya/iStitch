@@ -18,4 +18,3 @@ const khaltiConfig = (totalPrice, onSuccessCallback) => ({
 });
 
 export default khaltiConfig;
-

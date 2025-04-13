@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Auth.css";
 import Navbar from '../components/Navbar';
@@ -14,26 +14,127 @@ const Signup = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    email: "",
+    password: "",
+    confirmPassword: ""
+  });
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  // Validate email format
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Validate password strength
+  const validatePassword = (password) => {
+    // Password must be at least 8 characters, include uppercase, lowercase, number, and special character
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    
+    // Convert email to lowercase immediately when user types
+    if (name === "email") {
+      setFormData({ ...formData, [name]: value.toLowerCase() });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+    
+    // Clear field-specific error when user starts typing again
+    if (fieldErrors[name]) {
+      setFieldErrors({
+        ...fieldErrors,
+        [name]: ""
+      });
+    }
+    
+    // Clear general error message
+    if (error) {
+      setError("");
+    }
+  };
+
+  // Validate fields on blur
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === "email" && value) {
+      if (!validateEmail(value)) {
+        setFieldErrors({
+          ...fieldErrors,
+          email: "Please enter a valid email address"
+        });
+      }
+    }
+    
+    if (name === "password" && value) {
+      if (!validatePassword(value)) {
+        setFieldErrors({
+          ...fieldErrors,
+          password: "Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
+        });
+      }
+    }
+    
+    if (name === "confirmPassword" && value) {
+      if (value !== formData.password) {
+        setFieldErrors({
+          ...fieldErrors,
+          confirmPassword: "Passwords do not match"
+        });
+      }
+    }
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newFieldErrors = { ...fieldErrors };
+    
+    // Validate email
+    if (!validateEmail(formData.email)) {
+      newFieldErrors.email = "Please enter a valid email address";
+      isValid = false;
+    }
+    
+    // Validate password
+    if (!validatePassword(formData.password)) {
+      newFieldErrors.password = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character";
+      isValid = false;
+    }
+    
+    // Validate password match
+    if (formData.password !== formData.confirmPassword) {
+      newFieldErrors.confirmPassword = "Passwords do not match";
+      isValid = false;
+    }
+    
+    setFieldErrors(newFieldErrors);
+    return isValid;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
+    
+    // Ensure email is lowercase before submission (extra safeguard)
+    const submissionData = {
+      ...formData,
+      email: formData.email.toLowerCase()
+    };
+    
+    // Validate all fields before submission
+    if (!validateForm()) {
       return;
     }
 
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:4000/auth/register", formData);
+      const response = await axios.post("http://localhost:4000/auth/register", submissionData);
       
       if (response.data.success) {
         navigate("/login", { state: { successMessage: "Signup successful! Please login." } });
@@ -41,14 +142,29 @@ const Signup = () => {
         setError(response.data.error || "Signup failed.");
       }
     } catch (error) {
-      setError(error.response?.data?.message || "An error occurred. Please try again.");
+      // Handle specific error cases from backend
+      if (error.response?.data?.field === "email" && error.response?.data?.code === "duplicate") {
+        setFieldErrors({
+          ...fieldErrors,
+          email: "This email is already registered. Please use a different email or login."
+        });
+      } else if (error.response?.data?.field) {
+        // Handle other field-specific errors
+        setFieldErrors({
+          ...fieldErrors,
+          [error.response.data.field]: error.response.data.message
+        });
+      } else {
+        // General error
+        setError(error.response?.data?.message || "An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const googleAuth = () => {
-    window.open("http://localhost:4000/auth/google/signup", "_self"); // Use the signup endpoint
+    window.open("http://localhost:4000/auth/google/signup", "_self");
   };
 
   return (
@@ -83,9 +199,12 @@ const Signup = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder=""
               required
+              className={fieldErrors.email ? "input-error" : ""}
             />
+            {fieldErrors.email && <div className="field-error">{fieldErrors.email}</div>}
           </div>
 
           <div className="form-group">
@@ -97,8 +216,10 @@ const Signup = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder=""
                 required
+                className={fieldErrors.password ? "input-error" : ""}
               />
               <button 
                 type="button" 
@@ -106,12 +227,13 @@ const Signup = () => {
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <i className="fas fa-eye-slash"></i>
+                  <i className="fas fa-eye"></i>  // "Click to hide"
                 ) : (
-                  <i className="fas fa-eye"></i>
+                  <i className="fas fa-eye-slash"></i>  // "Click to show"
                 )}
               </button>
             </div>
+            {fieldErrors.password && <div className="field-error">{fieldErrors.password}</div>}
           </div>
 
           <div className="form-group">
@@ -122,9 +244,12 @@ const Signup = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="••••••••"
               required
+              className={fieldErrors.confirmPassword ? "input-error" : ""}
             />
+            {fieldErrors.confirmPassword && <div className="field-error">{fieldErrors.confirmPassword}</div>}
           </div>
 
           <div className="form-group checkbox-group">

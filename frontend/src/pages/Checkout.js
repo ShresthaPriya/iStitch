@@ -99,48 +99,24 @@ const Checkout = () => {
             return;
         }
 
-        // Store contact number and address in localStorage
-        // to access them after Khalti payment completion
-        localStorage.setItem("checkoutPhone", contactNumber.trim());
-        localStorage.setItem("checkoutAddress", address.trim());
-
         try {
             const paymentData = {
                 amount: totalPrice * 100, // Convert to paisa
                 purchaseOrderId: `order_${Date.now()}`,
                 purchaseOrderName: "iStitch Custom Clothing",
-                returnUrl: "http://localhost:3000/order-confirmation"
+                returnUrl: "http://localhost:3000/order-confirmation",
             };
-            
-            console.log("Initiating Khalti payment with:", paymentData);
-            
-            // Test the backend connectivity first
-            try {
-                const testResponse = await axios.get("http://localhost:4000/api/khalti/test");
-                console.log("Test endpoint response:", testResponse.data);
-            } catch (testErr) {
-                console.error("Test endpoint failed:", testErr);
-            }
-            
-            const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
 
-            console.log("Khalti initiate response:", response.data);
+            const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
 
             if (response.data.success) {
                 window.location.href = response.data.paymentUrl; // Redirect to Khalti payment URL
             } else {
-                alert("Failed to initiate Khalti payment. Please try again.");
+                alert(response.data.message || "Failed to initiate Khalti payment. Please try again.");
             }
         } catch (err) {
-            console.error("Error initiating Khalti payment:", err);
-            console.error("Error status:", err.response?.status);
-            console.error("Error details:", err.response?.data || err.message);
-            
-            if (err.response?.status === 404) {
-                alert("Payment service endpoint not found. Please contact support.");
-            } else {
-                alert(`Failed to initiate Khalti payment: ${err.message || "Unknown error"}`);
-            }
+            console.error("Error initiating Khalti payment:", err.response?.data || err.message);
+            alert(`Failed to initiate Khalti payment: ${err.response?.data?.message || err.message}`);
         }
     };
 

@@ -4,7 +4,6 @@ import Footer from '../components/Footer';
 import CartSidebar from '../components/CartSidebar';
 import "../styles/UserProfile.css";
 import axios from "axios";
-import "../styles/UserProfile.css";
 
 const UserProfile = () => {
   const [profile, setProfile] = useState({
@@ -29,9 +28,6 @@ const UserProfile = () => {
   
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?._id;
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
     const fetchProfile = async () => {
