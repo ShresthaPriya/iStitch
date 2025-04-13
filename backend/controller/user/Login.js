@@ -28,8 +28,12 @@ const Login = async (req, res) => {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ success: false, error: "Passwords do not match" });
-        }
+            return res.status(400).json({ 
+              success: false,
+              field: "password", // Add this
+              error: "Incorrect password. Please try again." // More user-friendly
+            });
+          }
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
