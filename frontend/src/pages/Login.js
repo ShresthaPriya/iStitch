@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Auth.css";
-import Navbar from "../components/Navbar";
+import SplashNavbar from "../components/SplashNavbar";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -96,7 +96,7 @@ const Login = () => {
 
   return (
     <>
-      <Navbar />
+      < SplashNavbar />
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-header">
