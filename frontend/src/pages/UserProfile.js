@@ -110,36 +110,45 @@ const UserProfile = () => {
     e.preventDefault();
     setPasswordError("");
     setPasswordSuccess("");
-    
+
     // Basic validation
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError("New passwords do not match");
-      return;
+        setPasswordError("New passwords do not match");
+        return;
     }
-    
+
     try {
-      const response = await axios.put(`http://localhost:4000/api/users/${userId}/password`, {
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
-      });
-      
-      if (response.data && response.data.success) {
-        setPasswordSuccess("Password changed successfully!");
-        setPasswordData({
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: ""
-        });
-        
-        setTimeout(() => setPasswordSuccess(""), 3000);
-      } else {
-        setPasswordError("Failed to change password. Please try again.");
-      }
+        const token = localStorage.getItem("token"); // Retrieve token from localStorage
+        const response = await axios.put(
+            `http://localhost:4000/api/users/${userId}/password`,
+            {
+                currentPassword: passwordData.currentPassword,
+                newPassword: passwordData.newPassword,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Include token in the request
+                },
+            }
+        );
+
+        if (response.data && response.data.success) {
+            setPasswordSuccess("Password changed successfully!");
+            setPasswordData({
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            });
+
+            setTimeout(() => setPasswordSuccess(""), 3000);
+        } else {
+            setPasswordError("Failed to change password. Please try again.");
+        }
     } catch (err) {
-      console.error("Error changing password:", err);
-      setPasswordError(err.response?.data?.message || "Failed to change password");
+        console.error("Error changing password:", err);
+        setPasswordError(err.response?.data?.message || "Failed to change password");
     }
-  };
+};
 
   return (
     <>
