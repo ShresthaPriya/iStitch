@@ -82,7 +82,7 @@ const Category = () => {
           <h2 className="title">Categories</h2>
           <div className="user-info">
             <span>Admin</span>
-            <FaCog className="icon" />
+            {/* <FaCog className="icon" /> */}
             <FaUser className="icon" />
           </div>
         </div>
