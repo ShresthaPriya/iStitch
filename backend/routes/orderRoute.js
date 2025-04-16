@@ -53,42 +53,26 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Retrieve orders for a user
+// Get orders by userId
 router.get('/:userId', async (req, res) => {
     const { userId } = req.params;
 
     try {
-        console.log(`Fetching orders for user ID: ${userId}`);
-        
         if (!userId) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "User ID is required" 
-            });
+            return res.status(400).json({ success: false, message: "User ID is required" });
         }
 
-        const orders = await OrderModel.find({ 
+        const orders = await require('../models/OrderSchema').find({
             $or: [
-                { userId: new mongoose.Types.ObjectId(userId) }, // Correct usage of ObjectId
+                { userId: new mongoose.Types.ObjectId(userId) },
                 { customer: new mongoose.Types.ObjectId(userId) }
             ]
         }).sort({ createdAt: -1 }).lean();
 
-        console.log(`Found ${orders.length} orders for user ${userId}`);
-        
-        return res.json({ 
-            success: true, 
-            orders,
-            count: orders.length
-        });
+        return res.json({ success: true, orders, count: orders.length });
     } catch (err) {
         console.error("Error retrieving orders:", err);
-        return res.status(500).json({ 
-            success: false, 
-            message: "Failed to retrieve orders",
-            error: err.message 
-        });
+        return res.status(500).json({ success: false, message: "Failed to retrieve orders", error: err.message });
     }
 });
-
 module.exports = router;

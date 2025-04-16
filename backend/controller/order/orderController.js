@@ -33,40 +33,46 @@ const addOrder = async (req, res) => {
         } = req.body;
 
         console.log("Order Controller - Received payload:", req.body);
-        console.log("Order Controller - Received payload:", req.body);
 
-        // Check if the orderId already exists
-        const existingOrder = await Order.findOne({ orderId });
-        if (existingOrder) {
-            return res.status(400).json({ success: false, message: "Order already exists." });
+        // Basic required fields check
+        if (!items || items.length === 0 || !paymentMethod || !status || !fullName || !contactNumber || !address) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields"
+            });
         }
 
-        // Ensure proper field mapping and explicitly set totalAmount
+        // Prevent duplicate if orderId is passed
+        if (orderId) {
+            const existingOrder = await Order.findOne({ orderId });
+            if (existingOrder) {
+                return res.status(400).json({ success: false, message: "Order already exists." });
+            }
+        }
+
+        const generatedOrderId = orderId || `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
         const orderData = {
-            userId: customer || userId, // Use customer field as userId if provided
-            customer: customer || userId, // Set the customer reference
-            items,
-            totalAmount: totalAmount || total, // Explicitly set totalAmount
+            userId: customer || userId,
+            customer: customer || userId,
+            items: isCustomOrder
+                ? items.map(item => ({
+                    ...item,
+                    customDetails: item.customDetails || {}
+                }))
+                : items,
+            totalAmount: totalAmount || total || 0,
             paymentMethod,
             status,
             fullName,
             contactNumber,
             address,
             isCustomOrder: isCustomOrder || false,
-            orderId
+            orderId: generatedOrderId
         };
-
-        // Validate items for custom orders
-        if (isCustomOrder) {
-            orderData.items = items.map(item => ({
-                ...item,
-                customDetails: item.customDetails || {} // Ensure customDetails is included
-            }));
-        }
 
         console.log("Creating order with data:", orderData);
 
-        // Create and save the order
         const newOrder = new Order(orderData);
         await newOrder.save();
 
@@ -85,14 +91,9 @@ const updateOrder = async (req, res) => {
     const { status, ...otherFields } = req.body;
 
     try {
-        // Allow updating just the status or other fields
         const updateData = status ? { status } : otherFields;
 
-        const updatedOrder = await Order.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true }
-        );
+        const updatedOrder = await Order.findByIdAndUpdate(id, updateData, { new: true });
 
         if (!updatedOrder) {
             return res.status(404).json({ success: false, error: "Order not found" });

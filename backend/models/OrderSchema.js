@@ -40,11 +40,11 @@ const OrderSchema = new mongoose.Schema({
     }],
     total: {
         type: Number,
-        required: true
+        required: false
     },
     totalAmount: {
         type: Number,
-        required: true // Ensure totalAmount is required
+        required: false// Ensure totalAmount is required
     },
     paymentMethod: {
         type: String,
