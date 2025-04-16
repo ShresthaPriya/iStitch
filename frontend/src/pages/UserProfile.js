@@ -10,13 +10,13 @@ const UserProfile = () => {
     fullname: "",
     email: ""
   });
-  
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: ""
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -24,8 +24,8 @@ const UserProfile = () => {
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile"); // "profile" or "security"
-  
+  const [activeTab, setActiveTab] = useState("profile");
+
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?._id;
 
@@ -36,19 +36,18 @@ const UserProfile = () => {
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
         const response = await axios.get(`http://localhost:4000/api/users/${userId}`);
-        
+
         if (response.data) {
-          // Set profile data from response
           setProfile({
             fullname: response.data.fullname || "",
             email: response.data.email || ""
           });
         }
-        
+
         setLoading(false);
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -59,6 +58,26 @@ const UserProfile = () => {
 
     fetchProfile();
   }, [userId]);
+
+  useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        setSuccess("");
+        setError("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, error]);
+
+  useEffect(() => {
+    if (passwordSuccess || passwordError) {
+      const timer = setTimeout(() => {
+        setPasswordSuccess("");
+        setPasswordError("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [passwordSuccess, passwordError]);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -72,7 +91,6 @@ const UserProfile = () => {
 
   const toggleEdit = () => {
     setIsEditing(!isEditing);
-    // Reset any messages when toggling edit mode
     setSuccess("");
     setError("");
   };
@@ -81,22 +99,19 @@ const UserProfile = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    
+
     try {
       const response = await axios.put(`http://localhost:4000/api/users/${userId}`, {
         fullname: profile.fullname,
         email: profile.email
       });
-      
+
       if (response.data && response.data.success) {
         setSuccess("Profile updated successfully!");
         setIsEditing(false);
-        
-        // Update the user data in localStorage
+
         const updatedUser = { ...user, ...profile };
         localStorage.setItem("user", JSON.stringify(updatedUser));
-        
-        setTimeout(() => setSuccess(""), 3000);
       } else {
         setError("Failed to update profile. Please try again.");
       }
@@ -108,36 +123,41 @@ const UserProfile = () => {
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    setPasswordError("");
-    setPasswordSuccess("");
-    
-    // Basic validation
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setPasswordError("New passwords do not match");
+      setPasswordSuccess("");
       return;
     }
-    
+
     try {
-      const response = await axios.put(`http://localhost:4000/api/users/${userId}/password`, {
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `http://localhost:4000/api/users/${userId}/password`,
+        {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setPasswordSuccess(response.data.message);
+      setPasswordError("");
+
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
       });
-      
-      if (response.data && response.data.success) {
-        setPasswordSuccess("Password changed successfully!");
-        setPasswordData({
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: ""
-        });
-        
-        setTimeout(() => setPasswordSuccess(""), 3000);
-      } else {
-        setPasswordError("Failed to change password. Please try again.");
-      }
+
     } catch (err) {
       console.error("Error changing password:", err);
       setPasswordError(err.response?.data?.message || "Failed to change password");
+      setPasswordSuccess("");
     }
   };
 
@@ -146,22 +166,22 @@ const UserProfile = () => {
       <Navbar onCartClick={() => setIsCartOpen(true)} />
       <div className="profile-container">
         <h1>Account Settings</h1>
-        
+
         <div className="profile-tabs">
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
             Profile
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'security' ? 'active' : ''}`}
             onClick={() => setActiveTab('security')}
           >
             Security
           </button>
         </div>
-        
+
         {loading ? (
           <div className="profile-loading">Loading profile data...</div>
         ) : error ? (
@@ -170,17 +190,17 @@ const UserProfile = () => {
           <div className="profile-section">
             <div className="section-header">
               <h2>Personal Information</h2>
-              <button 
-                className={`edit-btn ${isEditing ? 'cancel' : ''}`} 
+              <button
+                className={`edit-btn ${isEditing ? 'cancel' : ''}`}
                 onClick={toggleEdit}
               >
                 {isEditing ? 'Cancel' : 'Edit Profile'}
               </button>
             </div>
-            
+
             {success && <div className="success-message">{success}</div>}
             {error && <div className="error-message">{error}</div>}
-            
+
             <form onSubmit={handleProfileSubmit}>
               <div className="form-group">
                 <label>Full Name</label>
@@ -196,7 +216,7 @@ const UserProfile = () => {
                   <div className="profile-display-value">{profile.fullname}</div>
                 )}
               </div>
-              
+
               <div className="form-group">
                 <label>Email</label>
                 {isEditing ? (
@@ -211,7 +231,7 @@ const UserProfile = () => {
                   <div className="profile-display-value">{profile.email}</div>
                 )}
               </div>
-              
+
               {isEditing && (
                 <button type="submit" className="save-button">Save Changes</button>
               )}
@@ -220,10 +240,10 @@ const UserProfile = () => {
         ) : (
           <div className="security-section">
             <h2>Change Password</h2>
-            
+
             {passwordSuccess && <div className="success-message">{passwordSuccess}</div>}
             {passwordError && <div className="error-message">{passwordError}</div>}
-            
+
             <form onSubmit={handlePasswordSubmit}>
               <div className="form-group">
                 <label>Current Password</label>
@@ -235,7 +255,7 @@ const UserProfile = () => {
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>New Password</label>
                 <input
@@ -247,7 +267,7 @@ const UserProfile = () => {
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Confirm New Password</label>
                 <input
@@ -259,7 +279,7 @@ const UserProfile = () => {
                   required
                 />
               </div>
-              
+
               <div className="password-requirements">
                 <p>Password must:</p>
                 <ul>
@@ -268,7 +288,7 @@ const UserProfile = () => {
                   <li>Include at least one number</li>
                 </ul>
               </div>
-              
+
               <button type="submit" className="save-button">Change Password</button>
             </form>
           </div>

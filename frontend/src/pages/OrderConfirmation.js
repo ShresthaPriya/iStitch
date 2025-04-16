@@ -68,11 +68,12 @@ const OrderConfirmation = () => {
                     totalAmount: Number(cartTotal),
                     fullName: user.fullname || "N/A",
                     contactNumber: localStorage.getItem("checkoutPhone") || "",
-                    address: localStorage.getItem("checkoutAddress") || ""
+                    address: localStorage.getItem("checkoutAddress") || "",
+                    paymentMethod: "Cash On Delivery" // Ensure COD is set
                 };
 
                 console.log("Sending order payload:", JSON.stringify(orderPayload, null, 2));
-                
+
                 // Check if there are items in the order
                 if (!orderPayload.items || orderPayload.items.length === 0) {
                     console.error("Order items array is empty!");
@@ -81,7 +82,23 @@ const OrderConfirmation = () => {
                     return;
                 }
 
-                // Verify the payment and save the order
+                // Handle Cash on Delivery (No need to verify payment)
+                if (orderPayload.paymentMethod === "Cash On Delivery") {
+                    setStatus('success');
+                    setOrderDetails({
+                        transaction_id: "COD-" + Date.now(),
+                        total_amount: orderPayload.totalAmount
+                    });
+
+                    // Clear cart from localStorage and context only after successful order save
+                    localStorage.removeItem('cart');
+                    clearCart();
+
+                    setIsVerified(true); // Mark as verified to prevent repeated requests
+                    return;
+                }
+
+                // For digital payment (e.g., Khalti), verify the payment
                 const verifyResponse = await axios.post('http://localhost:4000/api/khalti/verify', { 
                     pidx, 
                     orderPayload
@@ -91,11 +108,11 @@ const OrderConfirmation = () => {
 
                 if (verifyResponse.data.success) {
                     setOrderDetails(verifyResponse.data.order);
-                    
+
                     // Clear cart from localStorage and context only after successful order save
                     localStorage.removeItem('cart');
                     clearCart();
-                    
+
                     setStatus('success');
                     setIsVerified(true); // Mark as verified to prevent repeated requests
                 } else {
@@ -154,27 +171,6 @@ const OrderConfirmation = () => {
                             onClick={() => navigate('/order-history')}
                         >
                             View My Orders
-                        </button>
-                    </div>
-                )}
-
-                {status === 'paymentSuccess' && (
-                    <div className="partial-success-message">
-                        <div className="success-icon">✓</div>
-                        <h2>Payment Successful!</h2>
-                        <p>Your payment was processed successfully.</p>
-                        <p className="error-text">{error}</p>
-                        {orderDetails && (
-                            <div className="order-info">
-                                <p><strong>Transaction ID:</strong> {orderDetails.transaction_id}</p>
-                                <p><strong>Amount:</strong> Rs. {orderDetails.total_amount / 100}</p>
-                            </div>
-                        )}
-                        <button
-                            className="contact-support-btn"
-                            onClick={() => navigate('/user-profile')}
-                        >
-                            Go to My Profile
                         </button>
                     </div>
                 )}

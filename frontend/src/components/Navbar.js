@@ -164,7 +164,7 @@ function Navbar({ onCartClick }) {
                 >
                   {result.name}
                 </h4>
-                <p>Price: ${result.price}</p>
+                <p>Price: Rs. {result.price}</p>
               </div>
             ))}
           </div>
@@ -180,7 +180,7 @@ function Navbar({ onCartClick }) {
         <div className="profile-section" ref={profileRef}>
           <button className="profile-button" onClick={toggleProfileDropdown}>
             <i className="fa-solid fa-user"></i>
-            {username && <span className="profile-badge">1</span>}
+            {username && <span className="profile-badge"></span>}
           </button>
           {profileDropdownActive && (
             <div className="username-dropdown">

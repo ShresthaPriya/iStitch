@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart, ArrowLeft, ZoomIn, Share2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import CartSidebar from "../components/CartSidebar";
 import SizeGuideTabs from "../components/SizeGuideTabs";
+import { CartContext } from "../context/CartContext"; // ✅ Import CartContext
 import "../styles/ProductDetails.css";
 
 const ProductDetails = () => {
@@ -13,14 +14,40 @@ const ProductDetails = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState("");
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const navigate = useNavigate();
 
+  const { addToCart } = useContext(CartContext); // ✅ Use CartContext
+
+  // ✅ Add to cart
   const handleAddToCart = () => {
     if (!selectedSize) {
       alert("Please select a size before adding to cart.");
       return;
     }
-    // Add product to cart logic here
+
+    const productToAdd = {
+      ...product,
+      size: selectedSize,
+    };
+
+    addToCart(productToAdd); // ✅ Use context method
     setIsCartOpen(true);
+  };
+
+  // ✅ Buy now
+  const handleBuyNow = () => {
+    if (!selectedSize) {
+      alert("Please select a size before proceeding.");
+      return;
+    }
+
+    const productToAdd = {
+      ...product,
+      size: selectedSize,
+    };
+
+    addToCart(productToAdd); // ✅ Add to cart before checkout
+    navigate("/checkout");
   };
 
   const toggleSizeGuide = () => {
@@ -30,6 +57,7 @@ const ProductDetails = () => {
   return (
     <>
       <Navbar onCartClick={() => setIsCartOpen(true)} />
+
       <div className="product-details-page">
         <div className="breadcrumb">
           <button className="back-button" onClick={() => window.history.back()}>
@@ -76,7 +104,7 @@ const ProductDetails = () => {
             </div>
 
             <div className="product-price">Rs. {product.price}</div>
-            
+
             <div className="product-description">
               <p>{product.description}</p>
             </div>
@@ -102,18 +130,18 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* Call to Action */}
+            {/* Actions */}
             <div className="product-actions-container">
               <button className="add-to-cart-btn" onClick={handleAddToCart}>
                 <ShoppingCart size={18} />
                 <span>Add to Cart</span>
               </button>
-              <button className="buy-now-btn">
+              <button className="buy-now-btn" onClick={handleBuyNow}>
                 Buy Now
               </button>
             </div>
 
-            {/* Conditional Size Guide */}
+            {/* Size Guide */}
             {showSizeGuide && (
               <div className="size-guide-wrapper">
                 <h3>Detailed Size Guide</h3>
@@ -123,6 +151,7 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );

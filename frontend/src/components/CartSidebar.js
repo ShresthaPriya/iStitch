@@ -4,7 +4,7 @@ import { CartContext } from '../context/CartContext';
 import '../styles/CartSidebar.css';
 
 const CartSidebar = ({ isOpen, onClose }) => {
-    const { cart, removeFromCart, calculateTotal } = useContext(CartContext);
+    const { cart, removeFromCart, updateQuantity, calculateTotal } = useContext(CartContext);
     const navigate = useNavigate();
 
     const totalPrice = calculateTotal();
@@ -37,9 +37,39 @@ const CartSidebar = ({ isOpen, onClose }) => {
                                 <div className="cart-item-details">
                                     <h3>{item.name}</h3>
                                     <p className="cart-item-size">Size: {item.selectedSize}</p>
+
+                                    <div className="quantity-controls">
+                                        <button
+                                            onClick={() =>
+                                                updateQuantity(
+                                                    item._id,
+                                                    item.selectedSize,
+                                                    Math.max(1, (item.quantity || 1) - 1)
+                                                )
+                                            }
+                                            className="qty-btn"
+                                        >
+                                            -
+                                        </button>
+                                        <span className="qty-value">{item.quantity || 1}</span>
+                                        <button
+                                            onClick={() =>
+                                                updateQuantity(
+                                                    item._id,
+                                                    item.selectedSize,
+                                                    (item.quantity || 1) + 1
+                                                )
+                                            }
+                                            className="qty-btn"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+
                                     <p className="cart-item-price">
-                                        ${item.price} × {item.quantity || 1} = ${(item.price * (item.quantity || 1)).toFixed(2)}
+                                        Rs. {item.price} × {item.quantity || 1} = Rs. {(item.price * (item.quantity || 1)).toFixed(2)}
                                     </p>
+
                                     <button 
                                         onClick={() => removeFromCart(item._id, item.selectedSize)}
                                         className="remove-btn"
@@ -51,7 +81,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                         ))}
                     </div>
                     <div className="cart-total">
-                        <h3>Total: ${totalPrice.toFixed(2)}</h3>
+                        <h3>Total: Rs. {totalPrice.toFixed(2)}</h3>
                         <button className="checkout-btn" onClick={handleCheckout}>
                             Proceed to Checkout
                         </button>

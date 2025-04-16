@@ -242,7 +242,7 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.cart-badge, .profile-badge {
+.cart-badge{
   position: absolute;
   top: -2px;
   right: -2px;
@@ -257,6 +257,20 @@
   justify-content: center;
   font-weight: bold;
   border: 2px solid #6366f1;
+}
+.cart-badge, .profile-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  color: white;
+  font-size: 11px; /* Increased from 10px */
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+ 
 }
 
 /* Profile Dropdown */

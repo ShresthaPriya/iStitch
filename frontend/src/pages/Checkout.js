@@ -197,14 +197,14 @@ const Checkout = () => {
                                 <p className="checkout-item-size">Size: {item.selectedSize}</p>
                                 <p className="checkout-item-quantity">Quantity: {item.quantity || 1}</p>
                                 <p className="checkout-item-price">
-                                    ${item.price} × {item.quantity || 1} = ${(item.price * (item.quantity || 1)).toFixed(2)}
+                                    Rs. {item.price} × {item.quantity || 1} = Rs. {(item.price * (item.quantity || 1)).toFixed(2)}
                                 </p>
                             </div>
                         </div>
                     ))}
                 </div>
                 <div className="checkout-total">
-                    <h3>Total: ${totalPrice.toFixed(2)}</h3>
+                    <h3>Total: Rs. {totalPrice.toFixed(2)}</h3>
                     
                     <div className="form-group">
                         <label>Contact Number</label>

@@ -90,7 +90,7 @@ const AdminHome = () => {
             <FaShoppingBag className="metric-icon" />
             <span className="metric-title">Total Sales</span>
             <span className="metric-value">
-              ${metrics.totalSales.toFixed(2)}
+              Rs. {metrics.totalSales.toFixed(2)}
             </span>
           </div>
           <div className="metric-card total-items">

@@ -10,6 +10,7 @@
     "cookie-session": "^2.1.0",
     "cra-template": "1.2.0",
     "dotenv": "^16.4.7",
+    "jwt-decode": "^4.0.0",
     "khalti-checkout-web": "^2.2.0",
     "lucide-react": "^0.474.0",
     "nodemon": "^3.1.9",
