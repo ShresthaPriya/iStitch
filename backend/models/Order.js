@@ -2,7 +2,7 @@ const Order = require('../models/OrderSchema');
 
 const addOrder = async (req, res) => {
     try {
-        let { userId, items, total, fullName, address, contactNumber, paymentMethod, status } = req.body;
+        let { userId, items, total, totalAmount, fullName, address, contactNumber, paymentMethod, status } = req.body;
 
         // Ensure items is an array of objects
         if (typeof items === 'string') {
@@ -13,10 +13,27 @@ const addOrder = async (req, res) => {
             return res.status(400).json({ success: false, error: "Items must be a non-empty array" });
         }
 
+        // Ensure totalAmount is explicitly set
+        if (!totalAmount) {
+            totalAmount = total; // Fallback to total if totalAmount is not provided
+        }
+
+        // Check for duplicate orders (e.g., same userId, totalAmount, and status)
+        const existingOrder = await Order.findOne({
+            userId,
+            totalAmount,
+            status: "Pending", // Check for pending orders to avoid duplicates
+            createdAt: { $gte: new Date(Date.now() - 5 * 60 * 1000) } // Within the last 5 minutes
+        });
+
+        if (existingOrder) {
+            return res.status(400).json({ success: false, error: "Duplicate order detected. Please wait before placing another order." });
+        }
+
         const newOrder = new Order({
             userId,
             items,
-            total,
+            totalAmount, // Explicitly include totalAmount
             fullName,
             address,
             contactNumber,

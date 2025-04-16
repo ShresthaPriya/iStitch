@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from '../components/Navbar';
@@ -12,11 +11,13 @@ const ReviewOrder = () => {
     const { fabric, customization, priceEstimate, userMeasurements } = location.state || {};
     const user = JSON.parse(localStorage.getItem("user"));
     const userId = user?._id;
-    
+
     const [contactNumber, setContactNumber] = useState("");
     const [address, setAddress] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState("Cash On Delivery");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false); // Keep only one declaration of isSubmitting
 
     // Redirect if no data
     if (!fabric || !customization || !priceEstimate) {
@@ -25,18 +26,23 @@ const ReviewOrder = () => {
     }
 
     const handlePlaceOrder = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         if (!contactNumber.trim() || !address.trim()) {
             setError("Please provide both contact number and address.");
+            setIsSubmitting(false);
             return;
         }
 
         try {
             setLoading(true);
-            
-            // Create the order payload with both total and userId fields
+
+            // Create the order payload
             const orderPayload = {
+                orderId: `order_${Date.now()}`, // Add unique orderId
                 customer: userId,
-                userId: userId, // Add userId explicitly to match schema requirements
+                userId: userId,
                 items: [{
                     productId: fabric._id,
                     quantity: 1,
@@ -49,31 +55,54 @@ const ReviewOrder = () => {
                         additionalStyling: customization.additionalStyling
                     }
                 }],
-                total: priceEstimate, // Add total explicitly
-                totalAmount: priceEstimate, // Include totalAmount for backward compatibility
-                paymentMethod: "Cash On Delivery",
-                status: "Pending",
+                total: priceEstimate,
+                totalAmount: priceEstimate,
+                paymentMethod: paymentMethod,
+                status: paymentMethod === "Khalti" ? "Processing" : "Pending",
                 fullName: user.fullname || "N/A",
                 contactNumber: contactNumber.trim(),
                 address: address.trim(),
                 isCustomOrder: true
             };
 
-            console.log("Custom Order Payload:", orderPayload);
+            console.log("Order Payload:", orderPayload);
 
-            const response = await axios.post("http://localhost:4000/api/orders", orderPayload);
-            
-            if (response.data.success) {
-                alert("Custom order placed successfully!");
-                navigate('/order-history');
-            } else {
-                setError("Failed to place order. Please try again.");
+            if (paymentMethod === "Cash On Delivery") {
+                // Send the order to the backend for COD
+                const response = await axios.post("http://localhost:4000/api/orders", orderPayload, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                if (response.data.success) {
+                    alert("Order placed successfully!");
+                    navigate('/order-confirmation', { state: { orderId: response.data.order._id } });
+                } else {
+                    setError("Failed to place order. Please try again.");
+                }
+            } else if (paymentMethod === "Khalti") {
+                // Initiate Khalti payment
+                const paymentData = {
+                    amount: priceEstimate * 100, // Convert to paisa
+                    purchaseOrderId: `order_${Date.now()}`,
+                    purchaseOrderName: "iStitch Custom Clothing",
+                    returnUrl: "http://localhost:3000/order-confirmation"
+                };
+
+                const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
+                if (response.data.success) {
+                    window.location.href = response.data.paymentUrl; // Redirect to Khalti payment URL
+                } else {
+                    setError(response.data.message || "Failed to initiate Khalti payment. Please try again.");
+                }
             }
         } catch (err) {
-            console.error("Error placing order:", err);
+            console.error("Error placing order:", err.response?.data || err.message);
             setError(`Error: ${err.response?.data?.message || err.message}`);
         } finally {
             setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -85,7 +114,6 @@ const ReviewOrder = () => {
 
         // Filter relevant measurements based on item type
         let relevantMeasurements = [...userMeasurements];
-        
         if (customization.itemToBeMade.includes("Shirt") || customization.itemToBeMade.includes("Blazer") || customization.itemToBeMade.includes("Coat")) {
             // For upper body garments, filter relevant measurements
             const upperBodyMeasurements = ["Chest", "Shoulder Length", "Sleeves Length", "Neck", "Waist", "Upper Body Lenght"];
@@ -93,7 +121,6 @@ const ReviewOrder = () => {
                 upperBodyMeasurements.some(ubm => m.title.includes(ubm))
             );
         }
-        
         if (customization.itemToBeMade.includes("Pant")) {
             // For pants, filter relevant measurements
             const lowerBodyMeasurements = ["Waist", "Hip", "Thigh", "Leg Opening"];
@@ -119,12 +146,10 @@ const ReviewOrder = () => {
             <Navbar />
             <div className="review-order-page">
                 <h2>Review Your Custom Order</h2>
-                
                 {error && <div className="error-message">{error}</div>}
                 
                 <div className="order-summary-section">
                     <h3>Order Summary</h3>
-                    
                     <div className="product-summary">
                         <div className="product-image">
                             <img 
@@ -132,7 +157,6 @@ const ReviewOrder = () => {
                                 alt={fabric.name} 
                             />
                         </div>
-                        
                         <div className="product-details">
                             <h4>Custom {customization.itemToBeMade}</h4>
                             <p><strong>Fabric:</strong> {fabric.name}</p>
@@ -144,7 +168,6 @@ const ReviewOrder = () => {
                         </div>
                     </div>
                 </div>
-                
                 <div className="measurements-section">
                     <h3>Your Measurements</h3>
                     {formatMeasurements()}
@@ -155,13 +178,12 @@ const ReviewOrder = () => {
                         Edit Measurements
                     </button>
                 </div>
-                
                 <div className="shipping-section">
                     <h3>Shipping Information</h3>
                     
                     <div className="form-group">
                         <label>Contact Number</label>
-                        <input
+                        <input 
                             type="text"
                             value={contactNumber}
                             onChange={(e) => setContactNumber(e.target.value)}
@@ -172,7 +194,7 @@ const ReviewOrder = () => {
                     
                     <div className="form-group">
                         <label>Delivery Address</label>
-                        <input
+                        <input 
                             type="text"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
@@ -181,21 +203,32 @@ const ReviewOrder = () => {
                         />
                     </div>
                 </div>
-                
                 <div className="payment-section">
                     <h3>Payment Method</h3>
-                    <div className="payment-method">
-                        <input
-                            type="radio"
-                            id="cod"
-                            name="paymentMethod"
-                            checked
-                            readOnly
-                        />
-                        <label htmlFor="cod">Cash On Delivery</label>
+                    <div className="payment-options">
+                        <div 
+                            className={`payment-option ${paymentMethod === "Cash On Delivery" ? "selected" : ""}`}
+                            onClick={() => setPaymentMethod("Cash On Delivery")}
+                        >
+                            <div className="payment-radio">
+                                <div className={`radio-inner ${paymentMethod === "Cash On Delivery" ? "selected" : ""}`}></div>
+                            </div>
+                            <div className="payment-label">Cash On Delivery</div>
+                        </div>
+                        <div 
+                            className={`payment-option ${paymentMethod === "Khalti" ? "selected" : ""}`}
+                            onClick={() => setPaymentMethod("Khalti")}
+                        >
+                            <div className="payment-radio">
+                                <div className={`radio-inner ${paymentMethod === "Khalti" ? "selected" : ""}`}></div>
+                            </div>
+                            <div className="payment-label">
+                                <img src="http://localhost:3000/images/payment/khalti.png" alt="Khalti" className="payment-logo" />
+                                Khalti
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
                 <div className="action-buttons">
                     <button 
                         className="back-btn"
@@ -206,7 +239,7 @@ const ReviewOrder = () => {
                     <button 
                         className="place-order-btn"
                         onClick={handlePlaceOrder}
-                        disabled={loading}
+                        disabled={loading || isSubmitting}
                     >
                         {loading ? "Processing..." : "Place Order"}
                     </button>

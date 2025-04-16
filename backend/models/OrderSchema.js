@@ -4,7 +4,7 @@ const OrderSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true // Ensure userId is required
+        required: true
     },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
@@ -24,7 +24,6 @@ const OrderSchema = new mongoose.Schema({
         },
         size: {
             type: String,
-            required: false,
             default: "M"
         },
         price: {
@@ -41,11 +40,11 @@ const OrderSchema = new mongoose.Schema({
     }],
     total: {
         type: Number,
-        required: true // Ensure total is required
+        required: true
     },
     totalAmount: {
         type: Number,
-        required: true
+        required: true // Ensure totalAmount is required
     },
     paymentMethod: {
         type: String,

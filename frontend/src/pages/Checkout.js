@@ -19,6 +19,7 @@ const Checkout = () => {
     const [userMeasurements, setUserMeasurements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [paymentMethod, setPaymentMethod] = useState("Cash On Delivery");
+    const [isSubmitting, setIsSubmitting] = useState(false); // Add state to track submission
 
     const totalPrice = calculateTotal();
 
@@ -46,13 +47,17 @@ const Checkout = () => {
 
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
-        
+
+        if (isSubmitting) return; // Prevent multiple submissions
+        setIsSubmitting(true);
+
         try {
             // Get the user information from localStorage
             const userInfo = JSON.parse(localStorage.getItem('user'));
             
             if (!userInfo || !userInfo._id) {
                 setError('User information not found. Please login again.');
+                setIsSubmitting(false);
                 return;
             }
             
@@ -103,6 +108,8 @@ const Checkout = () => {
         } catch (error) {
             console.error('Error placing order:', error.response?.data || error);
             setError(error.response?.data?.error || 'Failed to place order. Please try again.');
+        } finally {
+            setIsSubmitting(false); // Re-enable the button after the request completes
         }
     };
 
@@ -117,17 +124,20 @@ const Checkout = () => {
         }
 
         try {
+            // Prepare the Khalti payment data
             const paymentData = {
                 amount: totalPrice * 100, // Convert to paisa
-                purchaseOrderId: `order_${Date.now()}`,
+                purchaseOrderId: `order_${Date.now()}`, // Unique order ID
                 purchaseOrderName: "iStitch Custom Clothing",
-                returnUrl: "http://localhost:3000/order-confirmation",
+                returnUrl: "http://localhost:3000/order-confirmation", // Redirect URL after payment
             };
 
+            // Send the payment initiation request to the backend
             const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
 
             if (response.data.success) {
-                window.location.href = response.data.paymentUrl; // Redirect to Khalti payment URL
+                // Redirect to the Khalti payment URL
+                window.location.href = response.data.paymentUrl;
             } else {
                 alert(response.data.message || "Failed to initiate Khalti payment. Please try again.");
             }
@@ -247,9 +257,17 @@ const Checkout = () => {
                     {error && <p className="error-message">{error}</p>}
                     
                     {paymentMethod === "Cash On Delivery" ? (
-                        <button className="checkout-btn" onClick={handleCashOnDelivery}>Place Order - Cash On Delivery</button>
+                        <button 
+                            className="checkout-btn" 
+                            onClick={handlePlaceOrder} 
+                            disabled={isSubmitting} // Disable button while submitting
+                        >
+                            {isSubmitting ? "Placing Order..." : "Place Order - Cash On Delivery"}
+                        </button>
                     ) : (
-                        <button className="checkout-btn khalti-btn" onClick={handleKhaltiPayment}>Pay with Khalti</button>
+                        <button className="checkout-btn khalti-btn" onClick={handleKhaltiPayment}>
+                            Pay with Khalti
+                        </button>
                     )}
                 </div>
             </div>
