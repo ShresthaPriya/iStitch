@@ -39,12 +39,12 @@ router.get("/google/callback", (req, res, next) => {
 }, (req, res) => {
   const action = req.query.state; // Retrieve the action (signup or login) from the state parameter
   if (action === "signup") {
-    return res.redirect(`${process.env.CLIENT_URL}/home?action=signup`);
+    return res.redirect(path.join(process.env.CLIENT_URL, "/home?action=signup"));
   }
   if (action === "login") {
-    return res.redirect(`${process.env.CLIENT_URL}/home?action=login`);
+    return res.redirect(path.join(process.env.CLIENT_URL, "/home?action=login"));
   }
-  return res.redirect(`${process.env.CLIENT_URL}/login?error=Invalid action`);
+  return res.redirect(path.join(process.env.CLIENT_URL, "/login?error=Invalid action"));
 });
 
 // Login success handler

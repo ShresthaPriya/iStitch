@@ -35,7 +35,8 @@ const googleCallback = (req, res, next) => {
       if (err) {
         return res.redirect(`${process.env.CLIENT_URL}/login?error=${encodeURIComponent("Login failed")}`);
       }
-      return res.redirect(`${process.env.CLIENT_URL}/home`); // Redirect to /home after successful login
+      // Send user data to the frontend
+      return res.redirect(`${process.env.CLIENT_URL}/home?user=${encodeURIComponent(JSON.stringify(user))}`);
     });
   })(req, res, next);
 };

@@ -1,35 +1,31 @@
 const express = require("express");
 const router = express.Router();
-const Fabric = require("../models/FabricSchema");  // Ensure correct path
-// Add item model if needed
-const Item = require("../models/ItemSchema"); // Uncomment if items have a model
+const Fabric = require("../models/FabricSchema");
+const Item = require("../models/ItemSchema");
 
 // Search for fabrics and items
 router.get("/search", async (req, res) => {
-    const { query } = req.query;  // Extract query parameter
-    
+    const { query } = req.query;
+
     if (!query) {
         return res.status(400).json({ success: false, message: "Query parameter is required" });
     }
 
     try {
-        // Search in fabric collection by name (case-insensitive)
         const fabricResults = await Fabric.find({
-            name: { $regex: query, $options: "i" }  // Regex search for case-insensitive match
+            name: { $regex: query, $options: "i" }
         });
 
-        // Optionally, search in item collection if applicable
         const itemResults = await Item.find({
-            name: { $regex: query, $options: "i" } 
+            name: { $regex: query, $options: "i" }
         });
 
-        // Combine results if needed
         const results = {
             fabrics: fabricResults,
-            items: itemResults   // Uncomment if you are searching items as well
+            items: itemResults
         };
 
-        if (!fabricResults.length  && !itemResults.length ) {
+        if (!fabricResults.length && !itemResults.length) {
             return res.status(404).json({ success: false, message: "No matching fabrics or items found" });
         }
 

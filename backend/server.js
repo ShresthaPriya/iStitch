@@ -26,6 +26,7 @@ const userRoutes = require("./routes/users");
 const cartRoutes = require("./routes/cart");
 const userMeasurementsRoutes = require("./routes/userMeasurements");
 const khaltiRoutes = require('./routes/khaltiRoutes.js');
+const searchRoute = require("./routes/search.js");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -83,6 +84,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/user-measurements", userMeasurementsRoutes);
 app.use('/api/khalti', khaltiRoutes);
+app.use("/api", searchRoute);
+
 
 // Start the server
 connectDB().then(() => {

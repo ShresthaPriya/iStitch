@@ -24,7 +24,7 @@ const getMetrics = async (req, res) => {
     const totalSalesAgg = await Order.aggregate([
       {
         $match: {
-          status: { $in: ["Completed", "Delivered"] },
+          status: { $in: ["Shipped", "Delivered"] },
           ...dateFilter,
         },
       },
