@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Auth.css";
-import Navbar from '../components/Navbar';
-
+import SplashNavbar from '../components/SplashNavbar';
 import axios from "axios";
 
 const Signup = () => {
@@ -14,6 +13,7 @@ const Signup = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false); // New state for success message
   const [fieldErrors, setFieldErrors] = useState({
     email: "",
     password: "",
@@ -120,6 +120,7 @@ const Signup = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setSuccess(false); // Reset success state
     
     // Ensure email is lowercase before submission (extra safeguard)
     const submissionData = {
@@ -137,7 +138,11 @@ const Signup = () => {
       const response = await axios.post("http://localhost:4000/auth/register", submissionData);
       
       if (response.data.success) {
-        navigate("/login", { state: { successMessage: "Signup successful! Please login." } });
+        setSuccess(true); // Show success message
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          navigate("/login", { state: { successMessage: "Signup successful! Please login." } });
+        }, 6000);
       } else {
         setError(response.data.error || "Signup failed.");
       }
@@ -169,123 +174,124 @@ const Signup = () => {
 
   return (
     <>
-    <Navbar />
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h2>Create Account</h2>
-          <p>Join us today and start your journey</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="fullname">Full Name</label>
-            <input
-              type="text"
-              id="fullname"
-              name="fullname"
-              value={formData.fullname}
-              onChange={handleChange}
-              placeholder=""
-              required
-            />
+      <SplashNavbar />
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <h2>Create Account</h2>
+            <p>Join us today and start your journey</p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder=""
-              required
-              className={fieldErrors.email ? "input-error" : ""}
-            />
-            {fieldErrors.email && <div className="field-error">{fieldErrors.email}</div>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <div className="password-input">
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="fullname">Full Name</label>
               <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                value={formData.password}
+                type="text"
+                id="fullname"
+                name="fullname"
+                value={formData.fullname}
+                onChange={handleChange}
+                placeholder=""
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 placeholder=""
                 required
-                className={fieldErrors.password ? "input-error" : ""}
+                className={fieldErrors.email ? "input-error" : ""}
               />
-              <button 
-                type="button" 
-                className="toggle-password"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <i className="fas fa-eye"></i>  // "Click to hide"
-                ) : (
-                  <i className="fas fa-eye-slash"></i>  // "Click to show"
-                )}
-              </button>
+              {fieldErrors.email && <div className="field-error">{fieldErrors.email}</div>}
             </div>
-            {fieldErrors.password && <div className="field-error">{fieldErrors.password}</div>}
+
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <div className="password-input">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder=""
+                  required
+                  className={fieldErrors.password ? "input-error" : ""}
+                />
+                <button 
+                  type="button" 
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <i className="fas fa-eye"></i>
+                  ) : (
+                    <i className="fas fa-eye-slash"></i>
+                  )}
+                </button>
+              </div>
+              {fieldErrors.password && <div className="field-error">{fieldErrors.password}</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="••••••••"
+                required
+                className={fieldErrors.confirmPassword ? "input-error" : ""}
+              />
+              {fieldErrors.confirmPassword && <div className="field-error">{fieldErrors.confirmPassword}</div>}
+            </div>
+
+            <div className="form-group checkbox-group">
+              <input type="checkbox" id="terms" required />
+              <label htmlFor="terms">
+                I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
+              </label>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+            {success && <div className="success-message">Signup successful! Redirecting to login...</div>}
+
+            <button type="submit" className="auth-button" disabled={loading || success}>
+              {loading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i> Creating Account...
+                </>
+              ) : (
+                "Sign Up"
+              )}
+            </button>
+          </form>
+
+          <div className="auth-divider">
+            <span>OR</span>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type={showPassword ? "text" : "password"}
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="••••••••"
-              required
-              className={fieldErrors.confirmPassword ? "input-error" : ""}
-            />
-            {fieldErrors.confirmPassword && <div className="field-error">{fieldErrors.confirmPassword}</div>}
-          </div>
-
-          <div className="form-group checkbox-group">
-            <input type="checkbox" id="terms" required />
-            <label htmlFor="terms">
-              I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
-            </label>
-          </div>
-
-          {error && <div className="error-message">{error}</div>}
-
-          <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? (
-              <>
-                <i className="fas fa-spinner fa-spin"></i> Creating Account...
-              </>
-            ) : (
-              "Sign Up"
-            )}
+          <button className="google-auth-button" onClick={googleAuth}>
+            <img src={require("../images/google.png")} alt="Google logo" />
+            <span>Signup with Google</span>
           </button>
-        </form>
 
-        <div className="auth-divider">
-          <span>OR</span>
-        </div>
-
-        <button className="google-auth-button" onClick={googleAuth}>
-          <img src={require("../images/google.png")} alt="Google logo" />
-          <span>Signup with Google</span>
-        </button>
-
-        <div className="auth-footer">
-          Already have an account? <a href="/login">Log in</a>
+          <div className="auth-footer">
+            Already have an account? <a href="/login">Log in</a>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

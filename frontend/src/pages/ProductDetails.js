@@ -71,8 +71,9 @@ const ProductDetails = () => {
           <div className="product-images">
             <div className="main-image-container">
               <img
+                key={mainImage}  // Force re-render when the main image changes
                 className="main-image"
-                src={`http://localhost:4000/images/${mainImage}`}
+                src={`http://localhost:4000/images/${mainImage}?t=${new Date().getTime()}`}  // Cache-busting
                 alt={product.name}
               />
               <button className="zoom-button">
@@ -85,7 +86,7 @@ const ProductDetails = () => {
                   key={index}
                   src={`http://localhost:4000/images/${image}`}
                   alt={`Product view ${index + 1}`}
-                  onClick={() => setMainImage(image)}
+                  onClick={() => setMainImage(image)}  // Update the main image
                   className={mainImage === image ? "active" : ""}
                 />
               ))}

@@ -143,7 +143,7 @@ function SplashNavbar({ onCartClick }) {
                 >
                   {result.name}
                 </h4>
-                <p>Price: ${result.price}</p>
+                <p>Price: Rs.{result.price}</p>
               </div>
             ))}
           </div>
@@ -153,7 +153,7 @@ function SplashNavbar({ onCartClick }) {
         <div className="profile-section">
           <button className="profile-button" onClick={handleProfileClick}>
             <i className="fa-solid fa-user"></i>
-            {username && <span className="profile-badge">1</span>}
+            {username && <span className="profile-badge"></span>}
           </button>
         </div>
       </div>

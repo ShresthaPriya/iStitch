@@ -3,15 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Navbar.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { AppContext } from "../context/AppContext"; // Updated to use the new AppContext
+import { AppContext } from "../context/AppContext";
 import { CartContext } from "../context/CartContext";
 import { debounce } from "lodash";
 
 function Navbar({ onCartClick }) {
-  // Use optional chaining to avoid errors if context is undefined
   const appContext = useContext(AppContext);
   const { username, setUsername } = appContext || { username: null, setUsername: () => {} };
-  
+
   const cartContext = useContext(CartContext);
   const { cart } = cartContext || { cart: [] };
 
@@ -75,7 +74,12 @@ function Navbar({ onCartClick }) {
 
     try {
       const response = await axios.get(`http://localhost:4000/api/search?query=${searchQuery}`);
-      setSearchResults(response.data.results.fabrics || []);
+      const { fabrics, items } = response.data.results;
+      const combinedResults = [
+        ...fabrics.map(item => ({ ...item, type: "fabric" })),
+        ...items.map(item => ({ ...item, type: "item" }))
+      ];
+      setSearchResults(combinedResults);
     } catch (err) {
       console.error("Error fetching search results:", err);
     }
@@ -83,7 +87,12 @@ function Navbar({ onCartClick }) {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && searchResults.length > 0) {
-      navigate(`/fabric-details/${searchResults[0]._id}`);
+      const firstResult = searchResults[0];
+      if (firstResult.type === "fabric") {
+        navigate(`/fabric-details/${firstResult._id}`);
+      } else {
+        navigate(`/product-details`, { state: { product: firstResult } });
+      }
       setSearchResults([]);
       setSearchBarVisible(false);
     }
@@ -97,21 +106,15 @@ function Navbar({ onCartClick }) {
             <h3>Confirm Logout</h3>
             <p>Are you sure you want to log out?</p>
             <div className="logout-confirm-buttons">
-              <button onClick={confirmLogout} className="confirm-button">
-                Yes, Logout
-              </button>
-              <button onClick={cancelLogout} className="cancel-button">
-                Cancel
-              </button>
+              <button onClick={confirmLogout} className="confirm-button">Yes, Logout</button>
+              <button onClick={cancelLogout} className="cancel-button">Cancel</button>
             </div>
           </div>
         </div>
       )}
 
       <div className="logo">
-        <h1>
-          <Link to="/home" className="logo-link">iStitch</Link>
-        </h1>
+        <h1><Link to="/home" className="logo-link">iStitch</Link></h1>
       </div>
 
       <div className="menu-toggle" onClick={toggleMenu}>
@@ -158,11 +161,19 @@ function Navbar({ onCartClick }) {
             {searchResults.map((result) => (
               <div key={result._id} className="search-result-item">
                 <h4
-                  className="fabric-name"
-                  onClick={() => navigate(`/fabric-details/${result._id}`)}
+                  className="search-result-name"
+                  onClick={() => {
+                    if (result.type === "fabric") {
+                      navigate(`/fabric-details/${result._id}`);
+                    } else {
+                      navigate(`/item-details/${result._id}`);
+                    }
+                    setSearchResults([]);
+                    setSearchBarVisible(false);
+                  }}
                   style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
                 >
-                  {result.name}
+                  {result.name} <span style={{ fontStyle: "italic", fontSize: "0.8rem" }}>({result.type})</span>
                 </h4>
                 <p>Price: Rs. {result.price}</p>
               </div>

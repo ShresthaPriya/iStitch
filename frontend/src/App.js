@@ -111,6 +111,7 @@ function App() {
                   <Route path='/review-order' element={<ReviewOrder />} /> {/* Add ReviewOrder route */}
                   <Route path='/order-confirmation' element={<OrderConfirmation />} /> {/* Add OrderConfirmation route */}
                   <Route path='/product-details' element={<ProductDetails />} /> {/* Add ProductDetails route */}
+                  
                 </Routes>
                 <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
               </Router>

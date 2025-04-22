@@ -145,7 +145,7 @@ const CustomizeDress = () => {
                         <div className="fabric-info">
                             <h4>{fabric.name}</h4>
                             <p className="fabric-description">{fabric.description}</p>
-                            <p className="fabric-price"><FaTag className="icon" /> Price: ${fabric.price}/meter</p>
+                            <p className="fabric-price"><FaTag className="icon" /> Price: Rs. {fabric.price}/meter</p>
                         </div>
                     </div>
                 </div>
@@ -199,7 +199,7 @@ const CustomizeDress = () => {
                     </div>
 
                     <div className="price-estimate">
-                        <h3>Estimated Price: ${priceEstimate}</h3>
+                        <h3>Estimated Price: Rs.{priceEstimate}</h3>
                         <p className="price-note">
                             <FaInfoCircle className="info-icon" /> Final price may vary slightly based on detailed measurements and specific design elements.
                         </p>
