@@ -7,7 +7,7 @@ import { CartContext } from '../context/CartContext';
 import '../styles/OrderConfirmation.css';
 
 const OrderConfirmation = () => {
-    const [status, setStatus] = useState('processing');
+    const [status, setStatus] = useState('pending'); // Default status is 'pending'
     const [error, setError] = useState(null);
     const [orderDetails, setOrderDetails] = useState(null);
     const location = useLocation();
@@ -16,89 +16,90 @@ const OrderConfirmation = () => {
     const user = JSON.parse(localStorage.getItem("user")); // Get logged-in user details
     const [isVerified, setIsVerified] = useState(false); // Prevent repeated requests
 
-    useEffect(() => {
-        const query = new URLSearchParams(location.search);
-        const pidx = query.get('pidx');
-        const transactionStatus = query.get('status');
+useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const pidx = query.get('pidx');
+    const transactionStatus = query.get('status');
 
-        console.log("Query params:", { pidx, status: transactionStatus });
-        console.log("Cart contents:", cart);
-        console.log("Total price:", calculateTotal());
+    console.log("Query params:", { pidx, status: transactionStatus });
+    console.log("Cart contents:", cart);
+    console.log("Total price:", calculateTotal());
 
-        const verifyPayment = async () => {
-            if (!pidx || isVerified) {
-                return; // Prevent repeated requests
-            }
+    const verifyPayment = async () => {
+        if (!pidx || isVerified) {
+            return; // Prevent repeated requests
+        }
 
-            try {
-                setStatus('verifying');
-                console.log("Verifying payment with pidx:", pidx);
+        try {
+            setStatus('verifying');
+            console.log("Verifying payment with pidx:", pidx);
 
-                // Get the cart data from localStorage as a backup if context is empty
-                let cartItems = cart;
-                let cartTotal = calculateTotal();
-                
-                // If cart is empty (might happen on page refresh), try to get from localStorage
-                if (!cartItems || cartItems.length === 0) {
-                    const savedCart = localStorage.getItem('cart');
-                    if (savedCart) {
-                        try {
-                            cartItems = JSON.parse(savedCart);
-                            console.log("Retrieved cart from localStorage:", cartItems);
-                            
-                            // Calculate total manually if needed
-                            cartTotal = cartItems.reduce((total, item) => {
-                                return total + (item.price * (item.quantity || 1));
-                            }, 0);
-                        } catch (e) {
-                            console.error("Error parsing cart from localStorage:", e);
-                        }
+            // Get the cart data from localStorage as a backup if context is empty
+            let cartItems = cart;
+            let cartTotal = calculateTotal();
+            
+            // If cart is empty (might happen on page refresh), try to get from localStorage
+            if (!cartItems || cartItems.length === 0) {
+                const savedCart = localStorage.getItem('cart');
+                if (savedCart) {
+                    try {
+                        cartItems = JSON.parse(savedCart);
+                        console.log("Retrieved cart from localStorage:", cartItems);
+                        
+                        // Calculate total manually if needed
+                        cartTotal = cartItems.reduce((total, item) => {
+                            return total + (item.price * (item.quantity || 1));
+                        }, 0);
+                    } catch (e) {
+                        console.error("Error parsing cart from localStorage:", e);
                     }
                 }
+            }
 
-                const orderPayload = {
-                    customer: user._id,
-                    items: cartItems.map(item => ({
-                        productId: item._id,
-                        quantity: item.quantity || 1,
-                        size: item.selectedSize,
-                        price: Number(item.price)
-                    })),
-                    total: Number(cartTotal), // Add total field
-                    totalAmount: Number(cartTotal),
-                    fullName: user.fullname || "N/A",
-                    contactNumber: localStorage.getItem("checkoutPhone") || "",
-                    address: localStorage.getItem("checkoutAddress") || "",
-                    paymentMethod: "Cash On Delivery" // Ensure COD is set
-                };
+            const orderPayload = {
+                customer: user._id,
+                items: cartItems.map(item => ({
+                    productId: item._id,
+                    quantity: item.quantity || 1,
+                    size: item.selectedSize,
+                    price: Number(item.price)
+                })),
+                total: Number(cartTotal), // Add total field
+                totalAmount: Number(cartTotal),
+                fullName: user.fullname || "N/A",
+                contactNumber: localStorage.getItem("checkoutPhone") || "",
+                address: localStorage.getItem("checkoutAddress") || "",
+                paymentMethod: "Cash On Delivery" // Ensure COD is set
+            };
 
-                console.log("Sending order payload:", JSON.stringify(orderPayload, null, 2));
+            console.log("Sending order payload:", JSON.stringify(orderPayload, null, 2));
 
-                // Check if there are items in the order
-                if (!orderPayload.items || orderPayload.items.length === 0) {
-                    console.error("Order items array is empty!");
-                    setStatus('failed');
-                    setError('No items in cart. Order cannot be processed.');
-                    return;
-                }
+            // Check if there are items in the order
+            if (!orderPayload.items || orderPayload.items.length === 0) {
+                console.error("Order items array is empty!");
+                setStatus('failed');
+                setError('No items in cart. Order cannot be processed.');
+                return;
+            }
 
-                // Handle Cash on Delivery (No need to verify payment)
-                if (orderPayload.paymentMethod === "Cash On Delivery") {
-                    setStatus('success');
-                    setOrderDetails({
-                        transaction_id: "COD-" + Date.now(),
-                        total_amount: orderPayload.totalAmount
-                    });
+            // Handle Cash on Delivery (No need to verify payment)
+            if (orderPayload.paymentMethod === "Cash On Delivery") {
+                setStatus('success');
+                setOrderDetails({
+                    transaction_id: "COD-" + Date.now(),
+                    total_amount: orderPayload.totalAmount
+                });
 
-                    // Clear cart from localStorage and context only after successful order save
-                    localStorage.removeItem('cart');
-                    clearCart();
+                // Clear cart from localStorage and context only after successful order save
+                localStorage.removeItem('cart');
+                clearCart();
 
-                    setIsVerified(true); // Mark as verified to prevent repeated requests
-                    return;
-                }
+                setIsVerified(true); // Mark as verified to prevent repeated requests
+                return;
+            }
 
-                // For digital payment (e.g., Khalti), verify the payment
+            // For digital payment (e.g., Khalti), verify the payment if pidx is valid
+            if (pidx) {
                 const verifyResponse = await axios.post('http://localhost:4000/api/khalti/verify', { 
                     pidx, 
                     orderPayload
@@ -119,21 +120,35 @@ const OrderConfirmation = () => {
                     setStatus('failed');
                     setError('Payment verification failed: ' + verifyResponse.data.message);
                 }
-            } catch (err) {
-                console.error('Error verifying payment:', err);
-                setStatus('failed');
-                setError(err.response?.data?.message || 'Payment verification failed');
-            }
-        };
+            } else {
+                setStatus('success');
+                setOrderDetails({
+                    transaction_id: "COD-" + Date.now(),
+                    total_amount: orderPayload.totalAmount
+                });
 
-        // If user canceled, handle accordingly
-        if (transactionStatus === 'User canceled') {
-            setStatus('canceled');
-            setError('Payment was canceled by the user');
-        } else {
-            verifyPayment();
+                // Clear cart from localStorage and context only after successful order save
+                localStorage.removeItem('cart');
+                clearCart();
+
+                setIsVerified(true);
+            }
+        } catch (err) {
+            console.error('Error verifying payment:', err);
+            setStatus('failed');
+            setError(err.response?.data?.message || 'Payment verification failed');
         }
-    }, [location, clearCart, cart, user, calculateTotal, isVerified]);
+    };
+
+    // If user canceled, handle accordingly
+    if (transactionStatus === 'User canceled') {
+        setStatus('canceled');
+        setError('Payment was canceled by the user');
+    } else {
+        verifyPayment();
+    }
+}, [location, clearCart, cart, user, calculateTotal, isVerified]);
+
 
     return (
         <>
@@ -141,10 +156,9 @@ const OrderConfirmation = () => {
             <div className="order-confirmation-container">
                 <h1>Order Confirmation</h1>
 
-                {status === 'processing' && (
-                    <div className="processing-message">
-                        <div className="spinner"></div>
-                        <p>Processing your payment...</p>
+                {status === 'pending' && (
+                    <div className="pending-message">
+                        <p>Your order is pending. Please wait while we process it.</p>
                     </div>
                 )}
 

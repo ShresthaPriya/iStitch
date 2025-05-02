@@ -125,8 +125,29 @@
 .contact-support-btn:hover {
     background-color: #138496;
 }
+.order-success-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.order-info {
+    flex: 1;
+    min-width: 250px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.view-orders-btn {
+    flex-shrink: 0;
+    height: fit-content;
+    align-self: flex-start;
+}
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+
