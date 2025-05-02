@@ -1,4 +1,5 @@
 const Order = require("../../models/OrderSchema");
+// const { sendEmail } = require("../../utils/emailService");
 
 // Get all orders
 const getOrders = async (req, res) => {
@@ -32,9 +33,6 @@ const addOrder = async (req, res) => {
             orderId
         } = req.body;
 
-        console.log("Order Controller - Received payload:", req.body);
-
-        // Basic required fields check
         if (!items || items.length === 0 || !paymentMethod || !status || !fullName || !contactNumber || !address) {
             return res.status(400).json({
                 success: false,
@@ -42,7 +40,6 @@ const addOrder = async (req, res) => {
             });
         }
 
-        // Prevent duplicate if orderId is passed
         if (orderId) {
             const existingOrder = await Order.findOne({ orderId });
             if (existingOrder) {
@@ -71,12 +68,9 @@ const addOrder = async (req, res) => {
             orderId: generatedOrderId
         };
 
-        console.log("Creating order with data:", orderData);
-
         const newOrder = new Order(orderData);
         await newOrder.save();
 
-        console.log("Order saved successfully:", newOrder);
         res.status(201).json({ success: true, order: newOrder });
 
     } catch (err) {
@@ -85,15 +79,13 @@ const addOrder = async (req, res) => {
     }
 };
 
-// Update an order
+// Update order
 const updateOrder = async (req, res) => {
     const { id } = req.params;
     const { status, ...otherFields } = req.body;
 
     try {
-        const updateData = status ? { status } : otherFields;
-
-        const updatedOrder = await Order.findByIdAndUpdate(id, updateData, { new: true });
+        const updatedOrder = await Order.findByIdAndUpdate(id, { status, ...otherFields }, { new: true });
 
         if (!updatedOrder) {
             return res.status(404).json({ success: false, error: "Order not found" });
@@ -106,7 +98,7 @@ const updateOrder = async (req, res) => {
     }
 };
 
-// Delete an order
+// Delete order
 const deleteOrder = async (req, res) => {
     const { id } = req.params;
     try {
@@ -123,4 +115,81 @@ const deleteOrder = async (req, res) => {
     }
 };
 
-module.exports = { getOrders, addOrder, updateOrder, deleteOrder };
+// Place order with email notification
+// const placeOrder = async (req, res) => {
+//     try {
+//         const {
+//             customer,
+//             userId,
+//             items,
+//             totalAmount,
+//             paymentMethod,
+//             status,
+//             fullName,
+//             contactNumber,
+//             address,
+//             orderId
+//         } = req.body;
+
+//         // If payment is "Cash on Delivery", set the status as paid
+//         const paymentStatus = paymentMethod === "Cash on Delivery" ? "paid" : status;
+
+//         // Create the order and save it
+//         const generatedOrderId = orderId || `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
+//         const orderData = {
+//             userId: customer || userId,
+//             customer: customer || userId,
+//             items,
+//             totalAmount,
+//             paymentMethod,
+//             status: paymentStatus, // Ensure payment status is set properly
+//             fullName,
+//             contactNumber,
+//             address,
+//             orderId: generatedOrderId,
+//         };
+
+//         const savedOrder = await Order.create(orderData);
+
+//         // Email content to send to the customer
+//         const customerEmailContent = `
+//             <h2>Hi ${fullName},</h2>
+//             <p>Thank you for shopping with <strong>iStitch</strong>!</p>
+//             <p>Your order has been placed successfully. Here are the details:</p>
+//             <ul>
+//                 <li><strong>Order ID:</strong> ${generatedOrderId}</li>
+//                 <li><strong>Total Amount:</strong> Rs. ${totalAmount}</li>
+//                 <li><strong>Payment Method:</strong> ${paymentMethod}</li>
+//             </ul>
+//             <p>We’ll notify you when it’s shipped.</p>
+//             <br/>
+//             <p>With love,</p>
+//             <p>The iStitch Team</p>
+//         `;
+
+//         // Send order confirmation email to the customer
+//         await sendEmail(customer.email, "Order Confirmation - iStitch", customerEmailContent);
+
+//         // Admin email content to notify about the new order
+//         const adminEmailContent = `
+//             <h3>New Order Notification</h3>
+//             <p><strong>Customer:</strong> ${fullName}</p>
+//             <p><strong>Email:</strong> ${customer.email}</p>
+//             <p><strong>Phone:</strong> ${contactNumber}</p>
+//             <p><strong>Address:</strong> ${address}</p>
+//             <p><strong>Total Amount:</strong> Rs. ${totalAmount}</p>
+//             <p><strong>Order ID:</strong> ${generatedOrderId}</p>
+//         `;
+
+//         // Send email to admin
+//         await sendEmail(process.env.ADMIN_EMAIL, "New Order Placed", adminEmailContent);
+
+//         res.status(201).json({ success: true, order: savedOrder });
+//     } catch (error) {
+//         console.error("Error placing order:", error);
+//         res.status(500).json({ success: false, message: "Failed to place order." });
+//     }
+// };
+
+module.exports = { getOrders, addOrder, updateOrder, deleteOrder};

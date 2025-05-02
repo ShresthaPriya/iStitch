@@ -1,13 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose"); // Ensure mongoose is imported
-const { getOrders, addOrder, updateOrder, deleteOrder } = require("../controller/order/orderController");
 const OrderModel = require('../models/OrderSchema'); // Correct import
 
-router.get('/', getOrders);
-router.post('/', addOrder);
-router.put('/:id', updateOrder);
-router.delete('/:id', deleteOrder);
+const { placeOrder, getOrders, addOrder, updateOrder, deleteOrder } = require("../controller/order/orderController");
+
+// Core routes
+router.get("/", getOrders);
+router.post("/", addOrder);
+router.put("/:id", updateOrder);
+router.delete("/:id", deleteOrder);
+// router.post("/orders", placeOrder);
 
 // Save a new order
 router.post('/', async (req, res) => {
