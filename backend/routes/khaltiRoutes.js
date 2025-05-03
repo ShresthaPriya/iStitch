@@ -93,6 +93,23 @@ router.post('/verify', async (req, res) => {
             });
         }
 
+        // Check if an order with this payment token already exists
+        const existingOrder = await OrderModel.findOne({ 
+            $or: [
+                { paymentToken: pidx },
+                { "transaction.pidx": pidx }
+            ]
+        });
+        
+        if (existingOrder) {
+            console.log("Order already exists for this payment:", existingOrder._id);
+            return res.json({
+                success: true,
+                message: "Payment already processed",
+                order: existingOrder
+            });
+        }
+
         // Verify the payment with Khalti
         const verificationResult = await verifyKhaltiPayment(pidx);
         console.log("Khalti verification response:", JSON.stringify(verificationResult, null, 2));
@@ -109,33 +126,74 @@ router.post('/verify', async (req, res) => {
                 });
             }
 
+            if (!orderPayload.contactNumber || !orderPayload.address || orderPayload.address === "Not provided") {
+                console.error("Invalid order payload - missing contact number or address:", JSON.stringify(orderPayload, null, 2));
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid order data. Contact number or address is missing."
+                });
+            }
+
             try {
                 console.log("Valid order payload. Saving order to database:", JSON.stringify(orderPayload, null, 2));
-                
-                // Save the order in the database
+
+                // Add payment transaction details to ensure uniqueness
                 const newOrder = new OrderModel({
-                    userId: orderPayload.customer, // Add userId field
+                    userId: orderPayload.userId || orderPayload.customer,
                     customer: orderPayload.customer,
-                    items: orderPayload.items,
-                    total: orderPayload.totalAmount, // Add total field
+                    items: orderPayload.items.map(item => ({
+                        ...item,
+                        size: item.size || 'M'  // Add default size if not provided
+                    })),
+                    total: orderPayload.total || orderPayload.totalAmount,
                     totalAmount: orderPayload.totalAmount,
                     paymentMethod: "Khalti",
-                    status: "Processing", // Use a valid enum value
-                    fullName: orderPayload.fullName,
-                    contactNumber: orderPayload.contactNumber,
-                    address: orderPayload.address,
-                    paymentToken: verificationResult.transaction_id
+                    paymentToken: verificationResult.transaction_id || pidx,
+                    transaction: {
+                        id: verificationResult.transaction_id,
+                        pidx: pidx,
+                        amount: verificationResult.total_amount,
+                        fee: verificationResult.fee || 0,
+                        completed: true,
+                        date: new Date()
+                    },
+                    paymentStatus: 'Paid',
+                    status: "Processing",
+                    fullName: orderPayload.fullName || "N/A",
+                    contactNumber: orderPayload.contactNumber || "Not provided",
+                    address: orderPayload.address || "Not provided",
+                    isCustomOrder: orderPayload.isCustomOrder || false
                 });
 
-                await newOrder.save();
-                console.log("Order saved successfully:", newOrder);
+                console.log("About to save order with address:", orderPayload.address);
+                const savedOrder = await newOrder.save();
+                console.log("Order saved successfully:", savedOrder);
 
                 return res.json({
                     success: true,
                     message: "Payment verified and order saved successfully",
-                    order: newOrder
+                    order: savedOrder
                 });
             } catch (orderErr) {
+                // Handle potential duplicate key errors (race condition)
+                if (orderErr.code === 11000) {
+                    const duplicateOrder = await OrderModel.findOne({
+                        $or: [
+                            { paymentToken: verificationResult.transaction_id || pidx },
+                            { "transaction.pidx": pidx }
+                        ]
+                    });
+                    
+                    if (duplicateOrder) {
+                        console.log("Duplicate order found:", duplicateOrder._id);
+                        return res.json({
+                            success: true,
+                            message: "Order already exists",
+                            order: duplicateOrder
+                        });
+                    }
+                }
+                
                 console.error("Error saving order:", orderErr);
                 return res.status(500).json({
                     success: false,
@@ -173,7 +231,6 @@ router.post('/initiate', async (req, res) => {
                 message: "All fields are required (amount, purchaseOrderId, purchaseOrderName, returnUrl)"
             });
         }
-
         const paymentData = {
             return_url: returnUrl,
             website_url: "http://localhost:3000",
@@ -206,5 +263,4 @@ router.post('/initiate', async (req, res) => {
         });
     }
 });
-
 module.exports = router;

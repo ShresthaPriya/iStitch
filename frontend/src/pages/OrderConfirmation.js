@@ -1,218 +1,301 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { CartContext } from '../context/CartContext';
+import { FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
 import '../styles/OrderConfirmation.css';
 
 const OrderConfirmation = () => {
-    const [status, setStatus] = useState('pending'); // Default status is 'pending'
-    const [error, setError] = useState(null);
-    const [orderDetails, setOrderDetails] = useState(null);
     const location = useLocation();
     const navigate = useNavigate();
-    const { cart, clearCart, calculateTotal } = useContext(CartContext);
-    const user = JSON.parse(localStorage.getItem("user")); // Get logged-in user details
-    const [isVerified, setIsVerified] = useState(false); // Prevent repeated requests
+    const [loading, setLoading] = useState(true);
+    const [orderSuccess, setOrderSuccess] = useState(false);
+    const [orderId, setOrderId] = useState('');
+    const [error, setError] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
 
-useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    const pidx = query.get('pidx');
-    const transactionStatus = query.get('status');
-
-    console.log("Query params:", { pidx, status: transactionStatus });
-    console.log("Cart contents:", cart);
-    console.log("Total price:", calculateTotal());
-
-    const verifyPayment = async () => {
-        if (!pidx || isVerified) {
-            return; // Prevent repeated requests
-        }
-
-        try {
-            setStatus('verifying');
-            console.log("Verifying payment with pidx:", pidx);
-
-            // Get the cart data from localStorage as a backup if context is empty
-            let cartItems = cart;
-            let cartTotal = calculateTotal();
+    useEffect(() => {
+        // Add a debounce mechanism to avoid repeated calls
+        let isFirstLoad = true;
+        
+        const processKhaltiPayment = async () => {
+            // If already processing or not first load, don't proceed
+            if (isProcessing || !isFirstLoad) return;
+            isFirstLoad = false;
             
-            // If cart is empty (might happen on page refresh), try to get from localStorage
-            if (!cartItems || cartItems.length === 0) {
-                const savedCart = localStorage.getItem('cart');
-                if (savedCart) {
-                    try {
-                        cartItems = JSON.parse(savedCart);
-                        console.log("Retrieved cart from localStorage:", cartItems);
-                        
-                        // Calculate total manually if needed
-                        cartTotal = cartItems.reduce((total, item) => {
-                            return total + (item.price * (item.quantity || 1));
-                        }, 0);
-                    } catch (e) {
-                        console.error("Error parsing cart from localStorage:", e);
-                    }
-                }
-            }
-
-            const orderPayload = {
-                customer: user._id,
-                items: cartItems.map(item => ({
-                    productId: item._id,
-                    quantity: item.quantity || 1,
-                    size: item.selectedSize,
-                    price: Number(item.price)
-                })),
-                total: Number(cartTotal), // Add total field
-                totalAmount: Number(cartTotal),
-                fullName: user.fullname || "N/A",
-                contactNumber: localStorage.getItem("checkoutPhone") || "",
-                address: localStorage.getItem("checkoutAddress") || "",
-                paymentMethod: "Cash On Delivery" // Ensure COD is set
-            };
-
-            console.log("Sending order payload:", JSON.stringify(orderPayload, null, 2));
-
-            // Check if there are items in the order
-            if (!orderPayload.items || orderPayload.items.length === 0) {
-                console.error("Order items array is empty!");
-                setStatus('failed');
-                setError('No items in cart. Order cannot be processed.');
-                return;
-            }
-
-            // Handle Cash on Delivery (No need to verify payment)
-            if (orderPayload.paymentMethod === "Cash On Delivery") {
-                setStatus('success');
-                setOrderDetails({
-                    transaction_id: "COD-" + Date.now(),
-                    total_amount: orderPayload.totalAmount
-                });
-
-                // Clear cart from localStorage and context only after successful order save
-                localStorage.removeItem('cart');
-                clearCart();
-
-                setIsVerified(true); // Mark as verified to prevent repeated requests
-                return;
-            }
-
-            // For digital payment (e.g., Khalti), verify the payment if pidx is valid
-            if (pidx) {
-                const verifyResponse = await axios.post('http://localhost:4000/api/khalti/verify', { 
-                    pidx, 
-                    orderPayload
-                });
+            try {
+                setIsProcessing(true);
                 
-                console.log("Verification response:", verifyResponse.data);
-
-                if (verifyResponse.data.success) {
-                    setOrderDetails(verifyResponse.data.order);
-
-                    // Clear cart from localStorage and context only after successful order save
-                    localStorage.removeItem('cart');
-                    clearCart();
-
-                    setStatus('success');
-                    setIsVerified(true); // Mark as verified to prevent repeated requests
-                } else {
-                    setStatus('failed');
-                    setError('Payment verification failed: ' + verifyResponse.data.message);
+                // Check if this is a Khalti redirect
+                const queryParams = new URLSearchParams(location.search);
+                const pidx = queryParams.get('pidx');
+                const status = queryParams.get('status');
+                
+                console.log("Query params:", { pidx, status });
+                
+                // Check if this payment was already processed in this session
+                const processedPayments = JSON.parse(localStorage.getItem('processedKhaltiPayments') || '[]');
+                if (pidx && processedPayments.includes(pidx)) {
+                    console.log("Payment already processed in this session:", pidx);
+                    setOrderSuccess(true);
+                    setLoading(false);
+                    return;
                 }
-            } else {
-                setStatus('success');
-                setOrderDetails({
-                    transaction_id: "COD-" + Date.now(),
-                    total_amount: orderPayload.totalAmount
-                });
+                
+                // If this is a Khalti redirect with a successful payment
+                if (pidx && status === 'Completed') {
+                    // Get the stored order details
+                    const storedOrderData = localStorage.getItem('pendingKhaltiOrder');
+                    console.log("Raw stored order data:", storedOrderData);
+                    
+                    // Check if we have data in localStorage
+                    let orderDetails;
+                    try {
+                        if (storedOrderData) {
+                            orderDetails = JSON.parse(storedOrderData);
+                        } else {
+                            // Fallback: try to get user information from localStorage
+                            const user = JSON.parse(localStorage.getItem('user')) || {};
+                            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                            
+                            console.log("No stored order data, using fallback with user:", user._id);
+                            console.log("Cart contents:", cart);
+                            
+                            // Validate cart data
+                            if (!cart || cart.length === 0) {
+                                console.error("Cart is empty. Cannot proceed with order.");
+                                setError("Your cart is empty. Please add items to your cart and try again.");
+                                setLoading(false);
+                                return;
+                            }
+                            
+                            // Calculate total price from cart
+                            const totalPrice = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+                            console.log("Total price:", totalPrice);
+                            
+                            // Get any additional data that might be available
+                            const addressData = localStorage.getItem('shippingAddress') || sessionStorage.getItem('shippingAddress');
+                            let shippingAddress = "";
+                            let contactNum = "";
 
-                // Clear cart from localStorage and context only after successful order save
-                localStorage.removeItem('cart');
-                clearCart();
+                            console.log("Raw address data:", addressData);
 
-                setIsVerified(true);
+                            if (addressData) {
+                                try {
+                                    const parsedAddress = JSON.parse(addressData);
+                                    shippingAddress = parsedAddress.address?.trim() || "";
+                                    contactNum = parsedAddress.phone?.trim() || "";
+                                    console.log("Parsed address:", shippingAddress);
+                                    console.log("Parsed contact number:", contactNum);
+                                } catch (e) {
+                                    console.error("Failed to parse shipping address:", e);
+                                }
+                            }
+
+                            // If still no address, check URL parameters
+                            if (!shippingAddress || !contactNum) {
+                                const queryParams = new URLSearchParams(location.search);
+                                const addressParam = queryParams.get('address');
+                                const contactParam = queryParams.get('contact');
+                                
+                                if (addressParam) shippingAddress = decodeURIComponent(addressParam);
+                                if (contactParam) contactNum = decodeURIComponent(contactParam);
+                                
+                                console.log("Address from URL params:", shippingAddress);
+                                console.log("Contact from URL params:", contactNum);
+                            }
+
+                            // If still no valid data, try to get from pending order
+                            if (!shippingAddress || !contactNum) {
+                                const pendingOrder = JSON.parse(localStorage.getItem('pendingKhaltiOrder') || 
+                                                              sessionStorage.getItem('pendingKhaltiOrder') || '{}');
+                                
+                                if (pendingOrder.address) shippingAddress = pendingOrder.address;
+                                if (pendingOrder.contactNumber) contactNum = pendingOrder.contactNumber;
+                                
+                                console.log("Address from pending order:", shippingAddress);
+                                console.log("Contact from pending order:", contactNum);
+                            }
+
+                            // As a last resort, create mock data
+                            if (!shippingAddress || !contactNum) {
+                                // Use user's information if available
+                                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                                shippingAddress = user.address || "Default Address";
+                                contactNum = user.phone || "9800000000";
+                                
+                                console.log("Using default/fallback address and contact");
+                            }
+                            
+                            // Validate address and contact number
+                            if (!shippingAddress || !contactNum) {
+                                console.error("Invalid address or contact number. Cannot proceed with order.");
+                                setError("Please provide a valid address and contact number.");
+                                setLoading(false);
+                                return;
+                            }
+                            
+                            // Create a minimal order payload from available data
+                            orderDetails = {
+                                customer: user._id,
+                                userId: user._id,
+                                items: cart.map(item => ({
+                                    productId: item._id,
+                                    quantity: item.quantity || 1,
+                                    price: item.price
+                                })),
+                                total: totalPrice,
+                                totalAmount: totalPrice,
+                                fullName: user.fullname || "Guest User",
+                                contactNumber: contactNum,
+                                address: shippingAddress,
+                                paymentMethod: "Khalti"
+                            };
+                            console.log("Final order details:", orderDetails);
+                        }
+                        console.log("Order details being sent:", orderDetails);
+                    } catch (parseErr) {
+                        console.error("Failed to parse or create order details:", parseErr);
+                        setError("Failed to process order details. Please contact support.");
+                        setLoading(false);
+                        return;
+                    }
+                    
+                    // Add the payment to processed list BEFORE sending the request to avoid double processing
+                    processedPayments.push(pidx);
+                    localStorage.setItem('processedKhaltiPayments', JSON.stringify(processedPayments));
+                    
+                    // Verify payment and create order
+                    const response = await axios.post('http://localhost:4000/api/khalti/verify', {
+                        pidx: pidx,
+                        orderPayload: orderDetails
+                    });
+                    
+                    console.log("Verification response:", response.data);
+                    
+                    if (response.data.success) {
+                        setOrderSuccess(true);
+                        setOrderId(response.data.order._id);
+                        
+                        // Clear cart on successful order
+                        try {
+                            localStorage.removeItem('cart');
+                            localStorage.removeItem('cartCount');
+                            localStorage.removeItem('cartTotal');
+                            console.log("Cart has been cleared successfully");
+                        } catch (clearError) {
+                            console.error("Error clearing cart data:", clearError);
+                        }
+                        
+                        // Clear other related data
+                        localStorage.removeItem('pendingKhaltiOrder');
+                        localStorage.removeItem('khaltiPidx');
+                    } else {
+                        // If there was an error, remove from processed list to allow retry
+                        const index = processedPayments.indexOf(pidx);
+                        if (index > -1) {
+                            processedPayments.splice(index, 1);
+                            localStorage.setItem('processedKhaltiPayments', JSON.stringify(processedPayments));
+                        }
+                        
+                        setError(response.data.message || "Failed to verify payment");
+                    }
+                } else if (location.state && location.state.orderId) {
+                    // Handle regular order confirmation
+                    setOrderSuccess(true);
+                    setOrderId(location.state.orderId);
+                    
+                    // Clear cart for regular orders as well
+                    localStorage.removeItem('cart');
+                } else {
+                    console.log("No Khalti params or location state found");
+                    setError("No order information available");
+                }
+                
+                setLoading(false);
+            } catch (err) {
+                console.error("Error processing payment:", err);
+                setError(err.response?.data?.message || "An error occurred while processing your payment");
+                setLoading(false);
+            } finally {
+                setIsProcessing(false);
             }
-        } catch (err) {
-            console.error('Error verifying payment:', err);
-            setStatus('failed');
-            setError(err.response?.data?.message || 'Payment verification failed');
-        }
-    };
-
-    // If user canceled, handle accordingly
-    if (transactionStatus === 'User canceled') {
-        setStatus('canceled');
-        setError('Payment was canceled by the user');
-    } else {
-        verifyPayment();
+        };
+        
+        processKhaltiPayment();
+        
+        // Cleanup function to prevent memory leaks
+        return () => {
+            isFirstLoad = false;
+        };
+    }, [location, isProcessing]);
+    
+    if (loading) {
+        return (
+            <>
+                <Navbar />
+                <div className="order-confirmation-container">
+                    <div className="spinner"></div>
+                    <p>Processing your order...</p>
+                </div>
+                <Footer />
+            </>
+        );
     }
-}, [location, clearCart, cart, user, calculateTotal, isVerified]);
-
-
+    
     return (
         <>
             <Navbar />
             <div className="order-confirmation-container">
-                <h1>Order Confirmation</h1>
-
-                {status === 'pending' && (
-                    <div className="pending-message">
-                        <p>Your order is pending. Please wait while we process it.</p>
+                {orderSuccess ? (
+                    <div className="success-container">
+                        <div className="success-icon">
+                            <FiCheckCircle size={50} />
+                        </div>
+                        <h2>Order Placed Successfully!</h2>
+                        <p>Thank you for your order.</p>
+                        <p>Your order ID: <strong>{orderId}</strong></p>
+                        <p>We'll process your order soon and notify you about the status.</p>
+                        
+                        <div className="action-buttons">
+                            <button 
+                                className="primary-button" 
+                                onClick={() => navigate('/order-history')}
+                            >
+                                View My Orders
+                            </button>
+                            <button 
+                                className="secondary-button"
+                                onClick={() => navigate('/')}
+                            >
+                                Continue Shopping
+                            </button>
+                        </div>
                     </div>
-                )}
-
-                {status === 'verifying' && (
-                    <div className="verifying-message">
-                        <div className="spinner"></div>
-                        <p>Verifying your payment...</p>
-                    </div>
-                )}
-
-                {status === 'success' && (
-                    <div className="success-message">
-                        <div className="success-icon">✓</div>
-                        <h2>Payment Successful!</h2>
-                        <p>Your order has been confirmed and is being processed.</p>
-                        {orderDetails && (
-                            <div className="order-info">
-                                <p><strong>Transaction ID:</strong> {orderDetails.transaction_id}</p>
-                                <p><strong>Amount:</strong> Rs. {orderDetails.total_amount / 100}</p>
-                            </div>
-                        )}
-                        <button
-                            className="view-orders-btn"
-                            onClick={() => navigate('/order-history')}
-                        >
-                            View My Orders
-                        </button>
-                    </div>
-                )}
-
-                {status === 'failed' && (
-                    <div className="error-message">
-                        <div className="error-icon">✗</div>
-                        <h2>Payment Failed</h2>
-                        <p>{error || 'There was an error processing your payment.'}</p>
-                        <button
-                            className="try-again-btn"
-                            onClick={() => navigate('/checkout')}
-                        >
-                            Try Again
-                        </button>
-                    </div>
-                )}
-
-                {status === 'canceled' && (
-                    <div className="canceled-message">
-                        <h2>Payment Canceled</h2>
-                        <p>You canceled the payment process.</p>
-                        <button
-                            className="try-again-btn"
-                            onClick={() => navigate('/checkout')}
-                        >
-                            Return to Checkout
-                        </button>
+                ) : (
+                    <div className="error-container">
+                        <div className="error-icon">
+                            <FiAlertTriangle size={50} />
+                        </div>
+                        <h2>Oops! Something went wrong</h2>
+                        <p>{error || "We couldn't process your order at this time."}</p>
+                        <p>Please try again or contact our support team for assistance.</p>
+                        
+                        <div className="action-buttons">
+                            <button 
+                                className="primary-button"
+                                onClick={() => navigate(-1)}
+                            >
+                                Go Back
+                            </button>
+                            <button 
+                                className="secondary-button"
+                                onClick={() => navigate('/')}
+                            >
+                                Return to Home
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
