@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import { FaUser, FaEdit, FaTrash, FaPlus, FaTimes } from "react-icons/fa"; // Added FaTimes for closing confirmation modal
 import axios from "axios";
 import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
@@ -10,6 +10,9 @@ const Category = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [newCategory, setNewCategory] = useState({ name: "", gender: "", description: "" });
+  const [successMessage, setSuccessMessage] = useState(""); // State for success message
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // State for delete confirmation modal
+  const [categoryToDelete, setCategoryToDelete] = useState(null); // Category to delete
 
   useEffect(() => {
     fetchCategories();
@@ -40,11 +43,13 @@ const Category = () => {
             category._id === selectedCategoryId ? { ...category, ...response.data.category } : category
           )
         );
+        setSuccessMessage("Category updated successfully!");
         setEditMode(false);
         setSelectedCategoryId(null);
       } else {
-        await axios.post('http://localhost:4000/api/categories', newCategory);
-        fetchCategories(); // Fetch updated categories
+        const response = await axios.post('http://localhost:4000/api/categories', newCategory);
+        setCategories([...categories, response.data.category]);
+        setSuccessMessage("Category added successfully!");
       }
       setShowModal(false);
       setNewCategory({ name: "", gender: "", description: "" });
@@ -54,21 +59,35 @@ const Category = () => {
   };
 
   // Delete category
-  const handleDeleteCategory = async (id) => {
+  const handleDeleteCategory = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/categories/${id}`);
-      setCategories(categories.filter((category) => category._id !== id));
+      await axios.delete(`http://localhost:4000/api/categories/${categoryToDelete}`);
+      setCategories(categories.filter((category) => category._id !== categoryToDelete));
+      setSuccessMessage("Category deleted successfully!");
+      setShowDeleteModal(false);
+      setCategoryToDelete(null);
     } catch (err) {
       console.error('Error deleting category:', err);
     }
   };
 
+  // Open delete confirmation modal
+  const confirmDeleteCategory = (id) => {
+    setCategoryToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  // Close success message
+  const closeSuccessMessage = () => {
+    setSuccessMessage("");
+  };
+
   // Edit category
   const handleEditCategory = (category) => {
-    setNewCategory(category);
-    setSelectedCategoryId(category._id);
-    setEditMode(true);
-    setShowModal(true);
+    setNewCategory(category); // Set the selected category details in the form
+    setSelectedCategoryId(category._id); // Store the ID of the category being edited
+    setEditMode(true); // Enable edit mode
+    setShowModal(true); // Show the modal for editing
   };
 
   return (
@@ -82,7 +101,6 @@ const Category = () => {
           <h2 className="title">Categories</h2>
           <div className="user-info">
             <span>Admin</span>
-            {/* <FaCog className="icon" /> */}
             <FaUser className="icon" />
           </div>
         </div>
@@ -94,6 +112,14 @@ const Category = () => {
           </button>
         </div>
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="success-message">
+            {successMessage}
+            <FaTimes className="close-icon" onClick={closeSuccessMessage} />
+          </div>
+        )}
+
         {/* Categories Table */}
         <div className="customers-table">
           <table>
@@ -101,7 +127,6 @@ const Category = () => {
               <tr>
                 <th>Category Name</th>
                 <th>Gender</th>
-                {/* <th>Description</th> */}
                 <th>Operations</th>
               </tr>
             </thead>
@@ -110,10 +135,9 @@ const Category = () => {
                 <tr key={category._id}>
                   <td>{category.name}</td>
                   <td>{category.gender}</td>
-                  {/* <td>{category.description}</td> */}
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditCategory(category)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDeleteCategory(category._id)} />
+                    <FaTrash className="delete-icon" onClick={() => confirmDeleteCategory(category._id)} />
                   </td>
                 </tr>
               ))}
@@ -134,14 +158,27 @@ const Category = () => {
               <option value="">Select Gender</option>
               <option value="Men">Men</option>
               <option value="Women">Women</option>
+              <option value="Kids">Kids</option>
             </select>
-            {/* <label>Description:</label>
-            <textarea name="description" value={newCategory.description} onChange={handleChange} required /> */}
             <div className="modal-actions">
               <button className="add-btn" onClick={handleAddCategory}>
                 {editMode ? "Update" : "Add"}
               </button>
-              <button className="close-btn" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this category? This action cannot be undone.</p>
+            <div className="modal-actions">
+              <button className="delete-btn" onClick={handleDeleteCategory}>Delete</button>
+              <button className="cancel-btn" onClick={() => setShowDeleteModal(false)}>Cancel</button>
             </div>
           </div>
         </div>

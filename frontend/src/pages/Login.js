@@ -67,7 +67,15 @@ const Login = () => {
       });
 
       if (response.data.success) {
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("token", response.data.token); // Save token
+
+        if (response.data.user) {
+          localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user details
+          localStorage.setItem("role", response.data.user.role); // Save role
+        } else {
+          console.warn("User details are missing in the response.");
+        }
+
         navigate("/home"); // Redirect to dashboard on success
       }
     } catch (error) {

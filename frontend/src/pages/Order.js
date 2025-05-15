@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 import "../styles/Order.css";
+import {FaUser} from "react-icons/fa";
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -199,8 +200,14 @@ const Order = () => {
   return (
     <div className="admin-content-container">
       <Sidebar />
-      <div className="orders-container">
-        <h2>Order Management</h2>
+      <div className="main-content">
+      <div className="top-bar">
+          <h2 className="title">Order Management</h2>
+          <div className="user-info">
+            <span>Admin</span>
+            <FaUser className="icon" />
+          </div>
+        </div>
 
         <div className="order-filters">
           <label>

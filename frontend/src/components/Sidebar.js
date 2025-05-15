@@ -1,9 +1,18 @@
 import React from 'react';
-import { NavLink } from "react-router-dom";
-import { FaUsers, FaClipboardList, FaBox, FaTags, FaHome, FaBolt, FaRuler, FaPaintBrush, FaUser } from "react-icons/fa";
+import { NavLink, useNavigate } from "react-router-dom";
+import { FaUsers, FaClipboardList, FaBox, FaTags, FaHome, FaBolt, FaRuler, FaSignOutAlt } from "react-icons/fa";
 import "../styles/Sidebar.css";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Remove token
+    localStorage.removeItem("user"); // Remove user details
+    localStorage.removeItem("role"); // Remove role
+    navigate("/login"); // Redirect to login page
+  };
+
   return (
     <div className="sidebar">
       <h1 className="logo">iStitch</h1>
@@ -57,6 +66,11 @@ const Sidebar = () => {
           <NavLink to="/admin/users" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaUsers className="icon" /> Users
           </NavLink>
+        </li>
+        <li>
+          <button className="menu-link logout-button" onClick={handleLogout}>
+            <FaSignOutAlt className="icon" /> Logout
+          </button>
         </li>
       </ul>
     </div>

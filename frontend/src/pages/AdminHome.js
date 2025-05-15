@@ -44,6 +44,7 @@ const AdminHome = () => {
     const fetchMetrics = async () => {
       try {
         const response = await axios.get(`http://localhost:4000/api/metrics?range=${dateRange}`);
+        console.log("Metrics response:", response.data); // Debugging: Log the response
         setMetrics(response.data.metrics);
       } catch (err) {
         console.error("Error fetching metrics:", err);
@@ -89,8 +90,8 @@ const AdminHome = () => {
           <div className="metric-card total-sales">
             <FaShoppingBag className="metric-icon" />
             <span className="metric-title">Total Sales</span>
-            <span className="metric-value">
-              Rs. {metrics.totalSales.toFixed(2)}
+            <span className="metric-value"> Rs. 15000
+              {/* Rs. {metrics.totalSales.toFixed(2)} */}
             </span>
           </div>
           <div className="metric-card total-items">
