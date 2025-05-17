@@ -2,6 +2,7 @@ const express = require("express");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const crypto = require('crypto');
 // Replace import with require
 const { forgetPassword, resetPassword } = require("../controller/user/forgetPasswordController");
 const {
@@ -12,8 +13,9 @@ const {
   logout,
 } = require("../controller/user/authController");
 
-// Add User model import
-const User = require("../models/User");
+// Import necessary modules
+const User = require('../models/User');
+const { sendEmail } = require('../utils/emailService');
 
 const router = express.Router();
 const { addCredentials } = require("../controller/user/RegistrationController");
@@ -64,6 +66,100 @@ router.get("/logout", logout);
 
 router.post("/forgetPassword", forgetPassword);
 router.post("/reset-password/:token", resetPassword);
+
+// Generate random password (8 characters)
+const generatePassword = () => {
+  return crypto.randomBytes(4).toString('hex');
+};
+
+// Forgot password route
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    console.log('Received forgot password request for:', email);
+    
+    // Find user by email
+    const user = await User.findOne({ email });
+    
+    // If user doesn't exist, still return success (security best practice)
+    if (!user) {
+      console.log('User not found with email:', email);
+      return res.json({
+        success: true,
+        message: 'If your email is registered, you will receive instructions to reset your password.'
+      });
+    }
+    
+    // Generate a new random password (make it more user-friendly)
+    const newPassword = Math.random().toString(36).slice(-8);
+    console.log(`Generated new password for user ${user._id}: ${newPassword}`);
+    
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    console.log(`Password hashed. Updating in database for user: ${user._id}`);
+    
+    // Update user's password in the database
+    user.password = hashedPassword;
+    await user.save();
+    
+    console.log(`User ${user._id} password updated successfully`);
+    
+    // Send email with new password
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Password Reset</h2>
+        <p>Hello ${user.fullname || 'User'},</p>
+        <p>Your password has been reset as requested. Here is your new password:</p>
+        <p style="background-color: #f5f5f5; padding: 10px; font-family: monospace; font-size: 16px;">${newPassword}</p>
+        <p>Please login with this new password and consider changing it immediately for security reasons.</p>
+        <p>If you did not request this password reset, please contact us immediately.</p>
+        <p>Thank you,<br>iStitch Team</p>
+      </div>
+    `;
+    
+    try {
+      console.log(`Attempting to send password reset email to: ${email}`);
+      
+      // Check if sendEmail function exists and is properly imported
+      if (typeof sendEmail !== 'function') {
+        console.error('sendEmail function is not available. Make sure it is properly imported.');
+        throw new Error('Email sending function not available');
+      }
+      
+      const emailResult = await sendEmail(
+        email,
+        'iStitch Password Reset',
+        emailContent
+      );
+      
+      console.log('Email sending result:', emailResult);
+      
+      // If you're not receiving emails, log the current email configuration
+      console.log('Email configuration:', {
+        emailUser: process.env.EMAIL_USER,
+        emailPasswordSet: !!process.env.EMAIL_PASSWORD
+      });
+      
+    } catch (emailError) {
+      console.error('Error sending password reset email:', emailError);
+      // Still continue since password was reset successfully
+    }
+    
+    return res.json({
+      success: true,
+      message: 'If your email is registered, you will receive instructions to reset your password.'
+    });
+    
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res.json({
+      success: true,
+      message: 'If your email is registered, you will receive instructions to reset your password.'
+    });
+  }
+});
 
 // Admin login route
 router.post('/admin-login', async (req, res) => {

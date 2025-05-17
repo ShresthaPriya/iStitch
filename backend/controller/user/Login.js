@@ -91,5 +91,61 @@ const googleSuccess = (req, res) => {
     });
 };
 
+// Add improved logging to diagnose login issues
+exports.Login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        console.log(`Login attempt for email: ${email}`);
+
+        // Find user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            console.log(`Login failed: User not found with email ${email}`);
+            return res.status(401).json({
+                success: false,
+                error: "User not found"
+            });
+        }
+
+        // Compare plain text password with hashed password in database
+        console.log(`Comparing password for user: ${user._id}`);
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log(`Password match result: ${isMatch}`);
+
+        if (!isMatch) {
+            console.log(`Login failed: Invalid password for user ${user._id}`);
+            return res.status(401).json({
+                success: false,
+                error: "Invalid password"
+            });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { id: user._id, email: user.email, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "1d" }
+        );
+
+        console.log(`Login successful for user: ${user._id}`);
+        res.status(200).json({
+            success: true,
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+                fullname: user.fullname,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({
+            success: false,
+            message: "An error occurred during login"
+        });
+    }
+};
+
 
 module.exports = { Login, googleLogin, googleCallback, googleSuccess };

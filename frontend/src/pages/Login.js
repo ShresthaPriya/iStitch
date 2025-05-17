@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "../styles/Auth.css";
 import SplashNavbar from "../components/SplashNavbar";
@@ -61,10 +61,24 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:4000/auth/login", {
-        email: formData.email.toLowerCase(),
-        password: formData.password,
-      });
+      
+      // Try multiple possible endpoints to handle different API configurations
+      let response;
+      try {
+        // First try the original endpoint
+        response = await axios.post("http://localhost:4000/auth/login", {
+          email: formData.email.toLowerCase(),
+          password: formData.password,
+        });
+      } catch (firstError) {
+        console.log("First login endpoint failed, trying alternative:", firstError);
+        
+        // If first endpoint fails, try alternative endpoint
+        response = await axios.post("http://localhost:4000/api/auth/login", {
+          email: formData.email.toLowerCase(),
+          password: formData.password,
+        });
+      }
 
       if (response.data.success) {
         localStorage.setItem("token", response.data.token); // Save token
@@ -79,6 +93,8 @@ const Login = () => {
         navigate("/home"); // Redirect to dashboard on success
       }
     } catch (error) {
+      console.error("Login error:", error);
+      
       // Handle specific backend errors
       if (error.response?.data?.error === "User not found") {
         setFieldErrors({
@@ -161,7 +177,7 @@ const Login = () => {
           </div>
 
             <div className="form-group forgot-password">
-              <a href="/forgot-password">Forgot Password?</a>
+              <Link to="/forgot-password">Forgot your password?</Link>
             </div>
 
             {error && <div className="error-message">{error}</div>}

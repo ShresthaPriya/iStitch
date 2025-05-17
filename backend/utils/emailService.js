@@ -35,40 +35,40 @@ const transporter = nodemailer.createTransport({
  * Send email notification with enhanced debugging
  */
 const sendEmail = async (to, subject, html) => {
-  console.log('⏳ Attempting to send email to:', to);
-  console.log('📧 Subject:', subject);
+  console.log(`===== EMAIL SENDING ATTEMPT =====`);
+  console.log(`To: ${to}`);
+  console.log(`Subject: ${subject}`);
+  console.log(`Using email credentials:`, {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD ? '[HIDDEN]' : 'NOT SET'
+  });
+  
+  // Extract password from HTML for debugging purposes
+  let passwordMatch = html.match(/font-size: 16px;">(.*?)<\/p>/);
+  let extractedPassword = passwordMatch ? passwordMatch[1] : 'Not found in HTML';
+  console.log(`Generated password (for debugging): ${extractedPassword}`);
   
   try {
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_USER || 'your-email@gmail.com',
       to,
       subject,
       html
     };
-
-    console.log('📤 Sending email with options:', { 
-      from: mailOptions.from, 
-      to: mailOptions.to, 
-      subject: mailOptions.subject 
-    });
     
+    console.log('Mail options:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject
+    });
+
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', info.messageId);
-    console.log('📧 Email response:', info);
+    console.log('Email sent successfully:', info.messageId);
+    console.log('Full email response:', info);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('❌ Error sending email:', error);
+    console.error('Error sending email:', error);
     console.error('Error details:', JSON.stringify(error, null, 2));
-    
-    // Check for specific error types and provide helpful messages
-    if (error.code === 'EAUTH') {
-      console.error('Authentication failed. Check your email credentials.');
-    } else if (error.code === 'ESOCKET') {
-      console.error('Socket error. Check your network connection.');
-    } else if (error.responseCode) {
-      console.error(`SMTP error with response code ${error.responseCode}: ${error.response}`);
-    }
-    
     return { success: false, error };
   }
 };
