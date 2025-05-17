@@ -1,14 +1,19 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import Footer from '../components/Footer';
 import "../styles/FabricDetails.css";
 
 const FabricDetails = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [fabric, setFabric] = useState(null);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+    const [selectedFabric, setSelectedFabric] = useState(null); // Define selectedFabric
+  
 
   useEffect(() => {
     const fetchFabric = async () => {
@@ -23,7 +28,10 @@ const FabricDetails = () => {
 
     fetchFabric();
   }, [id]);
-
+  const handleSelectFabric = (fabric) => {
+    setSelectedFabric(fabric);
+    navigate('/customize-dress', { state: { fabric } });
+  };
   const addToFavourite = (fabricId) => {
     // Add to favourite logic here
     console.log(`Fabric ${fabricId} added to favourite`);
@@ -50,11 +58,15 @@ const FabricDetails = () => {
               <h3>{fabric.name}</h3>
               <p>{fabric.description}</p>
               <p className="price">Rs.{fabric.price}</p>
+              <button className="select-btn" onClick={() => handleSelectFabric(fabric)}>Select for Customization</button>
+              </div>
+
               <button className="favourite-button" onClick={() => addToFavourite(fabric._id)}>Add to Favourite</button>
             </div>
           </div>
         )}
       </div>
+      
     </>
   );
 };

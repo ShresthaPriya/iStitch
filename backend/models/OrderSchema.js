@@ -1,24 +1,86 @@
 const mongoose = require("mongoose");
 
-const OrderSchema = mongoose.Schema({
+const OrderSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Customer",
+        ref: "User",
         required: true
     },
     items: [{
-        type: String,
-        required: true
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Item',
+            required: true
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            default: 1
+        },
+        size: {
+            type: String,
+            default: "M"
+        },
+        price: {
+            type: Number,
+            required: true
+        },
+        customDetails: {
+            fabricId: mongoose.Schema.Types.ObjectId,
+            fabricName: String,
+            itemType: String,
+            style: String,
+            additionalStyling: String
+        }
     }],
+    total: {
+        type: Number,
+        required: false
+    },
     totalAmount: {
         type: Number,
+        required: false// Ensure totalAmount is required
+    },
+    paymentMethod: {
+        type: String,
+        enum: ['Cash On Delivery', 'Khalti'],
         required: true
+    },
+    paymentToken: {
+        type: String,
+        default: null
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['Pending', 'Completed', 'Failed'],
+        default: 'Pending'
     },
     status: {
         type: String,
-        required: true,
-        enum: ["Pending", "Completed", "Cancelled"],
-        default: "Pending"
+        enum: ['Pending', 'Processing', 'Shipped', 'Delivered'],
+        default: 'Pending',
+        required: true
+    },
+    fullName: {
+        type: String,
+        required: true
+    },
+    contactNumber: {
+        type: String,
+        required: true
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    isCustomOrder: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

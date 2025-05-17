@@ -89,19 +89,23 @@ function Items() {
 
                 <h2>{decodedSubcategory} Items</h2>
                 <div className="explore-items">
-                    {items.map(item => (
-                        <div className="item-grid" key={item._id}>
-                            <img src={`http://localhost:4000/public/images/${item.images[0]}`} alt={item.name} className="item-image" />
-                            <h2>{item.name}</h2>
-                            <div className='info'>
-                                <p>{item.description}</p>
+                    {items.length === 0 ? (
+                        <p>No items found.</p>
+                    ) : (
+                        items.map(item => (
+                            <div className="item-grid" key={item._id}>
+                                <img src={`http://localhost:4000/uploads/${item.images[0]}`} alt={item.name} className="item-image" />
+                                <h2>{item.name}</h2>
+                                <div className='info'>
+                                    <p>{item.description}</p>
+                                </div>
+                                <div className="sub-info">
+                                    <p>{item.rating} ★★★★</p>
+                                </div>
+                                <button onClick={() => viewItem(item._id)}>View Item</button>
                             </div>
-                            <div className="sub-info">
-                                <p>{item.rating} ★★★★</p>
-                            </div>
-                            <button onClick={() => viewItem(item._id)}>View Item</button>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
         </>

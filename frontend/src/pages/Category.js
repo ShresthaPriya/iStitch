@@ -9,7 +9,7 @@ const Category = () => {
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-  const [newCategory, setNewCategory] = useState({ name: "", gender: "" });
+  const [newCategory, setNewCategory] = useState({ name: "", gender: "", description: "" });
 
   useEffect(() => {
     fetchCategories();
@@ -20,7 +20,7 @@ const Category = () => {
       const response = await axios.get('http://localhost:4000/api/categories');
       setCategories(response.data.categories);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching categories:', err);
     }
   };
 
@@ -43,11 +43,11 @@ const Category = () => {
         setEditMode(false);
         setSelectedCategoryId(null);
       } else {
-        const response = await axios.post('http://localhost:4000/api/categories', newCategory);
-        setCategories([...categories, response.data.category]);
+        await axios.post('http://localhost:4000/api/categories', newCategory);
+        fetchCategories(); // Fetch updated categories
       }
       setShowModal(false);
-      setNewCategory({ name: "", gender: "" });
+      setNewCategory({ name: "", gender: "", description: "" });
     } catch (err) {
       console.error('Error adding/updating category:', err);
     }
@@ -82,7 +82,7 @@ const Category = () => {
           <h2 className="title">Categories</h2>
           <div className="user-info">
             <span>Admin</span>
-            <FaCog className="icon" />
+            {/* <FaCog className="icon" /> */}
             <FaUser className="icon" />
           </div>
         </div>
@@ -101,6 +101,7 @@ const Category = () => {
               <tr>
                 <th>Category Name</th>
                 <th>Gender</th>
+                {/* <th>Description</th> */}
                 <th>Operations</th>
               </tr>
             </thead>
@@ -109,6 +110,7 @@ const Category = () => {
                 <tr key={category._id}>
                   <td>{category.name}</td>
                   <td>{category.gender}</td>
+                  {/* <td>{category.description}</td> */}
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditCategory(category)} />
                     <FaTrash className="delete-icon" onClick={() => handleDeleteCategory(category._id)} />
@@ -133,6 +135,8 @@ const Category = () => {
               <option value="Men">Men</option>
               <option value="Women">Women</option>
             </select>
+            {/* <label>Description:</label>
+            <textarea name="description" value={newCategory.description} onChange={handleChange} required /> */}
             <div className="modal-actions">
               <button className="add-btn" onClick={handleAddCategory}>
                 {editMode ? "Update" : "Add"}

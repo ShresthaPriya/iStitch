@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus, FaTimes } from "react-icons/fa";
+import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus, FaTimes, FaPlusCircle } from "react-icons/fa"; // Import icons
 import axios from "axios";
 import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
@@ -45,8 +45,23 @@ const Item = () => {
   };
 
   // Handle image input changes
-  const handleImageChange = (e) => {
-    setNewItem({ ...newItem, images: Array.from(e.target.files) });
+  const handleImageChange = (e, index) => {
+    const files = Array.from(e.target.files);
+    const updatedImages = [...newItem.images];
+    updatedImages[index] = files[0]; // Replace the image at the given index
+    setNewItem({ ...newItem, images: updatedImages });
+  };
+
+  // Add a new image input field
+  const handleAddImageField = () => {
+    setNewItem({ ...newItem, images: [...newItem.images, null] });
+  };
+
+  // Remove an image input field
+  const handleRemoveImageField = (index) => {
+    const updatedImages = [...newItem.images];
+    updatedImages.splice(index, 1); // Remove the image at the given index
+    setNewItem({ ...newItem, images: updatedImages });
   };
 
   // Add or Edit item
@@ -56,9 +71,10 @@ const Item = () => {
     formData.append("category", newItem.category);
     formData.append("price", newItem.price);
     formData.append("description", newItem.description);
-    newItem.images.forEach((image, index) => {
-      formData.append("images", image);
+    newItem.images.forEach((image) => {
+      if (image) formData.append("images", image);
     });
+    
 
     try {
       if (editMode) {
@@ -141,7 +157,7 @@ const Item = () => {
           <h2 className="title">Items</h2>
           <div className="user-info">
             <span>Admin</span>
-            <FaCog className="icon" />
+            {/* <FaCog className="icon" /> */}
             <FaUser className="icon" />
           </div>
         </div>
@@ -170,7 +186,7 @@ const Item = () => {
                 <th>Category</th>
                 <th>Price</th>
                 <th>Description</th>
-                <th>Images</th>
+                {/* <th>Images</th> */}
                 <th>Operations</th>
               </tr>
             </thead>
@@ -181,11 +197,16 @@ const Item = () => {
                   <td>{item.category ? item.category.name : "N/A"}</td>
                   <td>{item.price}</td>
                   <td>{item.description}</td>
-                  <td>
+                  {/* <td>
                     {item.images.map((image, index) => (
-                      <img key={index} src={`http://localhost:4000/uploads/${image}`} alt={`Item ${index}`} width="50" />
+                      <img 
+                          key={index} 
+                          src={`http://localhost:4000/images/${image}`} 
+                          alt={`Item ${index}`} 
+                          width="50" 
+                      />
                     ))}
-                  </td>
+                  </td> */}
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditItem(item)} />
                     <FaTrash className="delete-icon" onClick={() => handleDeleteItem(item._id)} />
@@ -217,8 +238,29 @@ const Item = () => {
             <input type="number" name="price" value={newItem.price} onChange={handleChange} required />
             <label>Description:</label>
             <textarea name="description" value={newItem.description} onChange={handleChange} required />
-            <label>Images:</label>
-            <input type="file" name="images" onChange={handleImageChange} multiple accept="image/*" required />
+  
+                      <label>Images:</label>
+            {newItem.images.map((image, index) => (
+              <div key={index} className="image-input-group">
+                <input
+                  type="file"
+                  onChange={(e) => handleImageChange(e, index)}
+                  accept="image/*"
+                />
+                
+                <button
+                  type="button"
+                  className="remove-image-btn"
+                  onClick={() => handleRemoveImageField(index)}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+            ))}
+            <div className="add-image-container" onClick={handleAddImageField}>
+              <FaPlusCircle className="add-image-icon" />
+              <span>Add Image</span>
+            </div>
             <div className="modal-actions">
               <button className="add-btn" onClick={handleAddItem}>
                 {editMode ? "Update" : "Add"}
@@ -241,8 +283,13 @@ const Item = () => {
               <strong>Images:</strong>
               <div className="images-container">
                 {viewingItem.images.map((image, index) => (
-                  <img key={index} src={`http://localhost:4000/uploads/${image}`} alt={`Item ${index}`} width="100" />
-                ))}
+                      <img 
+                          key={index} 
+                          src={`http://localhost:4000/images/${image}`} 
+                          alt={`Item ${index}`} 
+                          width="50" 
+                      />
+                    ))}
               </div>
             </div>
             <button className="close-btn" onClick={() => setViewingItem(null)}>Close</button>

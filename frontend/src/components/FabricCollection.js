@@ -9,6 +9,7 @@ function FabricCollection() {
   const [fabrics, setFabrics] = useState([]);
   const [error, setError] = useState("");
   const [sortOrder, setSortOrder] = useState("default");
+  const [selectedFabric, setSelectedFabric] = useState(null); // Define selectedFabric
 
   useEffect(() => {
     const fetchFabrics = async () => {
@@ -24,12 +25,13 @@ function FabricCollection() {
     fetchFabrics();
   }, []);
 
-  const handleViewFabric = (id) => {
-    navigate(`/fabric-details/${id}`);
-  };
-
   const handleSortChange = (e) => {
     setSortOrder(e.target.value);
+  };
+
+  const handleSelectFabric = (fabric) => {
+    setSelectedFabric(fabric);
+    navigate('/customize-dress', { state: { fabric } });
   };
 
   const sortedFabrics = [...fabrics].sort((a, b) => {
@@ -46,31 +48,38 @@ function FabricCollection() {
     <>
       <Navbar />
       <div className="fabric-header">
-        <h3 className="fabric-title">Fabrics</h3>
-        <div className="sort-container">
-          <label htmlFor="sort">Sort by price:</label>
-          <select id="sort" value={sortOrder} onChange={handleSortChange}>
-            <option value="default">Default</option>
-            <option value="low-to-high">Low to High</option>
-            <option value="high-to-low">High to Low</option>
-          </select>
-        </div>
+      <h2>Fabrics</h2>
+      <div className="sort-container">
+  <div className="sort-label">Sort by:</div>
+  <select 
+        className="sort-dropdown"
+        value={sortOrder}
+        onChange={handleSortChange}
+      >
+        <option value="default">Default</option>
+        <option value="low-to-high">Price: Low to High</option>
+        <option value="high-to-low">Price: High to Low</option>
+      </select>
+    </div>
       </div>
       <div className="view-all-container">
+
         <a href="#viewAll" className="view-all-link" style={{ paddingLeft: '10px' }}>View all <span>▾</span></a>
+
       </div>
       <div className="fabric-collection">
         {error && <div className="error-message">{error}</div>}
         {sortedFabrics.map((fabric) => (
-          <div key={fabric._id} className="fabric-card">
+          <div key={fabric._id} className={`fabric-card ${selectedFabric && selectedFabric._id === fabric._id ? 'selected' : ''}`}>
             {fabric.images.map((image, index) => (
               <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
             ))}
             <div className="fabric-info">
               <h3>{fabric.name}</h3>
-              <p>Rs.{fabric.price}</p>
+              <p>Rs. {fabric.price}</p>
+
             </div>
-            <button onClick={() => handleViewFabric(fabric._id)}>View Fabric</button>
+            <button className="select-btn" onClick={() => handleSelectFabric(fabric)}>Select for Customization</button>
           </div>
         ))}
       </div>

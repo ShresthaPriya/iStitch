@@ -23,11 +23,23 @@ const googleAuth = passport.authenticate("google", {
   scope: ["profile", "email"],
 });
 
-const googleCallback = passport.authenticate("google", {
-  scope: ["profile", "email"], // Add this line to include the scope parameter
-  successRedirect: process.env.CLIENT_URL,
-  failureRedirect: "/auth/login/failed",
-});
+const googleCallback = (req, res, next) => {
+  passport.authenticate("google", (err, user, info) => {
+    if (err) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=${encodeURIComponent(err.message)}`);
+    }
+    if (!user) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=${encodeURIComponent(info.message)}`);
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return res.redirect(`${process.env.CLIENT_URL}/login?error=${encodeURIComponent("Login failed")}`);
+      }
+      // Send user data to the frontend
+      return res.redirect(`${process.env.CLIENT_URL}/home?user=${encodeURIComponent(JSON.stringify(user))}`);
+    });
+  })(req, res, next);
+};
 
 const logout = (req, res) => {
   req.logout((err) => {

@@ -1,131 +1,188 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import "../styles/Auth.css";
-import "../styles/Login.css";
+import SplashNavbar from "../components/SplashNavbar";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    email: "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const validateForm = () => {
-    if (!email || !password) {
-      setError("All fields must be filled.");
-      return false;
-    }
-
-    // Email validation (basic format check)
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email.");
-      return false;
-    }
-
-    // Password validation (minimum length check)
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return false;
-    }
-
-    setError(""); // Clear error message
-    return true;
+  // Validate email format
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: name === "email" ? value.toLowerCase() : value }); // Convert email to lowercase
 
-    if (!validateForm()) return; // Only proceed if form is valid
+    // Clear errors when typing
+    if (fieldErrors[name]) {
+      setFieldErrors({ ...fieldErrors, [name]: "" });
+    }
+    if (error) setError("");
+  };
+
+  // Validate fields on blur
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    if (name === "email" && value && !validateEmail(value)) {
+      setFieldErrors({
+        ...fieldErrors,
+        email: "Please enter a valid email address",
+      });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    // Validate email format before submission
+    if (!validateEmail(formData.email)) {
+      setFieldErrors({
+        ...fieldErrors,
+        email: "Please enter a valid email address",
+      });
+      return;
+    }
 
     try {
       setLoading(true);
-
-      const response = await axios.post("http://localhost:4000/login", {
-        email,
-        password,
+      const response = await axios.post("http://localhost:4000/auth/login", {
+        email: formData.email.toLowerCase(),
+        password: formData.password,
       });
 
-      setLoading(false);
-      const data = response.data;
-
-      if (data.success) {
-        alert("Login successful!");
-        // Store user data in localStorage or Context API (if needed)
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/home"); // Redirect to the home page or dashboard
-      } else {
-        setError(data.error || "Login failed. Please try again.");
+      if (response.data.success) {
+        localStorage.setItem("token", response.data.token);
+        navigate("/home"); // Redirect to dashboard on success
       }
     } catch (error) {
+      // Handle specific backend errors
+      if (error.response?.data?.error === "User not found") {
+        setFieldErrors({
+          ...fieldErrors,
+          email: "This email is not registered. Please sign up first.",
+        });
+      } else if (error.response?.data?.error === "Invalid password") {
+        setFieldErrors({
+          ...fieldErrors,
+          password: "Incorrect password. Please try again.",
+        });
+      } else {
+        setError(error.response?.data?.message || "Login failed. Please try again.");
+      }
+    } finally {
       setLoading(false);
-      console.error("Error during login:", error);
-      setError("An error occurred. Please try again.");
     }
   };
 
-  // Google Authentication
   const googleAuth = () => {
-    window.open("http://localhost:4000/auth/google/callback", "_self");
+    window.open("http://localhost:4000/auth/google/login", "_self");
   };
 
   return (
     <>
-      <Navbar />
-      <div className="login-container">
-        <div className="Auth-page">
-          <div className="Auth-container">
-            <div className="Auth-form">
-              <h2>Login</h2>
-              <form onSubmit={handleLogin}>
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                />
-                <label>Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                />
-                <div className="policy-checkbox">
-                  <label>
-                    <input type="checkbox" required />
-                    Remember Me
-                  </label>
-                  <a href="/resetPassword">Forgot Password?</a>
-                </div>
-                {error && <div className="error-message">{error}</div>}
-                <button type="submit" disabled={loading}>
-                  {loading ? "Logging in..." : "Login"}
-                </button>
-              </form>
-              <div className="Auth-footer">
-                <p>
-                  Don't have an account? <a href="/auth/register">Sign Up</a>
-                </p>
-              </div>
-              <button className="google_btn" onClick={googleAuth}>
-                <img src={require("../images/google.png")}  alt="google icon" />
-                <span>Login with Google</span>
+      < SplashNavbar />
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <h2>Welcome Back</h2>
+            <p>Log in to continue your journey</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder=""
+                required
+                className={fieldErrors.email ? "input-error" : ""}
+              />
+              {fieldErrors.email && (
+                <div className="field-error">{fieldErrors.email}</div>
+              )}
+            </div>
+
+            <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <div className="password-input">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder=""
+                required
+                className={fieldErrors.password ? "input-error" : ""}
+              />
+              <button 
+                type="button" 
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <i className="fas fa-eye"></i>  // "Click to hide"
+                ) : (
+                  <i className="fas fa-eye-slash"></i>  // "Click to show"
+                )}
               </button>
             </div>
-            {/* <div className="Auth-image">
-              <img src={require("../images/iStitch.png")} alt="Login Illustration" />
-            </div> */}
+            {fieldErrors.password && <div className="field-error">{fieldErrors.password}</div>}
+          </div>
+
+            <div className="form-group forgot-password">
+              <a href="/forgot-password">Forgot Password?</a>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+
+            <button type="submit" className="auth-button" disabled={loading}>
+              {loading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i> Logging In...
+                </>
+              ) : (
+                "Log In"
+              )}
+            </button>
+          </form>
+
+          <div className="auth-divider">
+            <span>OR</span>
+          </div>
+
+          <button className="google-auth-button" onClick={googleAuth}>
+            <img src={require("../images/google.png")} alt="Google logo" />
+            <span>Login with Google</span>
+          </button>
+
+          <div className="auth-footer">
+            Don't have an account? <a href="/auth/register">Sign up</a>
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

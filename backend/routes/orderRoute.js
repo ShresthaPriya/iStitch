@@ -1,10 +1,81 @@
 const express = require("express");
 const router = express.Router();
-const { getOrders, addOrder, updateOrder, deleteOrder } = require("../controller/order/orderController");
+const mongoose = require("mongoose"); // Ensure mongoose is imported
+const OrderModel = require('../models/OrderSchema'); // Correct import
 
-router.get('/', getOrders);
-router.post('/', addOrder);
-router.put('/:id', updateOrder);
-router.delete('/:id', deleteOrder);
+const { placeOrder, getOrders, addOrder, updateOrder, deleteOrder } = require("../controller/order/orderController");
 
+// Core routes
+router.get("/", getOrders);
+router.post("/", addOrder);
+router.put("/:id", updateOrder);
+router.delete("/:id", deleteOrder);
+// router.post("/orders", placeOrder);
+
+// Save a new order
+router.post('/', async (req, res) => {
+    const { userId, customer, items, total, totalAmount, paymentMethod, status, fullName, contactNumber, address, paymentToken } = req.body;
+
+    // Log the received payload for debugging
+    console.log("Received Order Payload:", req.body);
+
+    // Validate required fields
+    if (!userId || !customer || !items || !total || !totalAmount || !paymentMethod || !status || !fullName || !contactNumber || !address) {
+        console.error("Missing required fields:", { userId, customer, items, total, totalAmount, paymentMethod, status, fullName, contactNumber, address });
+        return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
+    // Validate items array
+    if (!Array.isArray(items) || items.length === 0) {
+        console.error("Invalid items array:", items);
+        return res.status(400).json({ success: false, message: "Items array is invalid or empty" });
+    }
+
+    try {
+        console.log("Attempting to save order to the database...");
+        const newOrder = new OrderModel({
+            userId, // Ensure userId is included
+            customer,
+            items,
+            total, // Ensure total is included
+            totalAmount,
+            paymentMethod,
+            status,
+            fullName,
+            contactNumber,
+            address,
+            paymentToken
+        });
+        
+        await newOrder.save();
+        console.log("Order saved successfully:", newOrder);
+        res.json({ success: true, message: "Order created successfully", order: newOrder });
+    } catch (err) {
+        console.error("Error creating order:", err);
+        res.status(500).json({ success: false, message: "Failed to create order", error: err.message });
+    }
+});
+
+// Get orders by userId
+router.get('/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "User ID is required" });
+        }
+
+        const orders = await require('../models/OrderSchema').find({
+            $or: [
+                { userId: new mongoose.Types.ObjectId(userId) },
+                { customer: new mongoose.Types.ObjectId(userId) }
+            ]
+        }).sort({ createdAt: -1 }).lean();
+
+        return res.json({ success: true, orders, count: orders.length });
+    } catch (err) {
+        console.error("Error retrieving orders:", err);
+        return res.status(500).json({ success: false, message: "Failed to retrieve orders", error: err.message });
+    }
+});
 module.exports = router;

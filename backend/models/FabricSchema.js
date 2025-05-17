@@ -16,6 +16,10 @@ const FabricSchema = mongoose.Schema({
     price: {
         type: Number,
         required: true
+    },
+    products: {
+        type: [String], // Array of product IDs or names
+        default: [] // Default to an empty array
     }
 }, { timestamps: true });
 

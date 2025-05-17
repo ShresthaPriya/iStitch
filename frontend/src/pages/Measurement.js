@@ -175,7 +175,7 @@ const Measurement = () => {
           <h2 className="title">Measurements</h2>
           <div className="user-info">
             <span>Admin</span>
-            <FaCog className="icon" />
+            {/* <FaCog className="icon" /> */}
             <FaUser className="icon" />
           </div>
         </div>

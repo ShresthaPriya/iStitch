@@ -1,0 +1,102 @@
+.admin-container {
+    display: flex;
+}
+
+.admin-content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 250px; /* Adjust margin to account for sidebar width */
+}
+
+.admin-orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.admin-orders-table th, .admin-orders-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.admin-orders-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.admin-orders-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.admin-orders-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.admin-orders-table select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.delete-btn {
+    padding: 5px 10px;
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.order-item-row {
+    padding: 4px 0;
+    border-bottom: 1px dotted #e0e0e0;
+}
+
+.order-item-row:last-child {
+    border-bottom: none;
+}
+
+.fabric-detail {
+    font-size: 12px;
+    color: #6c757d;
+    margin-left: 10px;
+}
+
+.status-select {
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    width: 100%;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-processing {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-shipped {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-delivered {
+    background-color: #c3e6cb;
+    color: #155724;
+}

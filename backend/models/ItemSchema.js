@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const arrayLimit = (val) => val.length <= 3;
+
 const ItemSchema = mongoose.Schema({
     name: {
         type: String,
@@ -8,7 +10,7 @@ const ItemSchema = mongoose.Schema({
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Category",
-        required: false // Make this field optional
+        required: true
     },
     price: {
         type: Number,
@@ -19,13 +21,13 @@ const ItemSchema = mongoose.Schema({
         required: true
     },
     images: {
-        type: [String], // Array of image URLs
+        type: [String],
+        validate: [arrayLimit, '{PATH} exceeds the limit of 3']
+    },
+    sizeChart: {
+        type: [String],
         validate: [arrayLimit, '{PATH} exceeds the limit of 3']
     }
 }, { timestamps: true });
-
-function arrayLimit(val) {
-    return val.length <= 3;
-}
 
 module.exports = mongoose.model("Item", ItemSchema);

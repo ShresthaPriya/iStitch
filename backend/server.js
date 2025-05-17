@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv").config();
 const passport = require("passport");
-const cookieSession = require("cookie-session");
+const session = require("express-session"); // ✅ use express-session instead of cookie-session
 const cors = require("cors");
 const path = require("path");
 
@@ -22,32 +22,48 @@ const measurementRoutes = require("./routes/measurementRoute");
 const guideRoutes = require("./routes/guideRoute");
 const metricsRoutes = require("./routes/metricsRoute");
 const designRoutes = require("./routes/designRoute");
+const userRoutes = require("./routes/users");
+const cartRoutes = require("./routes/cart");
+const userMeasurementsRoutes = require("./routes/userMeasurements");
+const khaltiRoutes = require('./routes/khaltiRoutes.js');
+const searchRoute = require("./routes/search.js");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const CLIENT_URL = process.env.CLIENT_URL.replace(/\/+$/, ""); // Remove trailing slashes
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the uploads directory
+// Serve static files
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
-// Cookie-based session
+// ✅ Session middleware (replaces cookie-session)
 app.use(
-  cookieSession({
-    name: "session",
-    keys: [process.env.COOKIE_KEY || "cyberwolve"], // Secure keys
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-    // sameSite: "strict", // Strict session handling
+  session({
+    secret: process.env.COOKIE_KEY || "cyberwolve",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      sameSite: "lax",
+      secure: false, // Set to true in production with HTTPS
+    },
   })
 );
 
-// Initialize Passport and Google OAuth Strategy
+// Passport setup
 configureGoogleStrategy();
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Use CLIENT_URL wherever needed
+app.use((req, res, next) => {
+  res.locals.CLIENT_URL = CLIENT_URL;
+  next();
+});
 
 // Routes
 app.get("/", verifyToken, Home.Home);
@@ -64,18 +80,17 @@ app.use("/api/measurements", measurementRoutes);
 app.use("/api/guides", guideRoutes);
 app.use("/api/metrics", metricsRoutes);
 app.use("/api/designs", designRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/user-measurements", userMeasurementsRoutes);
+app.use('/api/khalti', khaltiRoutes);
+app.use("/api", searchRoute);
+
 
 // Start the server
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  } catch (err) {
-    console.error("Failed to start the server:", err.message);
-    process.exit(1);
-  }
-};
-
-startServer();
+connectDB().then(() => {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}).catch(err => {
+  console.error("Failed to connect to DB:", err.message);
+  process.exit(1);
+});
