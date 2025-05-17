@@ -1,8 +1,16 @@
-
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const OrderModel = require('../models/OrderSchema'); // Import the Order model
+const { sendEmail, generateOrderConfirmationEmail, generateAdminOrderNotificationEmail } = require('../utils/emailService');
+const User = require('../models/User'); // Make sure this path is correct
+let Item;
+
+try {
+    Item = mongoose.model('Item');
+} catch (error) {
+    Item = require('../models/ItemSchema');
+}
 
 console.log("Khalti routes are being registered at:", new Date().toISOString());
 
@@ -168,8 +176,69 @@ router.post('/verify', async (req, res) => {
 
                 console.log("About to save order with address:", orderPayload.address);
                 const savedOrder = await newOrder.save();
-                console.log("Order saved successfully:", savedOrder);
-
+                console.log("Khalti order saved successfully:", savedOrder);
+                
+                // Enhance order with product details for email
+                try {
+                    const enhancedOrder = JSON.parse(JSON.stringify(savedOrder));
+                    
+                    // Load product details for each item
+                    for (let i = 0; i < enhancedOrder.items.length; i++) {
+                        const item = enhancedOrder.items[i];
+                        if (item.productId) {
+                            try {
+                                const productId = typeof item.productId === 'object' ? 
+                                    item.productId._id : item.productId;
+                                
+                                const product = await Item.findById(productId);
+                                if (product) {
+                                    enhancedOrder.items[i].productName = product.name;
+                                    console.log(`Found product name: ${product.name} for item ${i}`);
+                                }
+                            } catch (err) {
+                                console.error(`Error fetching product details for item ${i}:`, err);
+                            }
+                        }
+                    }
+                    
+                    // Find the user to get their email
+                    const userId = enhancedOrder.userId || enhancedOrder.customer;
+                    console.log("Fetching user for Khalti order. User ID:", userId);
+                    
+                    const user = await User.findById(userId);
+                    
+                    if (user && user.email) {
+                        console.log("Found Khalti customer with email:", user.email);
+                        
+                        // Send customer confirmation with enhanced order data
+                        const emailContent = generateOrderConfirmationEmail(enhancedOrder);
+                        const emailResult = await sendEmail(
+                            user.email,
+                            `iStitch Order Confirmation #${enhancedOrder._id.toString().slice(-6)}`,
+                            emailContent
+                        );
+                        
+                        console.log("Khalti customer email result:", emailResult);
+                        
+                        // Send admin notification with enhanced order data
+                        const adminEmail = process.env.ADMIN_EMAIL;
+                        console.log("Sending Khalti admin notification to:", adminEmail);
+                        
+                        const adminNotificationContent = generateAdminOrderNotificationEmail(enhancedOrder);
+                        const adminResult = await sendEmail(
+                            adminEmail,
+                            `New Khalti Order Notification #${enhancedOrder._id.toString().slice(-6)}`,
+                            adminNotificationContent
+                        );
+                        
+                        console.log("Khalti admin notification result:", adminResult);
+                    } else {
+                        console.warn("⚠️ No email found for Khalti user:", userId);
+                    }
+                } catch (emailError) {
+                    console.error("Error sending Khalti order emails:", emailError);
+                }
+                
                 return res.json({
                     success: true,
                     message: "Payment verified and order saved successfully",

@@ -80,6 +80,7 @@ const Checkout = () => {
                 contactNumber: contactNumber.trim(),
                 address: address.trim(),
                 items: orderItems,
+                total: totalAmount,          // Add total to match backend expectation
                 totalAmount: totalAmount, // Explicitly set totalAmount
                 status: paymentMethod === "Khalti" ? "Processing" : "Pending",
                 paymentMethod: paymentMethod,
