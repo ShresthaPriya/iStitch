@@ -28,6 +28,9 @@ const userMeasurementsRoutes = require("./routes/userMeasurements");
 const khaltiRoutes = require('./routes/khaltiRoutes.js');
 const searchRoute = require("./routes/search.js");
 
+// Add email test route
+const emailTestRoutes = require('./routes/emailTest');
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 const CLIENT_URL = process.env.CLIENT_URL.replace(/\/+$/, ""); // Remove trailing slashes
@@ -85,7 +88,16 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/user-measurements", userMeasurementsRoutes);
 app.use('/api/khalti', khaltiRoutes);
 app.use("/api", searchRoute);
+app.use('/api/email', emailTestRoutes);
 
+
+// Log important configuration values at startup
+console.log('===== Server Configuration =====');
+console.log('Port:', process.env.PORT);
+console.log('Email User:', process.env.EMAIL_USER ? 'Set' : 'Not set');
+console.log('Email Password:', process.env.EMAIL_PASSWORD ? 'Set' : 'Not set');
+console.log('Admin Email:', process.env.ADMIN_EMAIL || 'Not set');
+console.log('==============================');
 
 // Start the server
 connectDB().then(() => {
