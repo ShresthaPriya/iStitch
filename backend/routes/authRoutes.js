@@ -1,5 +1,7 @@
 const express = require("express");
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 // Replace import with require
 const { forgetPassword, resetPassword } = require("../controller/user/forgetPasswordController");
 const {
@@ -9,6 +11,9 @@ const {
   loginFailed,
   logout,
 } = require("../controller/user/authController");
+
+// Add User model import
+const User = require("../models/User");
 
 const router = express.Router();
 const { addCredentials } = require("../controller/user/RegistrationController");
@@ -59,5 +64,93 @@ router.get("/logout", logout);
 
 router.post("/forgetPassword", forgetPassword);
 router.post("/reset-password/:token", resetPassword);
+
+// Admin login route
+router.post('/admin-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate admin credentials against environment variables
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    console.log("Attempting admin login for:", email);
+    console.log("Admin email from env:", adminEmail);
+
+    if (email === adminEmail && password === adminPassword) {
+      // Generate token with admin role
+      const token = jwt.sign(
+        { 
+          id: 'admin', 
+          email: adminEmail, 
+          role: 'admin' 
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      console.log("Admin login successful using environment credentials");
+      return res.json({
+        success: true,
+        message: 'Admin login successful',
+        token,
+        user: {
+          id: 'admin',
+          email: adminEmail,
+          role: 'admin',
+          fullname: 'Admin'
+        }
+      });
+    }
+
+    // If credentials don't match, check if it's a user with admin role
+    console.log("Checking for admin user in database");
+    const user = await User.findOne({ email });
+    
+    if (user && user.role === 'admin') {
+      // Compare password
+      const isMatch = await bcrypt.compare(password, user.password);
+      
+      if (isMatch) {
+        // Generate token for admin user
+        const token = jwt.sign(
+          { 
+            id: user._id, 
+            email: user.email, 
+            role: 'admin' 
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: '24h' }
+        );
+
+        console.log("Admin login successful using database user");
+        return res.json({
+          success: true,
+          message: 'Admin login successful',
+          token,
+          user: {
+            id: user._id,
+            email: user.email,
+            role: 'admin',
+            fullname: user.fullname
+          }
+        });
+      }
+    }
+
+    // If we get here, the login failed
+    console.log("Admin login failed for:", email);
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid admin credentials'
+    });
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred during admin login'
+    });
+  }
+});
 
 module.exports = router;

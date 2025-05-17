@@ -30,6 +30,7 @@ const searchRoute = require("./routes/search.js");
 
 // Add email test route
 const emailTestRoutes = require('./routes/emailTest');
+const adminAuth = require('./middleware/adminAuth');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -72,7 +73,7 @@ app.use((req, res, next) => {
 app.get("/", verifyToken, Home.Home);
 app.use("/register", Register);
 app.use("/login", Login);
-app.use("/auth", authRoutes);
+app.use("/api/auth", require('./routes/authRoutes'));
 app.use("/admin", adminRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/categories", categoryRoutes);
@@ -90,6 +91,24 @@ app.use('/api/khalti', khaltiRoutes);
 app.use("/api", searchRoute);
 app.use('/api/email', emailTestRoutes);
 
+// Protect admin routes
+app.use('/api/admin/*', adminAuth);
+app.use('/api/orders', adminAuth);
+app.use('/api/users', adminAuth);
+// Add other admin routes that need protection
+
+// Debug registered routes
+app._router.stack.forEach(function(r){
+  if (r.route && r.route.path){
+    console.log(r.route.stack[0].method.toUpperCase() + ' ' + r.route.path)
+  } else if (r.name === 'router' && r.handle.stack) {
+    r.handle.stack.forEach(function(layer) {
+      if (layer.route) {
+        console.log('  ' + layer.route.stack[0].method.toUpperCase() + ' ' + r.regexp.toString().split('\\')[1].replace('\\/?(?=\\/|$)', '') + layer.route.path);
+      }
+    });
+  }
+});
 
 // Log important configuration values at startup
 console.log('===== Server Configuration =====');

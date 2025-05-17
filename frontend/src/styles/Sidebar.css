@@ -42,22 +42,24 @@
     color: #f0f0f0;
   }
   
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 1rem;
+  }
+  
   .logout-button {
-    background: none;
-    border: none;
-    color: white;
-    text-align: left;
     width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 0.75rem;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background 0.3s, color 0.3s;
+    transition: background-color 0.2s;
+    font-size: 0.875rem;
+    font-weight: 500;
   }
   
   .logout-button:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #f0f0f0;
+    background-color: #dc2626;
   }

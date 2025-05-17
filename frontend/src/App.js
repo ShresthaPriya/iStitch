@@ -52,6 +52,9 @@ import SplashWomensPage from './pages/SplashWomensPage'; // Import SplashWomensP
 import SplashFabricCollection from './pages/SplashFabricCollection'; // Import SplashFabricCollection
 import SplashHome from './pages/SplashHome'; // Import SplashHome
 import ProductDetails from './pages/ProductDetails'; // Import ProductDetails
+import AdminLogin from './pages/AdminLogin'; // Import AdminLogin
+import AdminDashboard from './pages/AdminDashboard'; // Import AdminDashboard
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 function App() {
   const client = new QueryClient();
@@ -61,57 +64,104 @@ function App() {
     <div className='App'>
       <QueryClientProvider client={client}>
         <AuthProvider>
-          <AppProvider> {/* Use AppProvider instead of creating context directly */}
+          <AppProvider>
             <CartProvider>
               <Router>
                 <Routes>
+                  {/* Public routes */}
                   <Route path='/' element={<Splash />} />
                   <Route path='/auth/Register' element={<Register />} />
                   <Route path='/login' element={<Login />} />
                   <Route path='/forgetPassword' element={<ForgetPassword />} />
                   <Route path='/home' element={<Home />} />
-                  <Route path='/admin' element={<AdminHome />} />
                   <Route path='/Splash' element={<Splash />} />
                   <Route path='/items' element={<Items />} />
-                  {/* <Route path='/measurements' element={<Measurements />} /> */}
                   <Route path='/resetPassword' element={<ResetPasswordRequest />} />
                   <Route path='/product/:id' element={<ProductCard />} />
                   <Route path='/cart' element={<Cart />} />
-                  <Route path='/checkout' element={<Checkout />} /> {/* Add Checkout route */}
-                  <Route path='/customize-dress' element={<CustomizeDress />} /> {/* Add CustomizeDress route */}
+                  <Route path='/checkout' element={<Checkout />} />
+                  <Route path='/customize-dress' element={<CustomizeDress />} />
                   <Route path='/measurements/shirt' element={<ShirtMeasurements />} />
                   <Route path='/measurements/pant' element={<PantMeasurements />} />
                   <Route path='/measurements/blazer' element={<BlazerMeasurements />} />
                   <Route path='/measurements/blouse' element={<BlouseMeasurements />} />
-                  <Route path='/admin/customers' element={<Customer />} />
-                  <Route path='/admin/categories' element={<Category />} />
-                  {/* <Route path='/admin/subcategories' element={<Subcategory />} /> */}
-                  <Route path='/admin/products' element={<Item />} />
-                  <Route path='/admin/orders' element={<Order />} />
-                  <Route path='/admin/fabrics' element={<Fabric />} />
-                  <Route path='/admin/measurements' element={<Measurement />} />
-                  <Route path='/items/:category/:subcategory' element={<Items />} />
-                  <Route path='/admin/designs' element={<Design />} />
                   <Route path='/fabric-details' element={<FabricDetails />} />
-                  <Route path='/fabric-collection' element={<FabricCollection />} /> {/* Add FabricCollection route */}
+                  <Route path='/fabric-collection' element={<FabricCollection />} />
                   <Route path='/fabric-details/:id' element={<FabricDetails />} />
                   <Route path='/customer-measurements' element={<CustomerMeasurements />} />
                   <Route path="/" element={<HomePage />} />
                   <Route path="/category/:categoryId" element={<CategoryPage />} />
-                  <Route path='/mens' element={<MensPage />} /> {/* Updated Route */}
-                  <Route path='/women' element={<WomensPage />} /> {/* Updated Route */}
-                  <Route path='/admin-profile' element={<AdminProfile />} /> {/* Add AdminProfile route */}
-                  <Route path='/admin/users' element={<AdminUsers />} /> {/* Add AdminUsers route */}
-                  <Route path='/user-profile' element={<UserProfile />} /> {/* Add UserProfile route */}
-                  <Route path='/order-history' element={<OrderHistory />} /> {/* Add OrderHistory route */}
-                  <Route path='/splash-mens' element={<SplashMensPage />} /> {/* Add SplashMensPage route */}
-                  <Route path='/splash-womens' element={<SplashWomensPage />} /> {/* Add SplashWomensPage route */}
-                  <Route path='/splash-fabric-collection' element={<SplashFabricCollection />} /> {/* Add SplashFabricCollection route */}
-                  <Route path='/splash-home' element={<SplashHome />} /> {/* Add SplashHome route */}
-                  <Route path='/review-order' element={<ReviewOrder />} /> {/* Add ReviewOrder route */}
-                  <Route path='/order-confirmation' element={<OrderConfirmation />} /> {/* Add OrderConfirmation route */}
-                  <Route path='/product-details' element={<ProductDetails />} /> {/* Add ProductDetails route */}
+                  <Route path='/mens' element={<MensPage />} />
+                  <Route path='/women' element={<WomensPage />} />
+                  <Route path='/user-profile' element={<UserProfile />} />
+                  <Route path='/order-history' element={<OrderHistory />} />
+                  <Route path='/splash-mens' element={<SplashMensPage />} />
+                  <Route path='/splash-womens' element={<SplashWomensPage />} />
+                  <Route path='/splash-fabric-collection' element={<SplashFabricCollection />} />
+                  <Route path='/splash-home' element={<SplashHome />} />
+                  <Route path='/review-order' element={<ReviewOrder />} />
+                  <Route path='/order-confirmation' element={<OrderConfirmation />} />
+                  <Route path='/product-details' element={<ProductDetails />} />
                   
+                  {/* Admin login page - public */}
+                  <Route path="/admin/login" element={<AdminLogin />} />
+                  
+                  {/* Protected admin routes */}
+                  <Route path='/admin' element={
+                    <ProtectedAdminRoute>
+                      <AdminHome />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin/dashboard' element={
+                    <ProtectedAdminRoute>
+                      <AdminDashboard />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin/customers' element={
+                    <ProtectedAdminRoute>
+                      <Customer />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin/categories' element={
+                    <ProtectedAdminRoute>
+                      <Category />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin/products' element={
+                    <ProtectedAdminRoute>
+                      <Item />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin/orders' element={
+                    <ProtectedAdminRoute>
+                      <Order />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin/fabrics' element={
+                    <ProtectedAdminRoute>
+                      <Fabric />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin/measurements' element={
+                    <ProtectedAdminRoute>
+                      <Measurement />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin/designs' element={
+                    <ProtectedAdminRoute>
+                      <Design />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin-profile' element={
+                    <ProtectedAdminRoute>
+                      <AdminProfile />
+                    </ProtectedAdminRoute>
+                  } />
+                  <Route path='/admin/users' element={
+                    <ProtectedAdminRoute>
+                      <AdminUsers />
+                    </ProtectedAdminRoute>
+                  } />
                 </Routes>
                 <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
               </Router>
