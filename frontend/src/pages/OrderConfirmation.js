@@ -54,39 +54,10 @@ const OrderConfirmation = () => {
                     try {
                         if (storedOrderData) {
                             orderDetails = JSON.parse(storedOrderData);
-
-                            // --- PATCH: Overwrite with latest shipping/contact info if available ---
-                            const addressData = localStorage.getItem('shippingAddress') || sessionStorage.getItem('shippingAddress');
-                            if (addressData) {
-                                try {
-                                    const parsedAddress = JSON.parse(addressData);
-                                    if (parsedAddress.address) {
-                                        orderDetails.address = parsedAddress.address.trim();
-                                    }
-                                    if (parsedAddress.phone) {
-                                        orderDetails.contactNumber = parsedAddress.phone.trim();
-                                    }
-                                } catch (e) {
-                                    console.error("Failed to parse shipping address for overwrite:", e);
-                                }
-                            }
-                            // --- END PATCH ---
                         } else {
                             // Fallback: try to get user information from localStorage
                             const user = JSON.parse(localStorage.getItem('user')) || {};
-                            
-                            // Try to get the cart from multiple sources
-                            const cartFromStorage = localStorage.getItem('cart');
-                            const cartBackup = localStorage.getItem('cartBackup') || sessionStorage.getItem('cartBackup');
-                            
-                            let cart = [];
-                            if (cartFromStorage) {
-                                cart = JSON.parse(cartFromStorage);
-                            } else if (cartBackup) {
-                                cart = JSON.parse(cartBackup);
-                                // Restore the cart if we're using the backup
-                                localStorage.setItem('cart', cartBackup);
-                            }
+                            const cart = JSON.parse(localStorage.getItem('cart')) || [];
                             
                             console.log("No stored order data, using fallback with user:", user._id);
                             console.log("Cart contents:", cart);
@@ -115,20 +86,56 @@ const OrderConfirmation = () => {
                                     const parsedAddress = JSON.parse(addressData);
                                     shippingAddress = parsedAddress.address?.trim() || "";
                                     contactNum = parsedAddress.phone?.trim() || "";
-                                    console.log("Parsed address from shippingAddress:", shippingAddress);
-                                    console.log("Parsed contact number from shippingAddress:", contactNum);
+                                    console.log("Parsed address:", shippingAddress);
+                                    console.log("Parsed contact number:", contactNum);
                                 } catch (e) {
                                     console.error("Failed to parse shipping address:", e);
                                 }
                             }
 
-                            // Do not use URL params, pending order, or prompt. Only use checkout page values.
+                            // If still no address, check URL parameters
                             if (!shippingAddress || !contactNum) {
-                                setError("Address or contact number missing. Please go back to the checkout page and fill in your shipping details.");
+                                const queryParams = new URLSearchParams(location.search);
+                                const addressParam = queryParams.get('address');
+                                const contactParam = queryParams.get('contact');
+                                
+                                if (addressParam) shippingAddress = decodeURIComponent(addressParam);
+                                if (contactParam) contactNum = decodeURIComponent(contactParam);
+                                
+                                console.log("Address from URL params:", shippingAddress);
+                                console.log("Contact from URL params:", contactNum);
+                            }
+
+                            // If still no valid data, try to get from pending order
+                            if (!shippingAddress || !contactNum) {
+                                const pendingOrder = JSON.parse(localStorage.getItem('pendingKhaltiOrder') || 
+                                                              sessionStorage.getItem('pendingKhaltiOrder') || '{}');
+                                
+                                if (pendingOrder.address) shippingAddress = pendingOrder.address;
+                                if (pendingOrder.contactNumber) contactNum = pendingOrder.contactNumber;
+                                
+                                console.log("Address from pending order:", shippingAddress);
+                                console.log("Contact from pending order:", contactNum);
+                            }
+
+                            // As a last resort, create mock data
+                            if (!shippingAddress || !contactNum) {
+                                // Use user's information if available
+                                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                                shippingAddress = user.address || "Default Address";
+                                contactNum = user.phone || "9800000000";
+                                
+                                console.log("Using default/fallback address and contact");
+                            }
+                            
+                            // Validate address and contact number
+                            if (!shippingAddress || !contactNum) {
+                                console.error("Invalid address or contact number. Cannot proceed with order.");
+                                setError("Please provide a valid address and contact number.");
                                 setLoading(false);
                                 return;
                             }
-
+                            
                             // Create a minimal order payload from available data
                             orderDetails = {
                                 customer: user._id,
@@ -155,16 +162,9 @@ const OrderConfirmation = () => {
                         return;
                     }
                     
-                    // Before verification, save a backup of the cart
-                    try {
-                        const currentCart = localStorage.getItem('cart');
-                        if (currentCart) {
-                            localStorage.setItem('cartBackup', currentCart);
-                            sessionStorage.setItem('cartBackup', currentCart);
-                        }
-                    } catch (e) {
-                        console.error("Failed to backup cart:", e);
-                    }
+                    // Add the payment to processed list BEFORE sending the request to avoid double processing
+                    processedPayments.push(pidx);
+                    localStorage.setItem('processedKhaltiPayments', JSON.stringify(processedPayments));
                     
                     // Verify payment and create order
                     const response = await axios.post('http://localhost:4000/api/khalti/verify', {
@@ -177,19 +177,17 @@ const OrderConfirmation = () => {
                     if (response.data.success) {
                         setOrderSuccess(true);
                         setOrderId(response.data.order._id);
-
+                        
                         // Clear cart on successful order
                         try {
                             localStorage.removeItem('cart');
                             localStorage.removeItem('cartCount');
                             localStorage.removeItem('cartTotal');
-                            localStorage.removeItem('cartBackup');
-                            sessionStorage.removeItem('cartBackup');
                             console.log("Cart has been cleared successfully");
                         } catch (clearError) {
                             console.error("Error clearing cart data:", clearError);
                         }
-
+                        
                         // Clear other related data
                         localStorage.removeItem('pendingKhaltiOrder');
                         localStorage.removeItem('khaltiPidx');

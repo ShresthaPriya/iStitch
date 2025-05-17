@@ -138,10 +138,8 @@ router.post('/verify', async (req, res) => {
             try {
                 console.log("Valid order payload. Saving order to database:", JSON.stringify(orderPayload, null, 2));
 
-                
                 // Add payment transaction details to ensure uniqueness
                 const newOrder = new OrderModel({
-                    
                     userId: orderPayload.userId || orderPayload.customer,
                     customer: orderPayload.customer,
                     items: orderPayload.items.map(item => ({
@@ -151,6 +149,7 @@ router.post('/verify', async (req, res) => {
                     total: orderPayload.total || orderPayload.totalAmount,
                     totalAmount: orderPayload.totalAmount,
                     paymentMethod: "Khalti",
+                    paymentToken: verificationResult.transaction_id || pidx,
                     transaction: {
                         id: verificationResult.transaction_id,
                         pidx: pidx,
