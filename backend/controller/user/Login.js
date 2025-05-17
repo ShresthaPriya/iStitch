@@ -3,9 +3,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
-// Login function
-const Login = async (req, res) => {
+// Improved Login function with detailed logging
+exports.Login = async (req, res) => {
     const { email, password } = req.body;
+    console.log(`Login attempt for email: ${email}`);
 
     if (!email || !password) {
         return res.status(400).json({ success: false, error: "All the fields must be filled." });
@@ -17,47 +18,75 @@ const Login = async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ email });
+        // Use case-insensitive query for email
+        console.log('Searching for user with email (case-insensitive):', email);
+        const user = await User.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') } });
+        
+        // Debug: Log all users to see if email formats match
+        console.log('All users in database:');
+        const allUsers = await User.find({}, 'email');
+        console.log(allUsers.map(u => u.email));
+        
         if (!user) {
+            console.log(`Login failed: User not found with email ${email}`);
             return res.status(400).json({ success: false, error: "User not found." });
         }
 
+        // Log found user details for debugging
+        console.log('Found user:', {
+            id: user._id,
+            email: user.email,
+            fullname: user.fullname
+        });
+
+        // Compare plain text password with hashed password in database
+        console.log(`Comparing password for user: ${user._id}`);
         const isMatch = await bcrypt.compare(password, user.password);
+        console.log(`Password match result: ${isMatch}`);
+
         if (!isMatch) {
+            console.log(`Login failed: Invalid password for user ${user._id}`);
             return res.status(400).json({ success: false, error: "Invalid password." });
         }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "30h" });
-        user.password = undefined;
+        // Generate JWT token
+        const token = jwt.sign(
+            { id: user._id, email: user.email, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "1d" }
+        );
 
+        console.log(`Login successful for user: ${user._id}`);
         return res.status(200).json({
             success: true,
             message: "Login successful!",
             token,
             user: {
-                _id: user._id,
-                fullname: user.fullname,
+                id: user._id,
+                _id: user._id, // Include both id and _id for compatibility
                 email: user.email,
-                role: user.role, // Include the role in the response
-            },
+                fullname: user.fullname,
+                role: user.role
+            }
         });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error("Login error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred during login"
+        });
     }
 };
 
-// Google OAuth: Passport Authentication
-const googleLogin = passport.authenticate("google", { scope: ["profile", "email"] });
+// Google OAuth functions
+exports.googleLogin = passport.authenticate("google", { scope: ["profile", "email"] });
 
-// Google OAuth Callback
-const googleCallback = passport.authenticate("google", {
+exports.googleCallback = passport.authenticate("google", {
     failureRedirect: "/login",
     session: false,
 });
 
-// Google OAuth Success Handler
-const googleSuccess = (req, res) => {
+exports.googleSuccess = (req, res) => {
     const user = req.user;
 
     User.findOne({ googleId: user.id }, async (err, existingUser) => {
@@ -90,62 +119,3 @@ const googleSuccess = (req, res) => {
         });
     });
 };
-
-// Add improved logging to diagnose login issues
-exports.Login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        console.log(`Login attempt for email: ${email}`);
-
-        // Find user by email
-        const user = await User.findOne({ email });
-        if (!user) {
-            console.log(`Login failed: User not found with email ${email}`);
-            return res.status(401).json({
-                success: false,
-                error: "User not found"
-            });
-        }
-
-        // Compare plain text password with hashed password in database
-        console.log(`Comparing password for user: ${user._id}`);
-        const isMatch = await bcrypt.compare(password, user.password);
-        console.log(`Password match result: ${isMatch}`);
-
-        if (!isMatch) {
-            console.log(`Login failed: Invalid password for user ${user._id}`);
-            return res.status(401).json({
-                success: false,
-                error: "Invalid password"
-            });
-        }
-
-        // Generate JWT token
-        const token = jwt.sign(
-            { id: user._id, email: user.email, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "1d" }
-        );
-
-        console.log(`Login successful for user: ${user._id}`);
-        res.status(200).json({
-            success: true,
-            token,
-            user: {
-                id: user._id,
-                email: user.email,
-                fullname: user.fullname,
-                role: user.role
-            }
-        });
-    } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({
-            success: false,
-            message: "An error occurred during login"
-        });
-    }
-};
-
-
-module.exports = { Login, googleLogin, googleCallback, googleSuccess };

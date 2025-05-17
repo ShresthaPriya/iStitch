@@ -76,14 +76,15 @@ const generatePassword = () => {
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
-    console.log('Received forgot password request for:', email);
+    const normalizedEmail = email.toLowerCase().trim();
+    console.log('Received forgot password request for:', normalizedEmail);
     
-    // Find user by email
-    const user = await User.findOne({ email });
+    // Find user by email (case-insensitive)
+    const user = await User.findOne({ email: { $regex: new RegExp('^' + normalizedEmail + '$', 'i') } });
     
     // If user doesn't exist, still return success (security best practice)
     if (!user) {
-      console.log('User not found with email:', email);
+      console.log('User not found with email:', normalizedEmail);
       return res.json({
         success: true,
         message: 'If your email is registered, you will receive instructions to reset your password.'
