@@ -1,8 +1,8 @@
+
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const OrderModel = require('../models/OrderSchema'); // Import the Order model
-const { sendEmail } = require("../utils/emailService");
 
 console.log("Khalti routes are being registered at:", new Date().toISOString());
 
@@ -83,97 +83,143 @@ router.get('/test', (req, res) => {
 
 // Khalti payment verification endpoint
 router.post('/verify', async (req, res) => {
-  console.log("Verify endpoint hit with data:", JSON.stringify(req.body, null, 2));
-  try {
-      const { pidx, orderPayload } = req.body;
+    console.log("Verify endpoint hit with data:", JSON.stringify(req.body, null, 2));
+    try {
+        const { pidx, orderPayload } = req.body;
 
-      if (!pidx) {
-          return res.status(400).json({
-              success: false,
-              message: "Payment ID (pidx) is required"
-          });
-      }
+        if (!pidx) {
+            return res.status(400).json({
+                success: false,
+                message: "Payment ID (pidx) is required"
+            });
+        }
 
-      // Verify the payment with Khalti
-      const verificationResult = await verifyKhaltiPayment(pidx);
-      console.log("Khalti verification response:", JSON.stringify(verificationResult, null, 2));
+        // Check if an order with this payment token already exists
+        const existingOrder = await OrderModel.findOne({ 
+            $or: [
+                { paymentToken: pidx },
+                { "transaction.pidx": pidx }
+            ]
+        });
+        
+        if (existingOrder) {
+            console.log("Order already exists for this payment:", existingOrder._id);
+            return res.json({
+                success: true,
+                message: "Payment already processed",
+                order: existingOrder
+            });
+        }
 
-      if (verificationResult.status === 'Completed') {
-          console.log("Payment verified successfully. Checking order payload...");
+        // Verify the payment with Khalti
+        const verificationResult = await verifyKhaltiPayment(pidx);
+        console.log("Khalti verification response:", JSON.stringify(verificationResult, null, 2));
 
-          // Validate order payload
-          if (!orderPayload || !orderPayload.items || orderPayload.items.length === 0) {
-              console.error("Invalid order payload - missing items:", JSON.stringify(orderPayload, null, 2));
-              return res.status(400).json({
-                  success: false,
-                  message: "Invalid order data. Cart items are missing."
-              });
-          }
+        if (verificationResult.status === 'Completed') {
+            console.log("Payment verified successfully. Checking order payload...");
 
-          try {
-              console.log("Valid order payload. Saving order to database:", JSON.stringify(orderPayload, null, 2));
-              
-              // Save the order in the database
-              const newOrder = new OrderModel({
-                  userId: orderPayload.customer, // Add userId field
-                  customer: orderPayload.customer,
-                  items: orderPayload.items,
-                  total: orderPayload.totalAmount, // Add total field
-                  totalAmount: orderPayload.totalAmount,
-                  paymentMethod: "Khalti",
-                  status: "Completed", // Payment is successful
-                  fullName: orderPayload.fullName,
-                  contactNumber: orderPayload.contactNumber,
-                  address: orderPayload.address,
-                  paymentToken: verificationResult.transaction_id
-              });
+            // Validate order payload
+            if (!orderPayload || !orderPayload.items || orderPayload.items.length === 0) {
+                console.error("Invalid order payload - missing items:", JSON.stringify(orderPayload, null, 2));
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid order data. Cart items are missing."
+                });
+            }
 
-              await newOrder.save();
-              console.log("Order saved successfully:", newOrder);
+            if (!orderPayload.contactNumber || !orderPayload.address || orderPayload.address === "Not provided") {
+                console.error("Invalid order payload - missing contact number or address:", JSON.stringify(orderPayload, null, 2));
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid order data. Contact number or address is missing."
+                });
+            }
 
-              // // Send email notification
-              // const emailContent = `
-              //     <h1>Payment Successful</h1>
-              //     <p>Hi ${newOrder.fullName},</p>
-              //     <p>Your payment for Order ID ${newOrder._id} has been successfully processed.</p>
-              //     <p>Order Details:</p>
-              //     <ul>
-              //         <li><strong>Total Amount:</strong> Rs. ${newOrder.totalAmount}</li>
-              //         <li><strong>Payment Method:</strong> Khalti</li>
-              //     </ul>
-              //     <p>Thank you for choosing iStitch!</p>
-              // `;
-              // await sendEmail(newOrder.contactNumber, "Payment Confirmation - iStitch", emailContent);
+            try {
+                console.log("Valid order payload. Saving order to database:", JSON.stringify(orderPayload, null, 2));
 
-              // return res.json({
-              //     success: true,
-              //     message: "Payment verified, order saved, and email sent successfully",
-              //     order: newOrder
-              // });
-          } catch (orderErr) {
-              console.error("Error saving order:", orderErr);
-              return res.status(500).json({
-                  success: false,
-                  message: "Payment verified but failed to save order",
-                  error: orderErr.message
-              });
-          }
-      } else {
-          return res.status(400).json({
-              success: false,
-              message: "Payment verification failed",
-              data: verificationResult
-          });
-      }
-  } catch (err) {
-      console.error("Error verifying Khalti payment:", err);
-      res.status(500).json({
-          success: false,
-          message: err.detail || "Payment verification failed",
-          error: err
-      });
-  }
+                
+                // Add payment transaction details to ensure uniqueness
+                const newOrder = new OrderModel({
+                    
+                    userId: orderPayload.userId || orderPayload.customer,
+                    customer: orderPayload.customer,
+                    items: orderPayload.items.map(item => ({
+                        ...item,
+                        size: item.size || 'M'  // Add default size if not provided
+                    })),
+                    total: orderPayload.total || orderPayload.totalAmount,
+                    totalAmount: orderPayload.totalAmount,
+                    paymentMethod: "Khalti",
+                    transaction: {
+                        id: verificationResult.transaction_id,
+                        pidx: pidx,
+                        amount: verificationResult.total_amount,
+                        fee: verificationResult.fee || 0,
+                        completed: true,
+                        date: new Date()
+                    },
+                    paymentStatus: 'Paid',
+                    status: "Processing",
+                    fullName: orderPayload.fullName || "N/A",
+                    contactNumber: orderPayload.contactNumber || "Not provided",
+                    address: orderPayload.address || "Not provided",
+                    isCustomOrder: orderPayload.isCustomOrder || false
+                });
+
+                console.log("About to save order with address:", orderPayload.address);
+                const savedOrder = await newOrder.save();
+                console.log("Order saved successfully:", savedOrder);
+
+                return res.json({
+                    success: true,
+                    message: "Payment verified and order saved successfully",
+                    order: savedOrder
+                });
+            } catch (orderErr) {
+                // Handle potential duplicate key errors (race condition)
+                if (orderErr.code === 11000) {
+                    const duplicateOrder = await OrderModel.findOne({
+                        $or: [
+                            { paymentToken: verificationResult.transaction_id || pidx },
+                            { "transaction.pidx": pidx }
+                        ]
+                    });
+                    
+                    if (duplicateOrder) {
+                        console.log("Duplicate order found:", duplicateOrder._id);
+                        return res.json({
+                            success: true,
+                            message: "Order already exists",
+                            order: duplicateOrder
+                        });
+                    }
+                }
+                
+                console.error("Error saving order:", orderErr);
+                return res.status(500).json({
+                    success: false,
+                    message: "Payment verified but failed to save order",
+                    error: orderErr.message
+                });
+            }
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Payment verification failed",
+                data: verificationResult
+            });
+        }
+    } catch (err) {
+        console.error("Error verifying Khalti payment:", err);
+        res.status(500).json({
+            success: false,
+            message: err.detail || "Payment verification failed",
+            error: err
+        });
+    }
 });
+
 // Khalti payment initiation endpoint
 router.post('/initiate', async (req, res) => {
     console.log("Initiate endpoint hit with body:", JSON.stringify(req.body, null, 2));
@@ -187,7 +233,6 @@ router.post('/initiate', async (req, res) => {
                 message: "All fields are required (amount, purchaseOrderId, purchaseOrderName, returnUrl)"
             });
         }
-
         const paymentData = {
             return_url: returnUrl,
             website_url: "http://localhost:3000",
@@ -220,5 +265,4 @@ router.post('/initiate', async (req, res) => {
         });
     }
 });
-
 module.exports = router;

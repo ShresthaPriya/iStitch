@@ -80,16 +80,97 @@ const ReviewOrder = () => {
                     setError("Failed to place order. Please try again.");
                 }
             } else if (paymentMethod === "Khalti") {
+                // Validate contact number and address
+                if (!contactNumber.trim() || !address.trim()) {
+                    setError("Please provide both contact number and address.");
+                    setIsSubmitting(false);
+                    return;
+                }
+
+                // Store shipping address in localStorage
+                const shippingAddress = {
+                    address: address.trim(),
+                    phone: contactNumber.trim()
+                };
+                try {
+                    localStorage.setItem('shippingAddress', JSON.stringify(shippingAddress));
+                    console.log("Shipping address saved to localStorage:", shippingAddress);
+                } catch (e) {
+                    console.error("Failed to save shipping address to localStorage:", e);
+                }
+
+                // Create order payload
+                const orderPayload = {
+                    orderId: `order_${Date.now()}`,
+                    customer: userId,
+                    userId: userId,
+                    items: [{
+                        productId: fabric._id,
+                        quantity: 1,
+                        price: priceEstimate,
+                        customDetails: {
+                            fabricId: fabric._id,
+                            fabricName: fabric.name,
+                            itemType: customization.itemToBeMade,
+                            style: customization.style,
+                            additionalStyling: customization.additionalStyling
+                        }
+                    }],
+                    total: priceEstimate,
+                    totalAmount: priceEstimate,
+                    paymentMethod: "Khalti",
+                    status: "Processing",
+                    fullName: user.fullname || "N/A",
+                    contactNumber: contactNumber.trim(),
+                    address: address.trim(),
+                    isCustomOrder: true
+                };
+
+                // Store order details in localStorage
+                try {
+                    localStorage.setItem('pendingKhaltiOrder', JSON.stringify(orderPayload));
+                    console.log("Order details saved to localStorage:", orderPayload);
+                } catch (e) {
+                    console.error("Failed to save order details to localStorage:", e);
+                }
+
+                // Proceed with Khalti payment
                 const paymentData = {
                     amount: priceEstimate * 100,
-                    purchaseOrderId: `order_${Date.now()}`,
+                    purchaseOrderId: orderPayload.orderId,
                     purchaseOrderName: "iStitch Custom Clothing",
                     returnUrl: "http://localhost:3000/order-confirmation"
                 };
 
                 const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
                 if (response.data.success) {
-                    window.location.href = response.data.paymentUrl;
+                    // Save shipping address and order details again right before redirect
+                    // This ensures the data is available when returning from Khalti
+                    const shippingAddress = {
+                        address: address.trim(),
+                        phone: contactNumber.trim()
+                    };
+                    
+                    // Use sessionStorage as it persists across page refreshes within the same tab/window
+                    sessionStorage.setItem('shippingAddress', JSON.stringify(shippingAddress));
+                    sessionStorage.setItem('pendingKhaltiOrder', JSON.stringify(orderPayload));
+                    sessionStorage.setItem('khaltiPidx', response.data.pidx);
+                    
+                    // Double check localStorage as well
+                    localStorage.setItem('shippingAddress', JSON.stringify(shippingAddress));
+                    localStorage.setItem('pendingKhaltiOrder', JSON.stringify(orderPayload));
+                    localStorage.setItem('khaltiPidx', response.data.pidx);
+                    
+                    console.log("Data saved before redirect:", {
+                        shippingAddress,
+                        orderPayload,
+                        pidx: response.data.pidx
+                    });
+                    
+                    // Small delay to ensure data is saved before redirect
+                    setTimeout(() => {
+                        window.location.href = response.data.paymentUrl;
+                    }, 100);
                 } else {
                     setError(response.data.message || "Failed to initiate Khalti payment. Please try again.");
                 }
