@@ -144,4 +144,20 @@ router.get('/:userId', async (req, res) => {
         return res.status(500).json({ success: false, message: "Failed to retrieve orders", error: err.message });
     }
 });
+
+// GET all orders - Make sure this route exists and is working
+router.get('/', async (req, res) => {
+    try {
+        console.log("Fetching all orders...");
+        const orders = await OrderModel.find()
+            .sort({ createdAt: -1 }); // Sort by newest first
+        
+        console.log(`Found ${orders.length} orders`);
+        res.json({ success: true, orders });
+    } catch (err) {
+        console.error("Error fetching orders:", err);
+        res.status(500).json({ success: false, message: "Failed to fetch orders", error: err.message });
+    }
+});
+
 module.exports = router;

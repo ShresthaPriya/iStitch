@@ -5,14 +5,16 @@ import "../styles/Sidebar.css";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-
+  
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Remove token
-    localStorage.removeItem("user"); // Remove user details
-    localStorage.removeItem("role"); // Remove role
-    navigate("/login"); // Redirect to login page
+    // Clear admin authentication
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('isAdmin');
+    
+    // Redirect to admin login
+    navigate('/admin/login');
   };
-
+  
   return (
     <div className="sidebar">
       <h1 className="logo">iStitch</h1>
@@ -67,12 +69,12 @@ const Sidebar = () => {
             <FaUsers className="icon" /> Users
           </NavLink>
         </li>
-        <li>
-          <button className="menu-link logout-button" onClick={handleLogout}>
-            <FaSignOutAlt className="icon" /> Logout
-          </button>
-        </li>
       </ul>
+      <div className="sidebar-bottom">
+        <button className="logout-btn" onClick={handleLogout}>
+          <FaSignOutAlt className="icon" /> Logout
+        </button>
+      </div>
     </div>
   );
 };

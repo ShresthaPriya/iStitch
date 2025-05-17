@@ -20,7 +20,15 @@ const Order = () => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:4000/api/orders");
+        console.log("Fetching orders from API...");
+        const response = await axios.get("http://localhost:4000/api/orders", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        
+        console.log("API response:", response.data);
+        
         if (response.data.success) {
           const ordersWithUserId = response.data.orders.map(order => ({
             ...order,
