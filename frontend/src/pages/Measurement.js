@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus, FaBook } from "react-icons/fa";
+import { FaUser, FaEdit, FaTrash, FaEye, FaPlus, FaBook, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
@@ -11,34 +11,39 @@ const Measurement = () => {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedMeasurementId, setSelectedMeasurementId] = useState(null);
+  const [selectedGuideId, setSelectedGuideId] = useState(null);
   const [newMeasurement, setNewMeasurement] = useState({ title: "", unit: "" });
   const [newGuide, setNewGuide] = useState({ title: "", video: null, guideFile: null, description: "" });
   const [viewingMeasurement, setViewingMeasurement] = useState(null);
   const [viewingGuide, setViewingGuide] = useState(null);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // Success message state
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // State for delete confirmation modal
+  const [measurementToDelete, setMeasurementToDelete] = useState(null); // Measurement to delete
+  const [guideToDelete, setGuideToDelete] = useState(null); // Guide to delete
 
   useEffect(() => {
-    const fetchMeasurements = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/measurements');
-        setMeasurements(response.data.measurements);
-      } catch (err) {
-        console.error("Error fetching measurements:", err);
-      }
-    };
-
-    const fetchGuides = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/guides');
-        setGuides(response.data.guides);
-      } catch (err) {
-        console.error("Error fetching guides:", err);
-      }
-    };
-
     fetchMeasurements();
     fetchGuides();
   }, []);
+
+  const fetchMeasurements = async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/api/measurements');
+      setMeasurements(response.data.measurements);
+    } catch (err) {
+      console.error("Error fetching measurements:", err);
+    }
+  };
+
+  const fetchGuides = async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/api/guides');
+      setGuides(response.data.guides);
+    } catch (err) {
+      console.error("Error fetching guides:", err);
+    }
+  };
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -71,6 +76,7 @@ const Measurement = () => {
             measurement._id === selectedMeasurementId ? { ...measurement, ...response.data.measurement } : measurement
           )
         );
+        setSuccessMessage("Measurement updated successfully!");
         setEditMode(false);
         setSelectedMeasurementId(null);
       } else {
@@ -80,6 +86,7 @@ const Measurement = () => {
           }
         });
         setMeasurements([...measurements, response.data.measurement]);
+        setSuccessMessage("Measurement added successfully!");
       }
       setShowMeasurementModal(false);
       setNewMeasurement({ title: "", unit: "" });
@@ -89,7 +96,7 @@ const Measurement = () => {
     }
   };
 
-  // Add guide
+  // Add or Edit guide
   const handleAddGuide = async () => {
     const formData = new FormData();
     formData.append("title", newGuide.title);
@@ -102,25 +109,57 @@ const Measurement = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:4000/api/guides', formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      });
-      setGuides([...guides, response.data.guide]);
+      if (editMode) {
+        const response = await axios.put(`http://localhost:4000/api/guides/${selectedGuideId}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        });
+        setGuides(
+          guides.map((guide) =>
+            guide._id === selectedGuideId ? { ...guide, ...response.data.guide } : guide
+          )
+        );
+        setSuccessMessage("Guide updated successfully!");
+        setEditMode(false);
+        setSelectedGuideId(null);
+      } else {
+        const response = await axios.post('http://localhost:4000/api/guides', formData, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        });
+        setGuides([...guides, response.data.guide]);
+        setSuccessMessage("Guide added successfully!");
+      }
       setShowGuideModal(false);
       setNewGuide({ title: "", video: null, guideFile: null, description: "" });
     } catch (err) {
-      console.error('Error adding guide:', err);
-      setError(`Error adding guide: ${err.response?.data?.error || err.message}`);
+      console.error('Error adding/updating guide:', err);
+      setError(`Error adding/updating guide: ${err.response?.data?.error || err.message}`);
     }
   };
 
+  // Open delete confirmation modal for measurement
+  const confirmDeleteMeasurement = (id) => {
+    setMeasurementToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  // Open delete confirmation modal for guide
+  const confirmDeleteGuide = (id) => {
+    setGuideToDelete(id);
+    setShowDeleteModal(true);
+  };
+
   // Delete measurement
-  const handleDeleteMeasurement = async (id) => {
+  const handleDeleteMeasurement = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/measurements/${id}`);
-      setMeasurements(measurements.filter((measurement) => measurement._id !== id));
+      await axios.delete(`http://localhost:4000/api/measurements/${measurementToDelete}`);
+      setMeasurements(measurements.filter((measurement) => measurement._id !== measurementToDelete));
+      setSuccessMessage("Measurement deleted successfully!");
+      setShowDeleteModal(false);
+      setMeasurementToDelete(null);
     } catch (err) {
       console.error('Error deleting measurement:', err);
       setError(`Error deleting measurement: ${err.response?.data?.error || err.message}`);
@@ -128,14 +167,22 @@ const Measurement = () => {
   };
 
   // Delete guide
-  const handleDeleteGuide = async (id) => {
+  const handleDeleteGuide = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/guides/${id}`);
-      setGuides(guides.filter((guide) => guide._id !== id));
+      await axios.delete(`http://localhost:4000/api/guides/${guideToDelete}`);
+      setGuides(guides.filter((guide) => guide._id !== guideToDelete));
+      setSuccessMessage("Guide deleted successfully!");
+      setShowDeleteModal(false);
+      setGuideToDelete(null);
     } catch (err) {
       console.error('Error deleting guide:', err);
       setError(`Error deleting guide: ${err.response?.data?.error || err.message}`);
     }
+  };
+
+  // Close success message
+  const closeSuccessMessage = () => {
+    setSuccessMessage("");
   };
 
   // Edit measurement
@@ -149,7 +196,7 @@ const Measurement = () => {
   // Edit guide
   const handleEditGuide = (guide) => {
     setNewGuide(guide);
-    setSelectedMeasurementId(guide._id);
+    setSelectedGuideId(guide._id);
     setEditMode(true);
     setShowGuideModal(true);
   };
@@ -175,16 +222,24 @@ const Measurement = () => {
           <h2 className="title">Measurements</h2>
           <div className="user-info">
             <span>Admin</span>
-            {/* <FaCog className="icon" /> */}
             <FaUser className="icon" />
           </div>
         </div>
+
+        {/* Add Measurement Button */}
         <div className="add-category-container">
           <button className="add-category-btn" onClick={() => { setShowMeasurementModal(true); setEditMode(false); }}>
             <FaPlus className="add-icon" /> Add Measurement
           </button>
+        </div>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="success-message">
+            {successMessage}
+            <FaTimes className="close-icon" onClick={closeSuccessMessage} />
           </div>
-       
+        )}
 
         {/* Measurements Table */}
         <div className="customers-table">
@@ -203,7 +258,7 @@ const Measurement = () => {
                   <td>{measurement.unit}</td>
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditMeasurement(measurement)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDeleteMeasurement(measurement._id)} />
+                    <FaTrash className="delete-icon" onClick={() => confirmDeleteMeasurement(measurement._id)} />
                     <FaEye className="view-icon" onClick={() => handleViewMeasurement(measurement)} />
                   </td>
                 </tr>
@@ -211,13 +266,14 @@ const Measurement = () => {
             </tbody>
           </table>
         </div>
- {/* Add Measurement and Guide Buttons */}
- <div className="add-category-container">
-          
-          <button className="add-category-btn" onClick={() => { setShowGuideModal(true); }}>
+
+        {/* Add Guide Button */}
+        <div className="add-category-container">
+          <button className="add-category-btn" onClick={() => { setShowGuideModal(true); setEditMode(false); }}>
             <FaBook className="add-icon" /> Add Guide
           </button>
         </div>
+
         {/* Guides Table */}
         <div className="customers-table">
           <table>
@@ -239,7 +295,7 @@ const Measurement = () => {
                   <td>{guide.description}</td>
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditGuide(guide)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDeleteGuide(guide._id)} />
+                    <FaTrash className="delete-icon" onClick={() => confirmDeleteGuide(guide._id)} />
                     <FaEye className="view-icon" onClick={() => handleViewGuide(guide)} />
                   </td>
                 </tr>
@@ -263,17 +319,17 @@ const Measurement = () => {
               <button className="add-btn" onClick={handleAddMeasurement}>
                 {editMode ? "Update" : "Add"}
               </button>
-              <button className="close-btn" onClick={() => setShowMeasurementModal(false)}>Cancel</button>
+              <button className="cancel-btn" onClick={() => setShowMeasurementModal(false)}>Cancel</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Add Guide Modal */}
+      {/* Add/Edit Guide Modal */}
       {showGuideModal && (
         <div className="modal">
           <div className="modal-content">
-            <h3>Add New Guide</h3>
+            <h3>{editMode ? "Edit Guide" : "Add New Guide"}</h3>
             {error && <p className="error">{error}</p>}
             <label>Title:</label>
             <input type="text" name="title" value={newGuide.title} onChange={handleChange} required />
@@ -285,9 +341,28 @@ const Measurement = () => {
             <textarea name="description" value={newGuide.description} onChange={handleChange} />
             <div className="modal-actions">
               <button className="add-btn" onClick={handleAddGuide}>
-                Add
+                {editMode ? "Update" : "Add"}
               </button>
-              <button className="close-btn" onClick={() => setShowGuideModal(false)}>Cancel</button>
+              <button className="cancel-btn" onClick={() => setShowGuideModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div className="modal-actions">
+              {measurementToDelete && (
+                <button className="delete-btn" onClick={handleDeleteMeasurement}>Delete Measurement</button>
+              )}
+              {guideToDelete && (
+                <button className="delete-btn" onClick={handleDeleteGuide}>Delete Guide</button>
+              )}
+              <button className="cancel-btn" onClick={() => setShowDeleteModal(false)}>Cancel</button>
             </div>
           </div>
         </div>
@@ -299,7 +374,9 @@ const Measurement = () => {
           <div className="modal-content">
             <h3>{viewingMeasurement.title} Details</h3>
             <p><strong>Unit:</strong> {viewingMeasurement.unit}</p>
-            <button className="close-btn" onClick={() => setViewingMeasurement(null)}>Close</button>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setViewingMeasurement(null)}>Close</button>
+            </div>
           </div>
         </div>
       )}
@@ -312,7 +389,9 @@ const Measurement = () => {
             <p><strong>Video:</strong> {viewingGuide.video ? <a href={`http://localhost:4000/${viewingGuide.video}`} target="_blank" rel="noopener noreferrer">View Video</a> : "N/A"}</p>
             <p><strong>Guide File:</strong> {viewingGuide.guideFile ? <a href={`http://localhost:4000/${viewingGuide.guideFile}`} target="_blank" rel="noopener noreferrer">View Guide</a> : "N/A"}</p>
             <p><strong>Description:</strong> {viewingGuide.description}</p>
-            <button className="close-btn" onClick={() => setViewingGuide(null)}>Close</button>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setViewingGuide(null)}>Close</button>
+            </div>
           </div>
         </div>
       )}

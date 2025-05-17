@@ -7,12 +7,6 @@ const AdminUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [newUser, setNewUser] = useState({
-        fullname: "",
-        email: "",
-        password: "",
-        role: "user"
-    });
 
     useEffect(() => {
         fetchUsers();
@@ -33,41 +27,6 @@ const AdminUsers = () => {
             console.error("Error fetching users:", err);
             setError(`Failed to fetch users: ${err.response?.data?.message || err.message}`);
             setLoading(false);
-        }
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewUser({ ...newUser, [name]: value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            setError(""); // Clear any previous errors
-            
-            const response = await axios.post("http://localhost:4000/api/users", newUser);
-            
-            if (response.data.success) {
-                // Reset the form
-                setNewUser({
-                    fullname: "",
-                    email: "",
-                    password: "",
-                    role: "user"
-                });
-                
-                // Show success message
-                alert("User added successfully!");
-                
-                // Refresh the users list
-                fetchUsers();
-            } else {
-                setError(response.data.message || "Failed to add user");
-            }
-        } catch (err) {
-            console.error("Error adding user:", err);
-            setError(`Failed to add user: ${err.response?.data?.message || err.message}`);
         }
     };
 
@@ -103,58 +62,6 @@ const AdminUsers = () => {
                 {error && <div className="error-message">{error}</div>}
                 
                 <div className="admin-panel">
-                    <div className="admin-form-container">
-                        <h3>Add New User</h3>
-                        <form onSubmit={handleSubmit} className="admin-form">
-                            <div className="form-group">
-                                <label htmlFor="fullname">Full Name</label>
-                                <input
-                                    type="text"
-                                    id="fullname"
-                                    name="fullname"
-                                    value={newUser.fullname}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="email">Email</label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    value={newUser.email}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="password">Password</label>
-                                <input
-                                    type="password"
-                                    id="password"
-                                    name="password"
-                                    value={newUser.password}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="role">Role</label>
-                                <select
-                                    id="role"
-                                    name="role"
-                                    value={newUser.role}
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="user">User</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-                            <button type="submit">Add User</button>
-                        </form>
-                    </div>
-
                     <div className="admin-table">
                         <h3>User List</h3>
                         {loading ? (

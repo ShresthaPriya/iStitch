@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaUser, FaCog, FaEdit, FaTrash, FaEye, FaPlus, FaTimes, FaPlusCircle } from "react-icons/fa"; // Added FaTimes and FaPlusCircle
+import { FaUser, FaEdit, FaTrash, FaEye, FaPlus, FaTimes, FaPlusCircle } from "react-icons/fa";
 import axios from "axios";
 import "../styles/Customer.css";
 import Sidebar from "../components/Sidebar";
@@ -9,22 +9,25 @@ const Fabric = () => {
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedFabricId, setSelectedFabricId] = useState(null);
-  const [newFabric, setNewFabric] = useState({ name: "", price: "", description: "", images: [], products: [""] }); // Initialize products as an array with one empty string
+  const [newFabric, setNewFabric] = useState({ name: "", price: "", description: "", images: [], products: [""] });
   const [viewingFabric, setViewingFabric] = useState(null);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // Success message state
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // State for delete confirmation modal
+  const [fabricToDelete, setFabricToDelete] = useState(null); // Fabric to delete
 
   useEffect(() => {
-    const fetchFabrics = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/api/fabrics');
-        setFabrics(response.data.fabrics);
-      } catch (err) {
-        console.error("Error fetching fabrics:", err);
-      }
-    };
-
     fetchFabrics();
   }, []);
+
+  const fetchFabrics = async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/api/fabrics');
+      setFabrics(response.data.fabrics);
+    } catch (err) {
+      console.error("Error fetching fabrics:", err);
+    }
+  };
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -63,7 +66,7 @@ const Fabric = () => {
     formData.append("name", newFabric.name);
     formData.append("price", newFabric.price);
     formData.append("description", newFabric.description);
-    newFabric.products.forEach((product) => formData.append("products", product)); // Append each product separately
+    newFabric.products.forEach((product) => formData.append("products", product));
     for (let i = 0; i < newFabric.images.length; i++) {
       formData.append("images", newFabric.images[i]);
     }
@@ -75,13 +78,12 @@ const Fabric = () => {
             "Content-Type": "multipart/form-data"
           }
         });
-        alert("Fabric updated successfully");
-
         setFabrics(
           fabrics.map((fabric) =>
             fabric._id === selectedFabricId ? { ...fabric, ...response.data.fabric } : fabric
           )
         );
+        setSuccessMessage("Fabric updated successfully!");
         setEditMode(false);
         setSelectedFabricId(null);
       } else {
@@ -91,6 +93,7 @@ const Fabric = () => {
           }
         });
         setFabrics([...fabrics, response.data.fabric]);
+        setSuccessMessage("Fabric added successfully!");
       }
       setShowModal(false);
       setNewFabric({ name: "", price: "", description: "", images: [], products: [""] });
@@ -100,20 +103,37 @@ const Fabric = () => {
     }
   };
 
+  // Open delete confirmation modal
+  const confirmDeleteFabric = (id) => {
+    setFabricToDelete(id);
+    setShowDeleteModal(true);
+  };
+
   // Delete fabric
-  const handleDeleteFabric = async (id) => {
+  const handleDeleteFabric = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/fabrics/${id}`);
-      setFabrics(fabrics.filter((fabric) => fabric._id !== id));
+      await axios.delete(`http://localhost:4000/api/fabrics/${fabricToDelete}`);
+      setFabrics(fabrics.filter((fabric) => fabric._id !== fabricToDelete));
+      setSuccessMessage("Fabric deleted successfully!");
+      setShowDeleteModal(false);
+      setFabricToDelete(null);
     } catch (err) {
       console.error('Error deleting fabric:', err);
       setError(`Error deleting fabric: ${err.response?.data?.error || err.message}`);
     }
   };
 
+  // Close success message
+  const closeSuccessMessage = () => {
+    setSuccessMessage("");
+  };
+
   // Edit fabric
   const handleEditFabric = (fabric) => {
-    setNewFabric(fabric);
+    setNewFabric({
+      ...fabric,
+      products: fabric.products || [],
+    });
     setSelectedFabricId(fabric._id);
     setEditMode(true);
     setShowModal(true);
@@ -135,7 +155,6 @@ const Fabric = () => {
           <h2 className="title">Fabrics</h2>
           <div className="user-info">
             <span>Admin</span>
-            <FaCog className="icon" />
             <FaUser className="icon" />
           </div>
         </div>
@@ -147,6 +166,14 @@ const Fabric = () => {
           </button>
         </div>
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="success-message">
+            {successMessage}
+            <FaTimes className="close-icon" onClick={closeSuccessMessage} />
+          </div>
+        )}
+
         {/* Fabrics Table */}
         <div className="customers-table">
           <table>
@@ -155,7 +182,7 @@ const Fabric = () => {
                 <th>Fabric Name</th>
                 <th>Price</th>
                 <th>Description</th>
-                <th>Products</th>
+                {/* <th>Products</th> */}
                 <th>Images</th>
                 <th>Operations</th>
               </tr>
@@ -166,7 +193,7 @@ const Fabric = () => {
                   <td>{fabric.name}</td>
                   <td>{fabric.price}</td>
                   <td>{fabric.description}</td>
-                  <td>{fabric.products.length > 0 ? fabric.products.join(", ") : "No Products"}</td>
+                  {/* <td>{fabric.products.length > 0 ? fabric.products.join(", ") : "No Products"}</td> */}
                   <td>
                     {fabric.images.map((image, index) => (
                       <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} width="50" />
@@ -174,7 +201,7 @@ const Fabric = () => {
                   </td>
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditFabric(fabric)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDeleteFabric(fabric._id)} />
+                    <FaTrash className="delete-icon" onClick={() => confirmDeleteFabric(fabric._id)} />
                     <FaEye className="view-icon" onClick={() => handleViewFabric(fabric)} />
                   </td>
                 </tr>
@@ -196,16 +223,16 @@ const Fabric = () => {
             <input type="number" name="price" value={newFabric.price} onChange={handleChange} required />
             <label>Description:</label>
             <textarea name="description" value={newFabric.description} onChange={handleChange} required />
-            <label>Products:</label>
+            {/* <label>Products:</label> */}
             {newFabric.products.map((product, index) => (
               <div key={index} className="product-input-group">
-                <input
+                {/* <input
                   type="text"
                   value={product}
                   onChange={(e) => handleProductChange(index, e.target.value)}
                   placeholder="Enter product name"
                   required
-                />
+                /> */}
                 <button
                   type="button"
                   className="remove-product-btn"
@@ -225,7 +252,21 @@ const Fabric = () => {
               <button className="add-btn" onClick={handleAddFabric}>
                 {editMode ? "Update" : "Add"}
               </button>
-              <button className="close-btn" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this fabric? This action cannot be undone.</p>
+            <div className="modal-actions">
+              <button className="delete-btn" onClick={handleDeleteFabric}>Delete</button>
+              <button className="cancel-btn" onClick={() => setShowDeleteModal(false)}>Cancel</button>
             </div>
           </div>
         </div>
@@ -247,7 +288,9 @@ const Fabric = () => {
                 ))}
               </div>
             </div>
-            <button className="close-btn" onClick={() => setViewingFabric(null)}>Close</button>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setViewingFabric(null)}>Close</button>
+            </div>
           </div>
         </div>
       )}

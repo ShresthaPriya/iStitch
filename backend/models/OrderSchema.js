@@ -57,8 +57,16 @@ const OrderSchema = new mongoose.Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ['Pending', 'Completed', 'Failed'],
+        enum: ['Pending', 'Completed', 'Failed', 'Paid'],
         default: 'Pending'
+    },
+    transaction: {
+        id: { type: String },
+        pidx: { type: String },
+        amount: { type: Number },
+        fee: { type: Number },
+        completed: { type: Boolean },
+        date: { type: Date }
     },
     status: {
         type: String,
@@ -84,4 +92,4 @@ const OrderSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model("Order", OrderSchema);
+module.exports = mongoose.models.Order || mongoose.model("Order", OrderSchema);

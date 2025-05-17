@@ -42,3 +42,22 @@
     color: #f0f0f0;
   }
   
+  .logout-button {
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+  }
+  
+  .logout-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #f0f0f0;
+  }

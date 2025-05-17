@@ -14,6 +14,8 @@ const Item = () => {
   const [viewingItem, setViewingItem] = useState(null);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // Success message state
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // State for delete confirmation modal
+  const [itemToDelete, setItemToDelete] = useState(null); // Item to delete
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -90,7 +92,7 @@ const Item = () => {
         );
         setEditMode(false);
         setSelectedItemId(null);
-        setSuccessMessage("Item updated successfully!");
+        setSuccessMessage("Product updated successfully!");
       } else {
         const response = await axios.post('http://localhost:4000/api/items', formData, {
           headers: {
@@ -98,27 +100,30 @@ const Item = () => {
           }
         });
         setItems([...items, response.data.item]);
-        setSuccessMessage("Item added successfully!");
+        setSuccessMessage("Product added successfully!");
       }
       setShowModal(false);
       setNewItem({ name: "", category: "", price: "", description: "", images: [] });
     } catch (err) {
-      console.error('Error adding/updating item:', err);
-      setError(`Error adding/updating item: ${err.response?.data?.error || err.message}`);
+      console.error('Error adding/updating product:', err);
+      setError(`Error adding/updating product: ${err.response?.data?.error || err.message}`);
     }
   };
 
-  // Delete item
-  const handleDeleteItem = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this item?");
-    if (!confirmed) {
-      return;
-    }
+  // Open delete confirmation modal
+  const confirmDeleteItem = (id) => {
+    setItemToDelete(id);
+    setShowDeleteModal(true);
+  };
 
+  // Delete item
+  const handleDeleteItem = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/items/${id}`);
-      setItems(items.filter((item) => item._id !== id));
-      setSuccessMessage("Item deleted successfully!");
+      await axios.delete(`http://localhost:4000/api/items/${itemToDelete}`);
+      setItems(items.filter((item) => item._id !== itemToDelete));
+      setSuccessMessage("Product deleted successfully!");
+      setShowDeleteModal(false);
+      setItemToDelete(null);
     } catch (err) {
       console.error('Error deleting item:', err);
       setError(`Error deleting item: ${err.response?.data?.error || err.message}`);
@@ -154,7 +159,7 @@ const Item = () => {
       <div className="main-content">
         {/* Top Bar */}
         <div className="top-bar">
-          <h2 className="title">Items</h2>
+          <h2 className="title">Products</h2>
           <div className="user-info">
             <span>Admin</span>
             {/* <FaCog className="icon" /> */}
@@ -165,7 +170,7 @@ const Item = () => {
         {/* Add Item Button */}
         <div className="add-category-container">
           <button className="add-category-btn" onClick={() => { setShowModal(true); setEditMode(false); }}>
-            <FaPlus className="add-icon" /> Add Item
+            <FaPlus className="add-icon" /> Add Product
           </button>
         </div>
 
@@ -182,11 +187,10 @@ const Item = () => {
           <table>
             <thead>
               <tr>
-                <th>Item Name</th>
+                <th>Product Name</th>
                 <th>Category</th>
                 <th>Price</th>
                 <th>Description</th>
-                {/* <th>Images</th> */}
                 <th>Operations</th>
               </tr>
             </thead>
@@ -197,19 +201,9 @@ const Item = () => {
                   <td>{item.category ? item.category.name : "N/A"}</td>
                   <td>{item.price}</td>
                   <td>{item.description}</td>
-                  {/* <td>
-                    {item.images.map((image, index) => (
-                      <img 
-                          key={index} 
-                          src={`http://localhost:4000/images/${image}`} 
-                          alt={`Item ${index}`} 
-                          width="50" 
-                      />
-                    ))}
-                  </td> */}
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditItem(item)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDeleteItem(item._id)} />
+                    <FaTrash className="delete-icon" onClick={() => confirmDeleteItem(item._id)} />
                     <FaEye className="view-icon" onClick={() => handleViewItem(item)} />
                   </td>
                 </tr>
@@ -223,7 +217,7 @@ const Item = () => {
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h3>{editMode ? "Edit Item" : "Add New Item"}</h3>
+            <h3>{editMode ? "Edit Product" : "Add New Product"}</h3>
             {error && <p className="error">{error}</p>}
             <label>Name:</label>
             <input type="text" name="name" value={newItem.name} onChange={handleChange} required />
@@ -239,7 +233,7 @@ const Item = () => {
             <label>Description:</label>
             <textarea name="description" value={newItem.description} onChange={handleChange} required />
   
-                      <label>Images:</label>
+            <label>Images:</label>
             {newItem.images.map((image, index) => (
               <div key={index} className="image-input-group">
                 <input
@@ -247,7 +241,6 @@ const Item = () => {
                   onChange={(e) => handleImageChange(e, index)}
                   accept="image/*"
                 />
-                
                 <button
                   type="button"
                   className="remove-image-btn"
@@ -265,7 +258,21 @@ const Item = () => {
               <button className="add-btn" onClick={handleAddItem}>
                 {editMode ? "Update" : "Add"}
               </button>
-              <button className="close-btn" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+            <div className="modal-actions">
+              <button className="delete-btn" onClick={handleDeleteItem}>Delete</button>
+              <button className="cancel-btn" onClick={() => setShowDeleteModal(false)}>Cancel</button>
             </div>
           </div>
         </div>
@@ -283,16 +290,18 @@ const Item = () => {
               <strong>Images:</strong>
               <div className="images-container">
                 {viewingItem.images.map((image, index) => (
-                      <img 
-                          key={index} 
-                          src={`http://localhost:4000/images/${image}`} 
-                          alt={`Item ${index}`} 
-                          width="50" 
-                      />
-                    ))}
+                  <img 
+                    key={index} 
+                    src={`http://localhost:4000/images/${image}`} 
+                    alt={`Item ${index}`} 
+                    width="50" 
+                  />
+                ))}
               </div>
             </div>
-            <button className="close-btn" onClick={() => setViewingItem(null)}>Close</button>
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setViewingItem(null)}>Cancel</button>
+            </div>
           </div>
         </div>
       )}

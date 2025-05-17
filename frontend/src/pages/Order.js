@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 import "../styles/Order.css";
+import {FaUser} from "react-icons/fa";
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -12,6 +13,8 @@ const Order = () => {
   const [userMeasurements, setUserMeasurements] = useState(null);
   const [loadingMeasurements, setLoadingMeasurements] = useState(false);
   const [showMeasurements, setShowMeasurements] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editOrder, setEditOrder] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -196,11 +199,66 @@ const Order = () => {
     return `${value} ${unit}`;
   };
 
+  // Delete order handler
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to delete this order?")) return;
+    try {
+      await axios.delete(`http://localhost:4000/api/orders/${orderId}`);
+      setOrders((prevOrders) => prevOrders.filter(order => order._id !== orderId));
+      if (selectedOrder && selectedOrder._id === orderId) setSelectedOrder(null);
+    } catch (err) {
+      alert("Failed to delete order. Please try again.");
+    }
+  };
+
+  // Open edit modal
+  const handleEditOrder = (order) => {
+    setEditOrder({ ...order });
+    setEditModalOpen(true);
+  };
+
+  // Handle edit form changes
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditOrder((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Save edited order
+  const handleSaveEdit = async () => {
+    try {
+      const { _id, status, paymentStatus, address, contactNumber } = editOrder;
+      await axios.put(
+        `http://localhost:4000/api/orders/${_id}`,
+        { status, paymentStatus, address, contactNumber }
+      );
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === _id
+            ? { ...order, status, paymentStatus, address, contactNumber }
+            : order
+        )
+      );
+      setEditModalOpen(false);
+      setEditOrder(null);
+      if (selectedOrder && selectedOrder._id === _id) {
+        setSelectedOrder({ ...selectedOrder, status, paymentStatus, address, contactNumber });
+      }
+    } catch (err) {
+      alert("Failed to update order. Please try again.");
+    }
+  };
+
   return (
     <div className="admin-content-container">
       <Sidebar />
-      <div className="orders-container">
-        <h2>Order Management</h2>
+      <div className="main-content">
+      <div className="top-bar">
+          <h2 className="title">Order Management</h2>
+          <div className="user-info">
+            <span>Admin</span>
+            <FaUser className="icon" />
+          </div>
+        </div>
 
         <div className="order-filters">
           <label>
@@ -254,6 +312,20 @@ const Order = () => {
                       <button className="view-btn" onClick={() => viewOrderDetails(order)}>
                         View Details
                       </button>
+                      <button
+                        className="edit-btn"
+                        style={{ marginLeft: 8 }}
+                        onClick={() => handleEditOrder(order)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        style={{ marginLeft: 8 }}
+                        onClick={() => handleDeleteOrder(order._id)}
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -275,18 +347,7 @@ const Order = () => {
                 <p><strong>Order ID:</strong> {selectedOrder._id}</p>
                 <p><strong>Date Placed:</strong> {formatDate(selectedOrder.createdAt)}</p>
                 <p><strong>Total Amount:</strong> Rs. {(selectedOrder.total || selectedOrder.totalAmount).toFixed(2)}</p>
-                <p><strong>Status:</strong>
-                  <select
-                    value={selectedOrder.status}
-                    onChange={(e) => handleStatusChange(selectedOrder._id, e.target.value)}
-                    className="status-dropdown"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Processing">Processing</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
-                  </select>
-                </p>
+                {/* Status field removed */}
               </div>
 
               <div className="order-detail-section">
@@ -334,20 +395,12 @@ const Order = () => {
               <div className="order-detail-section">
                 <h4>Payment Information</h4>
                 <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</p>
-                {selectedOrder.paymentMethod === "Cash On Delivery" ? (
-                  <p><strong>Payment Status:</strong>
-                    <select
-                      value={selectedOrder.paymentStatus || "Pending"}
-                      onChange={(e) => handlePaymentStatusChange(selectedOrder._id, e.target.value)}
-                      className="status-dropdown"
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Paid">Paid</option>
-                    </select>
-                  </p>
-                ) : (
-                  <p><strong>Payment Status:</strong> {getPaymentStatus(selectedOrder)}</p>
-                )}
+                <p>
+                  <strong>Payment Status:</strong>{" "}
+                  {selectedOrder.paymentMethod === "Khalti"
+                    ? "Paid"
+                    : (selectedOrder.paymentStatus || "Pending")}
+                </p>
                 {selectedOrder.paymentToken && (
                   <p><strong>Payment Token:</strong> {selectedOrder.paymentToken}</p>
                 )}
@@ -379,6 +432,65 @@ const Order = () => {
 
               <div className="modal-actions">
                 <button className="close-modal-btn" onClick={closeOrderDetails}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Modal - Status and Payment Status fields removed */}
+        {editModalOpen && editOrder && (
+          <div className="modal">
+            <div className="modal-content">
+              <h3>Edit Order</h3>
+              {/* Add status dropdown */}
+              <label>Status:</label>
+              <select
+                name="status"
+                value={editOrder.status}
+                onChange={handleEditChange}
+              >
+                <option value="Pending">Pending</option>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+              </select>
+              {/* Payment Status logic */}
+              <label>Payment Status:</label>
+              {editOrder.paymentMethod === "Khalti" ? (
+                <input
+                  type="text"
+                  name="paymentStatus"
+                  value="Paid"
+                  disabled
+                  style={{ background: "#eee", color: "#333" }}
+                />
+              ) : (
+                <select
+                  name="paymentStatus"
+                  value={editOrder.paymentStatus || "Pending"}
+                  onChange={handleEditChange}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Paid">Paid</option>
+                </select>
+              )}
+              <label>Contact Number:</label>
+              <input
+                type="text"
+                name="contactNumber"
+                value={editOrder.contactNumber || ""}
+                onChange={handleEditChange}
+              />
+              <label>Address:</label>
+              <input
+                type="text"
+                name="address"
+                value={editOrder.address || ""}
+                onChange={handleEditChange}
+              />
+              <div className="modal-actions">
+                <button className="save-btn" onClick={handleSaveEdit}>Save</button>
+                <button className="cancel-btn" onClick={() => setEditModalOpen(false)}>Cancel</button>
               </div>
             </div>
           </div>
