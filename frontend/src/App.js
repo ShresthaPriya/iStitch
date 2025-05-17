@@ -55,6 +55,7 @@ import ProductDetails from './pages/ProductDetails'; // Import ProductDetails
 import AdminLogin from './pages/AdminLogin'; // Import AdminLogin
 import AdminDashboard from './pages/AdminDashboard'; // Import AdminDashboard
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   const client = new QueryClient();
@@ -162,6 +163,7 @@ function App() {
                       <AdminUsers />
                     </ProtectedAdminRoute>
                   } />
+                  <Route path='/forgot-password' element={<ForgotPassword />} />
                 </Routes>
                 <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
               </Router>

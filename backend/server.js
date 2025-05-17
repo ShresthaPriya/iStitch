@@ -11,7 +11,7 @@ const verifyToken = require("./middleware/Middleware");
 const Home = require("./controller/user/Controller");
 const Register = require("./routes/Register");
 const Login = require("./routes/Login");
-const authRoutes = require("./routes/authRoutes");
+const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require("./routes/adminRoutes");
 const customerRoutes = require("./routes/customerRoute");
 const categoryRoutes = require("./routes/categoryRoute");
@@ -73,7 +73,8 @@ app.use((req, res, next) => {
 app.get("/", verifyToken, Home.Home);
 app.use("/register", Register);
 app.use("/login", Login);
-app.use("/api/auth", require('./routes/authRoutes'));
+app.use('/auth', authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/categories", categoryRoutes);
@@ -120,8 +121,37 @@ console.log('==============================');
 
 // Start the server
 connectDB().then(() => {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    
+    // Log all registered routes for debugging
+    console.log("\nRegistered Routes:");
+    app._router.stack.forEach(middleware => {
+      if (middleware.route) {
+        // Routes registered directly on the app
+        console.log(`${Object.keys(middleware.route.methods)[0].toUpperCase()} ${middleware.route.path}`);
+      } else if (middleware.name === 'router') {
+        // Router middleware
+        middleware.handle.stack.forEach(handler => {
+          if (handler.route) {
+            const method = Object.keys(handler.route.methods)[0].toUpperCase();
+            let path = '';
+            
+            // Try to extract the base path
+            if (middleware.regexp) {
+              let regexpStr = middleware.regexp.toString();
+              let match = regexpStr.match(/\/\^\\\/([^\\]+)\\\//);
+              path = match ? '/' + match[1] : '';
+            }
+            
+            console.log(`${method} ${path}${handler.route.path}`);
+          }
+        });
+      }
+    });
+  });
 }).catch(err => {
   console.error("Failed to connect to DB:", err.message);
-  process.exit(1);
-});
+
+
+});  process.exit(1);});
