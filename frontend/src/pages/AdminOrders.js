@@ -7,6 +7,8 @@ const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editOrder, setEditOrder] = useState(null);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -73,6 +75,62 @@ const AdminOrders = () => {
         }
     };
 
+    // Delete order handler
+    const handleDeleteOrder = async (orderId) => {
+        if (!window.confirm("Are you sure you want to delete this order?")) return;
+        try {
+            await axios.delete(`http://localhost:4000/api/orders/${orderId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+            setOrders((prevOrders) => prevOrders.filter(order => order._id !== orderId));
+        } catch (err) {
+            console.error("Error deleting order:", err);
+            alert("Failed to delete order. Please try again.");
+        }
+    };
+
+    // Open edit modal
+    const handleEditOrder = (order) => {
+        setEditOrder({ ...order });
+        setEditModalOpen(true);
+    };
+
+    // Handle edit form changes
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditOrder((prev) => ({ ...prev, [name]: value }));
+    };
+
+    // Save edited order
+    const handleSaveEdit = async () => {
+        try {
+            const { _id, status, paymentStatus, address, contactNumber } = editOrder;
+            await axios.put(
+                `http://localhost:4000/api/orders/${_id}`,
+                { status, paymentStatus, address, contactNumber },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order._id === _id
+                        ? { ...order, status, paymentStatus, address, contactNumber }
+                        : order
+                )
+            );
+            setEditModalOpen(false);
+            setEditOrder(null);
+        } catch (err) {
+            console.error("Error updating order:", err);
+            alert("Failed to update order. Please try again.");
+        }
+    };
+
     if (loading) {
         return <div>Loading orders...</div>;
     }
@@ -86,74 +144,132 @@ const AdminOrders = () => {
             <Sidebar />
             <div className="admin-content">
                 <h2>Admin Orders</h2>
-                <table className="admin-orders-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer Name</th>
-                            <th>Contact Number</th>
-                            <th>Address</th>
-                            <th>Items</th>
-                            <th>Total Amount</th>
-                            <th>Payment Method</th>
-                            <th>Order Type</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orders.map(order => (
-                            <tr key={order._id}>
-                                <td>{order._id?.substring(order._id.length - 6) || "N/A"}</td>
-                                <td>{order.fullName || order.customer?.fullName || "N/A"}</td>
-                                <td>{order.contactNumber || order.customer?.contactNumber || "N/A"}</td>
-                                <td>{order.address || order.customer?.address || "N/A"}</td>
-                                <td>
-                                    {order.items?.map((item, index) => (
-                                        <div key={index} className="order-item-row">
-                                            {item.productId?.name || "Custom Item"} 
-                                            {item.customDetails?.itemType && ` (${item.customDetails.itemType})`}
-                                            {item.size && ` - Size: ${item.size}`}
-                                            (x{item.quantity})
-                                            {item.customDetails?.fabricName && 
-                                                <div className="fabric-detail">Fabric: {item.customDetails.fabricName}</div>
-                                            }
-                                        </div>
-                                    )) || "N/A"}
-                                </td>
-                                <td>${getOrderTotal(order)}</td>
-                                <td>{order.paymentMethod || "N/A"}</td>
-                                <td>{order.isCustomOrder ? "Custom Order" : "Standard Order"}</td>
-                                <td>
-                                    <select
-                                        value={order.status || "N/A"}
-                                        onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                                        className={`status-select status-${order.status?.toLowerCase() || "unknown"}`}
-                                    >
-                                        <option value="Pending">Pending</option>
-                                        <option value="Processing">Processing</option>
-                                        <option value="Shipped">Shipped</option>
-                                        <option value="Delivered">Delivered</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <button
-                                        className="delete-btn"
-                                        onClick={() => alert("Delete functionality not implemented yet.")}
-                                    >
-                                        Delete
-                                    </button>
-                                    <button
-                                        className="view-measurements-btn"
-                                        onClick={() => handleViewMeasurements(order.userId)}
-                                    >
-                                        View Measurements
-                                    </button>
-                                </td>
+                <div style={{ overflowX: "auto" }}>
+                    <table className="admin-orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer Name</th>
+                                <th>Contact Number</th>
+                                <th>Address</th>
+                                <th>Items</th>
+                                <th>Total Amount</th>
+                                <th>Payment Method</th>
+                                <th>Order Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {orders.map(order => (
+                                <tr key={order._id}>
+                                    <td>{order._id?.substring(order._id.length - 6) || "N/A"}</td>
+                                    <td>{order.fullName || order.customer?.fullName || "N/A"}</td>
+                                    <td>{order.contactNumber || order.customer?.contactNumber || "N/A"}</td>
+                                    <td>{order.address || order.customer?.address || "N/A"}</td>
+                                    <td>
+                                        {order.items?.map((item, index) => (
+                                            <div key={index} className="order-item-row">
+                                                {item.productId?.name || "Custom Item"} 
+                                                {item.customDetails?.itemType && ` (${item.customDetails.itemType})`}
+                                                {item.size && ` - Size: ${item.size}`}
+                                                (x{item.quantity})
+                                                {item.customDetails?.fabricName && 
+                                                    <div className="fabric-detail">Fabric: {item.customDetails.fabricName}</div>
+                                                }
+                                            </div>
+                                        )) || "N/A"}
+                                    </td>
+                                    <td>${getOrderTotal(order)}</td>
+                                    <td>{order.paymentMethod || "N/A"}</td>
+                                    <td>{order.isCustomOrder ? "Custom Order" : "Standard Order"}</td>
+                                    <td>
+                                        <select
+                                            value={order.status || "N/A"}
+                                            onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                                            className={`status-select status-${order.status?.toLowerCase() || "unknown"}`}
+                                        >
+                                            <option value="Pending">Pending</option>
+                                            <option value="Processing">Processing</option>
+                                            <option value="Shipped">Shipped</option>
+                                            <option value="Delivered">Delivered</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                            <button
+                                                className="edit-btn"
+                                                onClick={() => handleEditOrder(order)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="delete-btn"
+                                                onClick={() => handleDeleteOrder(order._id)}
+                                            >
+                                                Delete
+                                            </button>
+                                            <button
+                                                className="view-measurements-btn"
+                                                onClick={() => handleViewMeasurements(order.userId)}
+                                            >
+                                                View Measurements
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                {/* Edit Order Modal */}
+                {editModalOpen && editOrder && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <h3>Edit Order</h3>
+                            <label>Status:</label>
+                            <select
+                                name="status"
+                                value={editOrder.status}
+                                onChange={handleEditChange}
+                            >
+                                <option value="Pending">Pending</option>
+                                <option value="Processing">Processing</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                            </select>
+                            <label>Payment Status:</label>
+                            <select
+                                name="paymentStatus"
+                                value={editOrder.paymentStatus || "Pending"}
+                                onChange={handleEditChange}
+                            >
+                                <option value="Pending">Pending</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                            <label>Contact Number:</label>
+                            <input
+                                type="text"
+                                name="contactNumber"
+                                value={editOrder.contactNumber || ""}
+                                onChange={handleEditChange}
+                            />
+                            <label>Address:</label>
+                            <input
+                                type="text"
+                                name="address"
+                                value={editOrder.address || ""}
+                                onChange={handleEditChange}
+                            />
+                            <div className="modal-actions">
+                                <button className="save-btn" onClick={handleSaveEdit}>Save</button>
+                                <button className="cancel-btn" onClick={() => setEditModalOpen(false)}>Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
