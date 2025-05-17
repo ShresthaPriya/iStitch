@@ -60,6 +60,9 @@ const FabricDetails = () => {
               <p className="price">Rs.{fabric.price}</p>
               <button className="select-btn" onClick={() => handleSelectFabric(fabric)}>Select for Customization</button>
               </div>
+
+              <button className="favourite-button" onClick={() => addToFavourite(fabric._id)}>Add to Favourite</button>
+            </div>
           </div>
         )}
       </div>
