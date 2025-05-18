@@ -107,7 +107,6 @@
   border-radius: 8px;
 }
 
-.admin-table th,
 .admin-table td {
   padding: 12px 15px;
   text-align: left;
@@ -117,6 +116,7 @@
 .admin-table th {
     background: #3498db;
     color: white;
+    font-weight: bold;
 }
 
 .admin-table tr:nth-child(even) {
