@@ -145,19 +145,68 @@ router.get('/:userId', async (req, res) => {
     }
 });
 
-// GET all orders - Make sure this route exists and is working
+// Make sure the GET, PUT and DELETE endpoints are properly implemented
 router.get('/', async (req, res) => {
-    try {
-        console.log("Fetching all orders...");
-        const orders = await OrderModel.find()
-            .sort({ createdAt: -1 }); // Sort by newest first
-        
-        console.log(`Found ${orders.length} orders`);
-        res.json({ success: true, orders });
-    } catch (err) {
-        console.error("Error fetching orders:", err);
-        res.status(500).json({ success: false, message: "Failed to fetch orders", error: err.message });
+  try {
+    const orders = await OrderModel.find().sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch orders' });
+  }
+});
+
+router.get('/:id', async (req, res) => {
+  try {
+    const order = await OrderModel.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
     }
+    res.json({ success: true, order });
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch order' });
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  try {
+    console.log(`Updating order ${req.params.id} with data:`, req.body);
+    
+    const order = await OrderModel.findByIdAndUpdate(
+      req.params.id, 
+      { $set: req.body },
+      { new: true }
+    );
+    
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    
+    console.log(`Order updated successfully:`, order);
+    res.json({ success: true, message: 'Order updated', order });
+  } catch (error) {
+    console.error('Error updating order:', error);
+    res.status(500).json({ success: false, message: 'Failed to update order' });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    console.log(`Deleting order ${req.params.id}`);
+    
+    const order = await OrderModel.findByIdAndDelete(req.params.id);
+    
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    
+    console.log(`Order deleted successfully`);
+    res.json({ success: true, message: 'Order deleted' });
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete order' });
+  }
 });
 
 module.exports = router;
