@@ -300,7 +300,7 @@ const Order = () => {
                   <th>Total</th>
                   <th>Payment Method</th>
                   <th>Status</th>
-                  <th>Actions</th>
+                  <th>Operations</th>
                 </tr>
               </thead>
               <tbody>
@@ -316,23 +316,15 @@ const Order = () => {
                         {order.status}
                       </span>
                     </td>
-                    <td>
-                      <button className="view-btn" onClick={() => viewOrderDetails(order)}>
-                        View Details
+                    <td className="operations">
+                      <button className="view-btn" title="View" onClick={() => viewOrderDetails(order)}>
+                        <i className="fas fa-eye"></i>
                       </button>
-                      <button
-                        className="edit-btn"
-                        style={{ marginLeft: 8 }}
-                        onClick={() => handleEditOrder(order)}
-                      >
-                        Edit
+                      <button className="edit-btn" title="Edit" onClick={() => handleEditOrder(order)}>
+                        <i className="fas fa-edit"></i>
                       </button>
-                      <button
-                        className="delete-btn"
-                        style={{ marginLeft: 8 }}
-                        onClick={() => handleDeleteOrder(order._id)}
-                      >
-                        Delete
+                      <button className="delete-btn" title="Delete" onClick={() => handleDeleteOrder(order._id)}>
+                        <i className="fas fa-trash"></i>
                       </button>
                     </td>
                   </tr>

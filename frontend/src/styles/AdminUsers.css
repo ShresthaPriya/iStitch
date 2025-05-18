@@ -115,9 +115,8 @@
 }
 
 .admin-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #495057;
+    background: #3498db;
+    color: white;
 }
 
 .admin-table tr:nth-child(even) {
@@ -164,6 +163,196 @@
   color: #6c757d;
   background-color: #f8f9fa;
   border-radius: 4px;
+}
+
+/* Admin Users styling to match products/fabrics */
+.admin-users-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-users-content {
+  flex: 1;
+  padding: 20px;
+  background: #ecf0f1;
+}
+
+.admin-users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.admin-users-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+}
+
+.admin-users-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.admin-users-table th,
+.admin-users-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.admin-users-table th {
+  background: #3498db; /* Match products/fabrics blue header */
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.admin-users-table tbody tr:nth-child(even) {
+  background: #f2f2f2;
+}
+
+.admin-users-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Operations column with icons */
+.operations {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.view-user-btn, .edit-user-btn, .delete-user-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.view-user-btn {
+  color: #2ecc71; /* Green for view */
+}
+
+.edit-user-btn {
+  color: #f39c12; /* Orange for edit */
+}
+
+.delete-user-btn {
+  color: #e74c3c; /* Red for delete */
+}
+
+.view-user-btn:hover {
+  background-color: rgba(46, 204, 113, 0.2);
+}
+
+.edit-user-btn:hover {
+  background-color: rgba(243, 156, 18, 0.2);
+}
+
+.delete-user-btn:hover {
+  background-color: rgba(231, 76, 60, 0.2);
+}
+
+/* Role badges */
+.role-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-align: center;
+}
+
+.role-admin {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.role-user {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+}
+
+/* User modals */
+.user-modal-content {
+  background: white;
+  padding: 20px;
+  width: 400px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.user-modal-content h3 {
+  margin-bottom: 15px;
+  color: #333;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.user-modal-content label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.user-modal-content input,
+.user-modal-content select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.user-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.save-user-btn,
+.cancel-user-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.save-user-btn {
+  background: #28a745;
+  color: white;
+}
+
+.cancel-user-btn {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.save-user-btn:hover {
+  background: #218838;
+}
+
+.cancel-user-btn:hover {
+  background: #e2e6ea;
 }
 
 @media (max-width: 768px) {

@@ -1,4 +1,3 @@
-
 /* CustomerPage.css */
 .customer-container {
     display: flex;
@@ -416,9 +415,11 @@ ul li {
 /* Orders Table */
 .orders-table {
   margin-top: 20px;
+  width: 100%;
 }
 
-.orders-table table {
+.orders-table table,
+.orders-table-container table {
   width: 100%;
   border-collapse: collapse;
   background: white;
@@ -428,144 +429,122 @@ ul li {
 }
 
 .orders-table th,
-.orders-table td {
+.orders-table td,
+.orders-table-container th,
+.orders-table-container td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
 }
 
-.orders-table th {
-  background: #3498db;
+.orders-table th,
+.orders-table-container th {
+  background: #3498db; /* Match products/fabrics blue header */
   color: white;
+  font-weight: 600;
+  font-size: 14px;
 }
 
-.orders-table tbody tr:nth-child(even) {
+.orders-table tbody tr:nth-child(even),
+.orders-table-container tbody tr:nth-child(even) {
   background: #f2f2f2;
 }
 
+.orders-table tbody tr:hover,
+.orders-table-container tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Rename Actions to Operations and style icons */
 .operations {
   display: flex;
   gap: 10px;
-}
-
-.edit-icon {
-  color: #f39c12;
-  cursor: pointer;
-}
-
-.delete-icon {
-  color: #e74c3c;
-  cursor: pointer;
-}
-
-.view-icon {
-  color: #2ecc71;
-  cursor: pointer;
-}
-/* Add Category Button */
-.add-category-container {
-  margin: 20px 0;
-  text-align: right;
-}
-
-.add-category-btn {
-  background: #3498db;
-  color: white;
-  padding: 10px 15px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.add-category-btn:hover {
-  background: #2980b9;
-}
-
-.add-icon {
-  font-size: 18px;
-}
-.uploaded-img {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-/* Modal Styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
   justify-content: center;
-  align-items: center;
 }
 
+.view-btn, .edit-btn, .delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.view-btn {
+  color: #2ecc71; /* Green for view */
+}
+
+.edit-btn {
+  color: #f39c12; /* Orange for edit */
+}
+
+.delete-btn {
+  color: #e74c3c; /* Red for delete */
+}
+
+.view-btn:hover {
+  background-color: rgba(46, 204, 113, 0.2);
+}
+
+.edit-btn:hover {
+  background-color: rgba(243, 156, 18, 0.2);
+}
+
+.delete-btn:hover {
+  background-color: rgba(231, 76, 60, 0.2);
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-pending {
+  background-color: #ffe0b2;
+  color: #e65100;
+}
+
+.status-processing {
+  background-color: #bbdefb;
+  color: #0d47a1;
+}
+
+.status-shipped {
+  background-color: #c8e6c9;
+  color: #1b5e20;
+}
+
+.status-delivered {
+  background-color: #d7ccc8;
+  color: #3e2723;
+}
+
+/* Modal improvements */
 .modal-content {
   background: white;
   padding: 20px;
-  width: 400px;
+  width: 80%;
+  max-width: 900px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .modal h3 {
   margin-bottom: 15px;
+  color: #333;
+  font-weight: 600;
+  font-size: 18px;
 }
 
-.modal label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.modal input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
-
-.add-btn {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.add-btn:hover {
-  background: #218838;
-}
-
-.close-btn {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.close-btn:hover {
-  background: #c82333;
-}
 /* Add to Order.css */
 .profile-picture {
   width: 100px;
@@ -594,230 +573,6 @@ ul li {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-  .orders-table table {
-    font-size: 14px;
-  }
-
-  .modal-content {
-    width: 90%;
-  }
-}
-
-.admin-content-container {
-  display: flex;
-  min-height: 100vh;
-}
-
-.orders-container {
-  flex: 1;
-  padding: 20px;
-  margin-left: 240px; /* To accommodate the sidebar */
-}
-
-.orders-container h2 {
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 24px;
-}
-
-.order-filters {
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-}
-
-.status-filter {
-  padding: 8px;
-  margin-left: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
-}
-
-.loading, .error-message, .no-orders {
-  padding: 20px;
-  text-align: center;
-  background-color: #f8f9fa;
-  border-radius: 5px;
-  margin-top: 20px;
-}
-
-.error-message {
-  color: #dc3545;
-}
-
-.orders-table-container {
-  overflow-x: auto;
-}
-
-.orders-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  background-color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.orders-table th, 
-.orders-table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-.orders-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #333;
-}
-
-.orders-table tr:hover {
-  background-color: #f5f5f5;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 0.85em;
-  font-weight: 500;
-}
-
-.status-pending {
-  background-color: #ffe0b2;
-  color: #e65100;
-}
-
-.status-processing {
-  background-color: #bbdefb;
-  color: #0d47a1;
-}
-
-.status-shipped {
-  background-color: #c8e6c9;
-  color: #1b5e20;
-}
-
-.status-delivered {
-  background-color: #d7ccc8;
-  color: #3e2723;
-}
-
-.view-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9em;
-}
-
-.view-btn:hover {
-  background-color: #0056b3;
-}
-
-/* Modal styles */
-.order-details-modal {
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  width: 100%; /* Increased from 80% to 90% */
-  max-width: 1200px; /* Increased from 800px to 1000px */
-  max-height: 90vh;;
-  overflow-y: auto;
-  position: relative;
-}
-
-.close-btn {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 24px;
-  cursor: pointer;
-  color: #999;
-}
-
-.close-btn:hover {
-  color: #333;
-}
-
-.order-detail-section {
-  margin-bottom: 25px;
-}
-
-.order-detail-section h4 {
-  margin-bottom: 15px; /* Increased from 10px */
-  padding-bottom: 8px; /* Increased from 5px */
-  border-bottom: 1px solid #eee;
-  color: #333;
-  font-size: 18px; /* Added font-size */
-  ;
-}
-
-.order-detail-section p {
-  margin: 8px 0; /* Added margin */
-  line-height: 1.5; /* Added line height */
-}
-
-.status-dropdown {
-  margin-left: 10px;
-  padding: 5px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-.items-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.items-table th,
-.items-table td {
-  padding: 12px 15px; /* Increased padding */
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-.items-table th {
-  background-color: #f8f9fa;
-  font-weight: 500;
-}
-
-.modal-actions {
-  margin-top: 20px;
-  text-align: right;
-}
-
-.close-modal-btn {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 10px 20px; /* Increased padding */
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px; /* Added font-size */
-}
-
-.close-modal-btn:hover {
-  background-color: #5a6268;
-}
-
 @media (max-width: 768px) {
   .orders-container {
     margin-left: 0;
