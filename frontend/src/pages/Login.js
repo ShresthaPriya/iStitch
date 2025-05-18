@@ -17,6 +17,7 @@ const Login = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext); // Proper way to use auth context
 
@@ -51,6 +52,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoginSuccess(false);
 
     // Validate email format before submission
     if (!validateEmail(formData.email)) {
@@ -90,7 +92,6 @@ const Login = () => {
       if (response.data.success) {
         // Store the token and user info
         localStorage.setItem("token", response.data.token);
-        
         if (response.data.user) {
           localStorage.setItem("user", JSON.stringify(response.data.user));
           localStorage.setItem("role", response.data.user.role);
@@ -109,7 +110,10 @@ const Login = () => {
           console.warn("User details are missing in the response.");
         }
 
-        navigate("/home"); // Redirect to dashboard on success
+        setLoginSuccess(true); // Show login success message
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -200,7 +204,7 @@ const Login = () => {
             </div>
 
             {error && <div className="error-message">{error}</div>}
-
+            {loginSuccess && <div className="success-message">Login successful! Redirecting...</div>}
             <button type="submit" className="auth-button" disabled={loading}>
               {loading ? (
                 <>

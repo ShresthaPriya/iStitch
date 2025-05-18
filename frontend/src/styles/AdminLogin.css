@@ -53,22 +53,28 @@
 
 .admin-login-btn {
   width: 100%;
-  padding: 0.75rem;
-  background-color: #1f2937;
-  color: white;
+  padding: 0.625rem 1rem;
+  background-color: #6366f1;
+  color: var(--white);
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .admin-login-btn:hover {
-  background-color: #111827;
+  background-color: var(--primary-hover);
+  border: #6366f1 1px solid;
 }
 
 .admin-login-btn:disabled {
-  background-color: #9ca3af;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
