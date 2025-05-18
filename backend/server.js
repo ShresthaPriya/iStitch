@@ -98,6 +98,19 @@ app.use('/api/orders', adminAuth);
 app.use('/api/users', adminAuth);
 // Add other admin routes that need protection
 
+// If you're using admin middleware, apply it correctly
+app.use('/api/orders/:id', adminAuth);
+
+// Or exclude it from specific routes
+app.use('/api/orders', (req, res, next) => {
+  // Skip auth for GET requests if needed
+  if (req.method === 'GET' && !req.path.includes('/admin')) {
+    return next();
+  }
+  // Apply auth middleware for other routes
+  adminAuth(req, res, next);
+});
+
 // Debug registered routes
 app._router.stack.forEach(function(r){
   if (r.route && r.route.path){
@@ -126,6 +139,24 @@ connectDB()
     // Start the server
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
+      
+      // Log all registered routes
+      console.log('API Routes:');
+      const getRoutes = (stack, basePath = '') => {
+        stack.forEach(layer => {
+          if (layer.route) {
+            const methods = Object.keys(layer.route.methods)
+              .filter(method => layer.route.methods[method])
+              .map(method => method.toUpperCase());
+            console.log(`${methods} ${basePath}${layer.route.path}`);
+          } else if (layer.name === 'router' && layer.handle.stack) {
+            const newBasePath = basePath + (layer.regexp.toString().match(/^\/\^\\\/([^\\]+)/) ? '/' + layer.regexp.toString().match(/^\/\^\\\/([^\\]+)/)[1] : '');
+            getRoutes(layer.handle.stack, newBasePath);
+          }
+        });
+      };
+      
+      getRoutes(app._router.stack);
     });
   })
   .catch((error) => {

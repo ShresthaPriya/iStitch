@@ -36,7 +36,11 @@
     transition: background 0.3s, color 0.3s;
   }
   
-  .menu-link:hover,
+  .menu-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #f0f0f0;
+  }
+  
   .menu-link.active {
     background: rgba(255, 255, 255, 0.2);
     color: #f0f0f0;
@@ -62,4 +66,30 @@
   
   .logout-button:hover {
     background-color: #dc2626;
+  }
+  
+  .sidebar-bottom {
+    margin-top: auto;
+    padding: 1rem 0 0 0;
+  }
+  
+  .logout-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: transparent;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s;
+  }
+  
+  .logout-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #f0f0f0;
   }

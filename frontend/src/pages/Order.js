@@ -13,22 +13,19 @@ const Order = () => {
   const [userMeasurements, setUserMeasurements] = useState(null);
   const [loadingMeasurements, setLoadingMeasurements] = useState(false);
   const [showMeasurements, setShowMeasurements] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editOrder, setEditOrder] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editingOrder, setEditingOrder] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        console.log("Fetching orders from API...");
+        const token = getAuthToken();
         const response = await axios.get("http://localhost:4000/api/orders", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         });
-        
-        console.log("API response:", response.data);
-        
         if (response.data.success) {
           const ordersWithUserId = response.data.orders.map(order => ({
             ...order,
@@ -49,11 +46,22 @@ const Order = () => {
     fetchOrders();
   }, []);
 
+  const getAuthToken = () => {
+    return localStorage.getItem('adminToken') || localStorage.getItem('token');
+  };
+
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const response = await axios.put(`http://localhost:4000/api/orders/${orderId}`, {
-        status: newStatus
-      });
+      const token = getAuthToken();
+      const response = await axios.put(
+        `http://localhost:4000/api/orders/${orderId}`, 
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (response.data.success) {
         setOrders(orders.map(order => 
@@ -73,9 +81,16 @@ const Order = () => {
 
   const handlePaymentStatusChange = async (orderId, newPaymentStatus) => {
     try {
-      const response = await axios.put(`http://localhost:4000/api/orders/${orderId}`, {
-        paymentStatus: newPaymentStatus
-      });
+      const token = getAuthToken();
+      const response = await axios.put(
+        `http://localhost:4000/api/orders/${orderId}`, 
+        { paymentStatus: newPaymentStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (response.data.success) {
         setOrders(orders.map(order =>
@@ -95,8 +110,10 @@ const Order = () => {
 
   const viewOrderDetails = async (order) => {
     setSelectedOrder(order);
+    setEditingOrder({...order});
     setShowMeasurements(false);
     setUserMeasurements(null);
+    setEditMode(false);
 
     try {
       const orderWithProductNames = { ...order };
@@ -104,29 +121,52 @@ const Order = () => {
         order.items.map(async (item) => {
           try {
             if (item.productId) {
-              const productId = typeof item.productId === 'object' ? item.productId._id : item.productId;
-              const response = await axios.get(`http://localhost:4000/api/items/${productId}`);
+              const productId = typeof item.productId === 'object' ? 
+                item.productId._id : item.productId;
+              
+              console.log("Fetching product details for ID:", productId);
+              const token = getAuthToken();
+              const response = await axios.get(
+                `http://localhost:4000/api/items/${productId}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`
+                  }
+                }
+              );
+              
               if (response.data && response.data.item) {
+                console.log("Found product:", response.data.item.name);
                 return {
                   ...item,
                   productName: response.data.item.name || 'Product #' + productId.substring(0, 6)
                 };
               }
             }
+            
+            // If item.productId doesn't exist or we couldn't get product details
+            const idStr = typeof item.productId === 'object' ? 
+              (item.productId?._id || 'unknown').substring(0, 6) : 
+              (item.productId || 'unknown').substring(0, 6);
+            
             return {
               ...item,
-              productName: `Product #${typeof item.productId === 'object' ? item.productId._id.substring(0, 6) : item.productId.substring(0, 6)}`
+              productName: item.productName || `Product #${idStr}`
             };
           } catch (err) {
-            console.error(`Error fetching product ${item.productId}:`, err);
+            console.error(`Error fetching product:`, err);
+            // Return the original item with a fallback name
             return {
               ...item,
-              productName: `Product #${typeof item.productId === 'object' ? item.productId._id.substring(0, 6) : item.productId.substring(0, 6)}`
+              productName: 'Product (Details Unavailable)'
             };
           }
         })
       );
 
+      // Log the enhanced items to verify data
+      console.log("Enhanced items with product names:", enhancedItems);
+      
       orderWithProductNames.items = enhancedItems;
       setSelectedOrder(orderWithProductNames);
     } catch (err) {
@@ -136,6 +176,8 @@ const Order = () => {
 
   const closeOrderDetails = () => {
     setSelectedOrder(null);
+    setEditMode(false);
+    setEditingOrder(null);
   };
 
   const fetchUserMeasurements = async (userId) => {
@@ -146,7 +188,12 @@ const Order = () => {
 
     try {
       setLoadingMeasurements(true);
-      const response = await axios.get(`http://localhost:4000/api/user-measurements/${userId}`);
+      const token = getAuthToken();
+      const response = await axios.get(`http://localhost:4000/api/user-measurements/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       if (response.data.success && response.data.measurements.length > 0) {
         setUserMeasurements(response.data.measurements);
         setShowMeasurements(true);
@@ -207,52 +254,72 @@ const Order = () => {
     return `${value} ${unit}`;
   };
 
-  // Delete order handler
-  const handleDeleteOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to delete this order?")) return;
+  const handleEditOrder = (order) => {
+    viewOrderDetails(order);
+    setEditMode(true);
+  };
+
+  const saveOrderChanges = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/orders/${orderId}`);
-      setOrders((prevOrders) => prevOrders.filter(order => order._id !== orderId));
-      if (selectedOrder && selectedOrder._id === orderId) setSelectedOrder(null);
+      const updatedData = {
+        status: editingOrder.status,
+        paymentStatus: editingOrder.paymentStatus,
+        address: editingOrder.address,
+        contactNumber: editingOrder.contactNumber
+      };
+      
+      const token = getAuthToken();
+      const response = await axios.put(
+        `http://localhost:4000/api/orders/${editingOrder._id}`, 
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.data.success) {
+        setOrders(orders.map(order => 
+          order._id === editingOrder._id ? {...order, ...updatedData} : order
+        ));
+        setSelectedOrder({...selectedOrder, ...updatedData});
+        setEditMode(false);
+        alert("Order updated successfully");
+      } else {
+        alert(response.data.message || "Failed to update order");
+      }
     } catch (err) {
-      alert("Failed to delete order. Please try again.");
+      console.error("Error updating order:", err);
+      alert("Failed to update order. Please try again.");
     }
   };
 
-  // Open edit modal
-  const handleEditOrder = (order) => {
-    setEditOrder({ ...order });
-    setEditModalOpen(true);
-  };
-
-  // Handle edit form changes
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditOrder((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Save edited order
-  const handleSaveEdit = async () => {
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to delete this order?")) {
+      return;
+    }
+    
     try {
-      const { _id, status, paymentStatus, address, contactNumber } = editOrder;
-      await axios.put(
-        `http://localhost:4000/api/orders/${_id}`,
-        { status, paymentStatus, address, contactNumber }
+      const token = getAuthToken();
+      const response = await axios.delete(
+        `http://localhost:4000/api/orders/${orderId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === _id
-            ? { ...order, status, paymentStatus, address, contactNumber }
-            : order
-        )
-      );
-      setEditModalOpen(false);
-      setEditOrder(null);
-      if (selectedOrder && selectedOrder._id === _id) {
-        setSelectedOrder({ ...selectedOrder, status, paymentStatus, address, contactNumber });
+      
+      if (response.data.success) {
+        setOrders(orders.filter(order => order._id !== orderId));
+        alert("Order deleted successfully");
+      } else {
+        alert(response.data.message || "Failed to delete order");
       }
     } catch (err) {
-      alert("Failed to update order. Please try again.");
+      console.error("Error deleting order:", err);
+      alert("Failed to delete order. Please try again.");
     }
   };
 
@@ -323,6 +390,7 @@ const Order = () => {
                       <button className="edit-btn" title="Edit" onClick={() => handleEditOrder(order)}>
                         <i className="fas fa-edit"></i>
                       </button>
+                      {/* eslint-disable-next-line no-undef */}
                       <button className="delete-btn" title="Delete" onClick={() => handleDeleteOrder(order._id)}>
                         <i className="fas fa-trash"></i>
                       </button>
@@ -340,36 +408,86 @@ const Order = () => {
           <div className="order-details-modal">
             <div className="modal-content">
               <span className="close-btn" onClick={closeOrderDetails}>&times;</span>
-              <h3>Order Details</h3>
+              <h3>{editMode ? "Edit Order" : "Order Details"}</h3>
 
               <div className="order-detail-section">
                 <h4>Order Information</h4>
                 <p><strong>Order ID:</strong> {selectedOrder._id}</p>
                 <p><strong>Date Placed:</strong> {formatDate(selectedOrder.createdAt)}</p>
                 <p><strong>Total Amount:</strong> Rs. {(selectedOrder.total || selectedOrder.totalAmount).toFixed(2)}</p>
-                {/* Status field removed */}
+                <p><strong>Status:</strong>
+                  {editMode ? (
+                    <select
+                      onChange={(e) => setEditingOrder({...editingOrder, status: e.target.value})}
+                      className="status-dropdown"
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Delivered">Delivered</option>
+                    </select>
+                  ) : (
+                    <select
+                      value={selectedOrder.status}
+                      onChange={(e) => handleStatusChange(selectedOrder._id, e.target.value)}
+                      className="status-dropdown"
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Delivered">Delivered</option>
+                    </select>
+                  )}
+                </p>
               </div>
 
               <div className="order-detail-section">
                 <h4>Customer Information</h4>
                 <p><strong>Customer ID:</strong> {formatObjectId(selectedOrder.userId || selectedOrder.customer)}</p>
                 <p><strong>Name:</strong> {selectedOrder.fullName}</p>
-                <p><strong>Contact Number:</strong> {selectedOrder.contactNumber}</p>
-                <p><strong>Address:</strong> {selectedOrder.address}</p>
-                <button
-                  className="view-measurements-btn"
-                  onClick={toggleMeasurements}
-                  disabled={loadingMeasurements}
-                >
-                  {loadingMeasurements
-                    ? "Loading..."
-                    : showMeasurements
-                      ? "Hide Measurements"
-                      : "View Measurements"}
-                </button>
+                <p>
+                  <strong>Contact Number:</strong>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editingOrder.contactNumber}
+                      onChange={(e) => setEditingOrder({...editingOrder, contactNumber: e.target.value})}
+                      className="edit-input"
+                    />
+                  ) : (
+                    selectedOrder.contactNumber
+                  )}
+                </p>
+                <p>
+                  <strong>Address:</strong>
+                  {editMode ? (
+                    <input
+                      type="text"
+                      value={editingOrder.address}
+                      onChange={(e) => setEditingOrder({...editingOrder, address: e.target.value})}
+                      className="edit-input"
+                    />
+                  ) : (
+                    selectedOrder.address
+                  )}
+                </p>
+                {!editMode && (
+                  <button
+                    className="view-measurements-btn"
+                    onClick={toggleMeasurements}
+                    disabled={loadingMeasurements}
+                  >
+                    {loadingMeasurements
+                      ? "Loading..."
+                      : showMeasurements
+                        ? "Hide Measurements"
+                        : "View Measurements"}
+                  </button>
+                )}
               </div>
 
-              {showMeasurements && userMeasurements && (
+              {/* Measurements section - only show in view mode */}
+              {!editMode && showMeasurements && userMeasurements && (
                 <div className="order-detail-section measurements-section">
                   <h4>Customer Measurements</h4>
                   <div className="measurements-grid">
@@ -395,12 +513,29 @@ const Order = () => {
               <div className="order-detail-section">
                 <h4>Payment Information</h4>
                 <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</p>
-                <p>
-                  <strong>Payment Status:</strong>{" "}
-                  {selectedOrder.paymentMethod === "Khalti"
-                    ? "Paid"
-                    : (selectedOrder.paymentStatus || "Pending")}
-                </p>
+                {selectedOrder.paymentMethod === "Cash On Delivery" && (
+                  <p><strong>Payment Status:</strong>
+                    {editMode ? (
+                      <select
+                        value={editingOrder.paymentStatus || "Pending"}
+                        onChange={(e) => setEditingOrder({...editingOrder, paymentStatus: e.target.value})}
+                        className="status-dropdown"
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                      </select>
+                    ) : (
+                      <select
+                        value={selectedOrder.paymentStatus || "Pending"}
+                        onChange={(e) => handlePaymentStatusChange(selectedOrder._id, e.target.value)}
+                        className="status-dropdown"
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                      </select>
+                    )}
+                  </p>
+                )}
                 {selectedOrder.paymentToken && (
                   <p><strong>Payment Token:</strong> {selectedOrder.paymentToken}</p>
                 )}
@@ -431,66 +566,14 @@ const Order = () => {
               </div>
 
               <div className="modal-actions">
-                <button className="close-modal-btn" onClick={closeOrderDetails}>Close</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Modal - Status and Payment Status fields removed */}
-        {editModalOpen && editOrder && (
-          <div className="modal">
-            <div className="modal-content">
-              <h3>Edit Order</h3>
-              {/* Add status dropdown */}
-              <label>Status:</label>
-              <select
-                name="status"
-                value={editOrder.status}
-                onChange={handleEditChange}
-              >
-                <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
-              </select>
-              {/* Payment Status logic */}
-              <label>Payment Status:</label>
-              {editOrder.paymentMethod === "Khalti" ? (
-                <input
-                  type="text"
-                  name="paymentStatus"
-                  value="Paid"
-                  disabled
-                  style={{ background: "#eee", color: "#333" }}
-                />
-              ) : (
-                <select
-                  name="paymentStatus"
-                  value={editOrder.paymentStatus || "Pending"}
-                  onChange={handleEditChange}
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Paid">Paid</option>
-                </select>
-              )}
-              <label>Contact Number:</label>
-              <input
-                type="text"
-                name="contactNumber"
-                value={editOrder.contactNumber || ""}
-                onChange={handleEditChange}
-              />
-              <label>Address:</label>
-              <input
-                type="text"
-                name="address"
-                value={editOrder.address || ""}
-                onChange={handleEditChange}
-              />
-              <div className="modal-actions">
-                <button className="save-btn" onClick={handleSaveEdit}>Save</button>
-                <button className="cancel-btn" onClick={() => setEditModalOpen(false)}>Cancel</button>
+                {editMode ? (
+                  <>
+                    <button className="save-btn" onClick={saveOrderChanges}>Save Changes</button>
+                    <button className="cancel-btn" onClick={() => {setEditMode(false); setEditingOrder({...selectedOrder});}}>Cancel</button>
+                  </>
+                ) : (
+                  <button className="close-modal-btn" onClick={closeOrderDetails}>Close</button>
+                )}
               </div>
             </div>
           </div>
