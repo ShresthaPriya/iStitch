@@ -119,39 +119,16 @@ console.log('Email Password:', process.env.EMAIL_PASSWORD ? 'Set' : 'Not set');
 console.log('Admin Email:', process.env.ADMIN_EMAIL || 'Not set');
 console.log('==============================');
 
-// Start the server
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    
-    // Log all registered routes for debugging
-    console.log("\nRegistered Routes:");
-    app._router.stack.forEach(middleware => {
-      if (middleware.route) {
-        // Routes registered directly on the app
-        console.log(`${Object.keys(middleware.route.methods)[0].toUpperCase()} ${middleware.route.path}`);
-      } else if (middleware.name === 'router') {
-        // Router middleware
-        middleware.handle.stack.forEach(handler => {
-          if (handler.route) {
-            const method = Object.keys(handler.route.methods)[0].toUpperCase();
-            let path = '';
-            
-            // Try to extract the base path
-            if (middleware.regexp) {
-              let regexpStr = middleware.regexp.toString();
-              let match = regexpStr.match(/\/\^\\\/([^\\]+)\\\//);
-              path = match ? '/' + match[1] : '';
-            }
-            
-            console.log(`${method} ${path}${handler.route.path}`);
-          }
-        });
-      }
+// Connect to MongoDB and start the server
+connectDB()
+  .then(() => {
+    console.log('Connected to MongoDB');
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(`Server listening on port ${PORT}`);
     });
+  })
+  .catch((error) => {
+    console.error('MongoDB connection error:', error);
+    process.exit(1);
   });
-}).catch(err => {
-  console.error("Failed to connect to DB:", err.message);
-
-
-});  process.exit(1);});
