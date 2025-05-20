@@ -1,22 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from "react-router-dom";
 import { FaUsers, FaClipboardList, FaBox, FaTags, FaHome, FaBolt, FaRuler, FaSignOutAlt } from "react-icons/fa";
 import "../styles/Sidebar.css";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
   const handleLogout = () => {
-    // Clear admin authentication
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('isAdmin');
-    
-    // Redirect to admin login
+    setShowLogoutConfirm(false);
     navigate('/admin/login');
   };
-  
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
+  };
+
   return (
     <div className="sidebar">
+      {/* Logout confirmation modal */}
+      {showLogoutConfirm && (
+        <div className="logout-confirm-modal">
+          <div className="logout-confirm-content">
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to log out?</p>
+            <div className="logout-confirm-buttons">
+              <button onClick={confirmLogout} className="confirm-button">Yes, Logout</button>
+              <button onClick={cancelLogout} className="cancel-button">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
       <h1 className="logo">iStitch</h1>
       <ul className="menu">
         <li>
@@ -24,11 +44,6 @@ const Sidebar = () => {
             <FaHome className="icon" /> Home
           </NavLink>
         </li>
-        {/* <li>
-          <NavLink to="/admin/customers" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
-            <FaUsers className="icon" /> Customers
-          </NavLink>
-        </li> */}
         <li>
           <NavLink to="/admin/orders" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaClipboardList className="icon" /> Orders
@@ -54,16 +69,6 @@ const Sidebar = () => {
             <FaRuler className="icon" /> Body Measurements
           </NavLink>
         </li>
-        {/* <li>
-          <NavLink to="/admin/designs" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
-            <FaPaintBrush className="icon" /> Designs
-          </NavLink>
-        </li> */}
-        {/* <li>
-          <NavLink to="/admin-profile" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
-            <FaUser className="icon" /> Admin Profile
-          </NavLink>
-        </li> */}
         <li>
           <NavLink to="/admin/users" className={({ isActive }) => isActive ? "menu-link active" : "menu-link"}>
             <FaUsers className="icon" /> Users
