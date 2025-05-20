@@ -51,7 +51,7 @@ const MensPage = () => {
                             <h3>{item.name}</h3>
                             {/* <p>{item.description}</p> */}
                             <p>Rs.{item.price}</p>
-                            <button onClick={() => handleAddToCart(item)}>Add to Cart</button>
+                            <button onClick={() => handleViewDetails(item)}>View Product</button>
                         </div>
                     ))}
                 </div>

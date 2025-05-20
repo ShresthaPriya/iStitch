@@ -133,10 +133,49 @@ const Checkout = () => {
                 returnUrl: "http://localhost:3000/order-confirmation", // Redirect URL after payment
             };
 
+            // --- Save order and shipping info to localStorage/sessionStorage for Khalti redirect ---
+            const userInfo = JSON.parse(localStorage.getItem('user'));
+            const orderItems = cart.map(item => ({
+                productId: item._id,
+                quantity: item.quantity || 1,
+                price: item.price,
+                size: item.size || item.selectedSize || 'default',
+            }));
+
+            const orderPayload = {
+                userId: userInfo._id,
+                customer: userInfo._id,
+                fullName: user.fullname || "N/A",
+                contactNumber: contactNumber.trim(),
+                address: address.trim(),
+                items: orderItems,
+                total: totalPrice,
+                totalAmount: totalPrice,
+                status: "Processing",
+                paymentMethod: "Khalti",
+                paymentToken: null
+            };
+
+            // Save to both localStorage and sessionStorage for reliability
+            localStorage.setItem('pendingKhaltiOrder', JSON.stringify(orderPayload));
+            localStorage.setItem('shippingAddress', JSON.stringify({
+                address: address.trim(),
+                phone: contactNumber.trim()
+            }));
+            sessionStorage.setItem('pendingKhaltiOrder', JSON.stringify(orderPayload));
+            sessionStorage.setItem('shippingAddress', JSON.stringify({
+                address: address.trim(),
+                phone: contactNumber.trim()
+            }));
+
             // Send the payment initiation request to the backend
             const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
 
             if (response.data.success) {
+                // Save pidx for reference
+                localStorage.setItem('khaltiPidx', response.data.pidx);
+                sessionStorage.setItem('khaltiPidx', response.data.pidx);
+
                 // Redirect to the Khalti payment URL
                 window.location.href = response.data.paymentUrl;
             } else {
@@ -191,11 +230,13 @@ const Checkout = () => {
                 <h2>Checkout</h2>
                 <div className="checkout-items">
                     {cart.map((item, index) => (
-                        <div key={`${item._id}-${item.selectedSize}-${index}`} className="checkout-item">
+                        <div key={`${item._id}-${item.selectedSize || item.size}-${index}`} className="checkout-item">
                             <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
                             <div>
                                 <h3>{item.name}</h3>
-                                <p className="checkout-item-size">Size: {item.selectedSize}</p>
+                                <p className="checkout-item-size">
+                                  Size: {item.selectedSize || item.size || "N/A"}
+                                </p>
                                 <p className="checkout-item-quantity">Quantity: {item.quantity || 1}</p>
                                 <p className="checkout-item-price">
                                     Rs. {item.price} × {item.quantity || 1} = Rs. {(item.price * (item.quantity || 1)).toFixed(2)}

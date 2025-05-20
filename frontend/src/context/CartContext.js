@@ -65,19 +65,33 @@ export const CartProvider = ({ children }) => {
   // Add item to cart
   const addToCart = (item) => {
     setCart(prevCart => {
-      // Check if item already exists in cart
-      const existingItemIndex = prevCart.findIndex(cartItem => 
-        cartItem._id === item._id && cartItem.size === item.size
+      // Check if item already exists in cart (match by _id and size/selectedSize)
+      const existingItemIndex = prevCart.findIndex(cartItem =>
+        cartItem._id === item._id &&
+        (cartItem.size === (item.size || item.selectedSize) || cartItem.selectedSize === (item.size || item.selectedSize))
       );
+
+      const sizeValue = item.size || item.selectedSize || "";
 
       if (existingItemIndex !== -1) {
         // Increment quantity if item exists
         const updatedCart = [...prevCart];
         updatedCart[existingItemIndex].quantity += item.quantity || 1;
+        // Always update the size/selectedSize field for consistency
+        updatedCart[existingItemIndex].size = sizeValue;
+        updatedCart[existingItemIndex].selectedSize = sizeValue;
         return updatedCart;
       } else {
-        // Add new item to cart
-        return [...prevCart, { ...item, quantity: item.quantity || 1 }];
+        // Add new item to cart, always set both size and selectedSize for consistency
+        return [
+          ...prevCart,
+          {
+            ...item,
+            size: sizeValue,
+            selectedSize: sizeValue,
+            quantity: item.quantity || 1
+          }
+        ];
       }
     });
   };
