@@ -219,6 +219,13 @@
 }
 /* Button Styles - Modernized */
 .add-category-container {
+  padding-top: 10px;
+  margin: 1.5rem 0;
+  text-align: right;
+}
+
+.add-guide-container{
+ padding-top: 50px;
   margin: 1.5rem 0;
   text-align: right;
 }

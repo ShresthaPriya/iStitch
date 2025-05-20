@@ -226,7 +226,7 @@ const Measurement = () => {
           </div>
         </div>
 
-        {/* Add Measurement Button */}
+        {/*Measurement Section  */}
         <div className="add-category-container">
           <button className="add-category-btn" onClick={() => { setShowMeasurementModal(true); setEditMode(false); }}>
             <FaPlus className="add-icon" /> Add Measurement
@@ -267,12 +267,16 @@ const Measurement = () => {
           </table>
         </div>
 
-        {/* Add Guide Button */}
-        <div className="add-category-container">
+        {/* Add gap between measurement and guide section */}
+        <div style={{ height: "2.5rem" }}></div>
+
+        {/* Guide  Section*/}
+        <div className="add-guide-container">
           <button className="add-category-btn" onClick={() => { setShowGuideModal(true); setEditMode(false); }}>
             <FaBook className="add-icon" /> Add Guide
           </button>
         </div>
+        
 
         {/* Guides Table */}
         <div className="customers-table">
