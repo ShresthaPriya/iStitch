@@ -127,15 +127,15 @@ const Checkout = () => {
         try {
             // Calculate the total amount
             const totalAmount = calculateTotal();
-            
+
             // Prepare the order items from the cart
             const orderItems = cart.map(item => ({
-                productId: item._id, // Ensure this field is included
+                productId: item._id,
                 quantity: item.quantity || 1,
                 price: item.price,
-                size: item.selectedSize || 'default',
+                size: item.selectedSize || item.size || 'default',
             }));
-            
+
             // Create the order payload - ensure totalAmount is included
             const orderPayload = {
                 userId: user._id,
@@ -144,49 +144,15 @@ const Checkout = () => {
                 contactNumber: contactNumber.trim(),
                 address: address.trim(),
                 items: orderItems,
-                total: totalAmount,          // Add total to match backend expectation
-                totalAmount: totalAmount, // Explicitly set totalAmount
-                status: "Pending",
-                paymentMethod: "Khalti",
-                paymentToken: null // For Khalti, this will be set after payment
-            };
-            
-            // Backup cart and order details before redirecting to Khalti
-            localStorage.setItem('khaltiCartBackup', JSON.stringify(cart));
-            localStorage.setItem('pendingKhaltiOrder', JSON.stringify(orderPayload));
-
-            // Prepare the Khalti payment data
-            const paymentData = {
-                amount: totalPrice * 100, // Convert to paisa
-                purchaseOrderId: `order_${Date.now()}`, // Unique order ID
-                purchaseOrderName: "iStitch Custom Clothing",
-                returnUrl: "http://localhost:3000/order-confirmation", // Redirect URL after payment
-            };
-
-            // --- Save order and shipping info to localStorage/sessionStorage for Khalti redirect ---
-            const userInfo = JSON.parse(localStorage.getItem('user'));
-            const orderItems = cart.map(item => ({
-                productId: item._id,
-                quantity: item.quantity || 1,
-                price: item.price,
-                size: item.size || item.selectedSize || 'default',
-            }));
-
-            const orderPayload = {
-                userId: userInfo._id,
-                customer: userInfo._id,
-                fullName: user.fullname || "N/A",
-                contactNumber: contactNumber.trim(),
-                address: address.trim(),
-                items: orderItems,
-                total: totalPrice,
-                totalAmount: totalPrice,
+                total: totalAmount,
+                totalAmount: totalAmount,
                 status: "Processing",
                 paymentMethod: "Khalti",
                 paymentToken: null
             };
 
-            // Save to both localStorage and sessionStorage for reliability
+            // Backup cart and order details before redirecting to Khalti
+            localStorage.setItem('khaltiCartBackup', JSON.stringify(cart));
             localStorage.setItem('pendingKhaltiOrder', JSON.stringify(orderPayload));
             localStorage.setItem('shippingAddress', JSON.stringify({
                 address: address.trim(),
@@ -198,15 +164,20 @@ const Checkout = () => {
                 phone: contactNumber.trim()
             }));
 
+            // Prepare the Khalti payment data
+            const paymentData = {
+                amount: totalAmount * 100, // Convert to paisa
+                purchaseOrderId: `order_${Date.now()}`,
+                purchaseOrderName: "iStitch Custom Clothing",
+                returnUrl: "http://localhost:3000/order-confirmation",
+            };
+
             // Send the payment initiation request to the backend
             const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
 
             if (response.data.success) {
-                // Save pidx for reference
                 localStorage.setItem('khaltiPidx', response.data.pidx);
                 sessionStorage.setItem('khaltiPidx', response.data.pidx);
-
-                // Redirect to the Khalti payment URL
                 window.location.href = response.data.paymentUrl;
             } else {
                 alert(response.data.message || "Failed to initiate Khalti payment. Please try again.");
