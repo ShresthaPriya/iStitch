@@ -49,128 +49,82 @@ const OrderConfirmation = () => {
                     const storedOrderData = localStorage.getItem('pendingKhaltiOrder');
                     console.log("Raw stored order data:", storedOrderData);
                     
-                    // Check if we have data in localStorage
+                    // Try to retrieve stored order data
                     let orderDetails;
-                    try {
-                        if (storedOrderData) {
-                            orderDetails = JSON.parse(storedOrderData);
-                        } else {
-                            // Fallback: try to get user information from localStorage
-                            const user = JSON.parse(localStorage.getItem('user')) || {};
-                            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-                            
-                            console.log("No stored order data, using fallback with user:", user._id);
-                            console.log("Cart contents:", cart);
-                            
-                            // Validate cart data
-                            if (!cart || cart.length === 0) {
-                                console.error("Cart is empty. Cannot proceed with order.");
-                                setError("Your cart is empty. Please add items to your cart and try again.");
-                                setLoading(false);
-                                return;
-                            }
-                            
-                            // Calculate total price from cart
-                            const totalPrice = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-                            console.log("Total price:", totalPrice);
-                            
-                            // Get any additional data that might be available
-                            const addressData = localStorage.getItem('shippingAddress') || sessionStorage.getItem('shippingAddress');
-                            let shippingAddress = "";
-                            let contactNum = "";
+                    let orderItems;
 
-                            console.log("Raw address data:", addressData);
-
-                            if (addressData) {
-                                try {
-                                    const parsedAddress = JSON.parse(addressData);
-                                    shippingAddress = parsedAddress.address?.trim() || "";
-                                    contactNum = parsedAddress.phone?.trim() || "";
-                                    console.log("Parsed address:", shippingAddress);
-                                    console.log("Parsed contact number:", contactNum);
-                                } catch (e) {
-                                    console.error("Failed to parse shipping address:", e);
-                                }
-                            }
-
-                            // If still no address, check URL parameters
-                            if (!shippingAddress || !contactNum) {
-                                const queryParams = new URLSearchParams(location.search);
-                                const addressParam = queryParams.get('address');
-                                const contactParam = queryParams.get('contact');
-                                
-                                if (addressParam) shippingAddress = decodeURIComponent(addressParam);
-                                if (contactParam) contactNum = decodeURIComponent(contactParam);
-                                
-                                console.log("Address from URL params:", shippingAddress);
-                                console.log("Contact from URL params:", contactNum);
-                            }
-
-                            // If still no valid data, try to get from pending order
-                            if (!shippingAddress || !contactNum) {
-                                const pendingOrder = JSON.parse(localStorage.getItem('pendingKhaltiOrder') || 
-                                                              sessionStorage.getItem('pendingKhaltiOrder') || '{}');
-                                
-                                if (pendingOrder.address) shippingAddress = pendingOrder.address;
-                                if (pendingOrder.contactNumber) contactNum = pendingOrder.contactNumber;
-                                
-                                console.log("Address from pending order:", shippingAddress);
-                                console.log("Contact from pending order:", contactNum);
-                            }
-
-                            // As a last resort, create mock data
-                            if (!shippingAddress || !contactNum) {
-                                // Use user's information if available
-                                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                                shippingAddress = user.address || "Default Address";
-                                contactNum = user.phone || "9800000000";
-                                
-                                console.log("Using default/fallback address and contact");
-                            }
-                            
-                            // Validate address and contact number
-                            if (!shippingAddress || !contactNum) {
-                                console.error("Invalid address or contact number. Cannot proceed with order.");
-                                setError("Please provide a valid address and contact number.");
-                                setLoading(false);
-                                return;
-                            }
-                            
-                            // Create a minimal order payload from available data
-                            orderDetails = {
-                                customer: user._id,
-                                userId: user._id,
-                                items: cart.map(item => ({
-                                    productId: item._id,
-                                    quantity: item.quantity || 1,
-                                    price: item.price
-                                })),
-                                total: totalPrice,
-                                totalAmount: totalPrice,
-                                fullName: user.fullname || "Guest User",
-                                contactNumber: contactNum,
-                                address: shippingAddress,
-                                paymentMethod: "Khalti"
-                            };
-                            console.log("Final order details:", orderDetails);
-                        }
-                        console.log("Order details being sent:", orderDetails);
-                    } catch (parseErr) {
-                        console.error("Failed to parse or create order details:", parseErr);
-                        setError("Failed to process order details. Please contact support.");
-                        setLoading(false);
-                        return;
+                    if (storedOrderData) {
+                      try {
+                        orderDetails = JSON.parse(storedOrderData);
+                        orderItems = orderDetails.items;
+                      } catch (e) {
+                        console.error("Error parsing stored order data:", e);
+                      }
                     }
+
+                    // If no stored order data or items, try to use cart backup
+                    if (!orderDetails || !orderItems || orderItems.length === 0) {
+                      const backupCart = localStorage.getItem('khaltiCartBackup');
+                      if (backupCart) {
+                        try {
+                          const parsedBackupCart = JSON.parse(backupCart);
+                          if (parsedBackupCart.length > 0) {
+                            orderItems = parsedBackupCart;
+                          } else {
+                            setError("Payment was successful, but order data was lost. Please contact support.");
+                            return;
+                          }
+                        } catch (e) {
+                          setError("Payment was successful, but order data was lost. Please contact support.");
+                          return;
+                        }
+                      } else {
+                        setError("Payment was successful, but order data was lost. Please contact support.");
+                        return;
+                      }
+
+                      // Rebuild orderDetails from backupCart and user info
+                      const user = JSON.parse(localStorage.getItem('user'));
+                      const addressData = localStorage.getItem('userAddress');
+                      let address = '', contactNumber = '';
+                      if (addressData) {
+                        try {
+                          const parsedAddress = JSON.parse(addressData);
+                          address = parsedAddress.address || '';
+                          contactNumber = parsedAddress.phone || '';
+                        } catch {}
+                      }
+                      const totalPrice = orderItems.reduce(
+                        (total, item) => total + item.price * (item.quantity || 1),
+                        0
+                      );
+                      orderDetails = {
+                        userId: user?._id,
+                        customer: user?._id,
+                        items: orderItems.map(item => ({
+                          productId: item._id,
+                          quantity: item.quantity || 1,
+                          price: item.price,
+                          size: item.size || 'default'
+                        })),
+                        totalAmount: totalPrice,
+                        paymentMethod: 'Khalti',
+                        paymentToken: queryParams.pidx,
+                        status: 'Pending',
+                        fullName: user?.fullname || 'Unknown',
+                        contactNumber,
+                        address
+                      };
+                    }
+                    
+                    console.log("Final order details:", orderDetails);
                     
                     // Add the payment to processed list BEFORE sending the request to avoid double processing
                     processedPayments.push(pidx);
                     localStorage.setItem('processedKhaltiPayments', JSON.stringify(processedPayments));
                     
                     // Verify payment and create order
-                    const response = await axios.post('http://localhost:4000/api/khalti/verify', {
-                        pidx: pidx,
-                        orderPayload: orderDetails
-                    });
+                    const response = await axios.post('http://localhost:4000/api/orders', orderDetails);
                     
                     console.log("Verification response:", response.data);
                     

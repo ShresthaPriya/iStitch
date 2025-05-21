@@ -125,6 +125,36 @@ const Checkout = () => {
         }
 
         try {
+            // Calculate the total amount
+            const totalAmount = calculateTotal();
+            
+            // Prepare the order items from the cart
+            const orderItems = cart.map(item => ({
+                productId: item._id, // Ensure this field is included
+                quantity: item.quantity || 1,
+                price: item.price,
+                size: item.selectedSize || 'default',
+            }));
+            
+            // Create the order payload - ensure totalAmount is included
+            const orderPayload = {
+                userId: user._id,
+                customer: user._id,
+                fullName: user.fullname || "N/A",
+                contactNumber: contactNumber.trim(),
+                address: address.trim(),
+                items: orderItems,
+                total: totalAmount,          // Add total to match backend expectation
+                totalAmount: totalAmount, // Explicitly set totalAmount
+                status: "Pending",
+                paymentMethod: "Khalti",
+                paymentToken: null // For Khalti, this will be set after payment
+            };
+            
+            // Backup cart and order details before redirecting to Khalti
+            localStorage.setItem('khaltiCartBackup', JSON.stringify(cart));
+            localStorage.setItem('pendingKhaltiOrder', JSON.stringify(orderPayload));
+
             // Prepare the Khalti payment data
             const paymentData = {
                 amount: totalPrice * 100, // Convert to paisa
