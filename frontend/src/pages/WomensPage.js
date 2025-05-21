@@ -11,6 +11,8 @@ const WomensPage = () => {
     const [items, setItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const { addToCart } = useContext(CartContext);
+    const [sortOrder, setSortOrder] = useState("default");
+    
     const navigate = useNavigate(); // Use navigate for redirection
 
     useEffect(() => {
@@ -36,13 +38,38 @@ const WomensPage = () => {
         navigate(`/product-details`, { state: { product: item } }); // Navigate to ProductDetails page
     };
 
+      const sortedItem = [...items].sort((a, b) => {
+    if (sortOrder === "low-to-high") {
+      return a.price - b.price;
+    } else if (sortOrder === "high-to-low") {
+      return b.price - a.price;
+    } else {
+      return 0;
+    }
+  });
+const handleSortChange = (e) => {
+    setSortOrder(e.target.value);
+  };
+
     return (
         <>
             <Navbar onCartClick={() => setIsCartOpen(true)} />
             <div className="category-page">
                 <h2>Women's Clothing</h2>
+                <div className="sort-container">
+            <div className="sort-label">Sort by:</div>
+            <select 
+                    className="sort-dropdown"
+                    value={sortOrder}
+                    onChange={handleSortChange}
+                >
+                    <option value="default">Default</option>
+                    <option value="low-to-high">Price: Low to High</option>
+                    <option value="high-to-low">Price: High to Low</option>
+                </select>
+                </div>
                 <div className="items-grid">
-                    {items.map(item => (
+                    {sortedItem .map(item => (
                         <div key={item._id} className="item-card">
                             <img 
                                 src={item.images?.[0] ? `http://localhost:4000/images/${item.images[0]}` : '/path/to/fallback-image.jpg'} 

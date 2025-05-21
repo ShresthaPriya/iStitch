@@ -64,7 +64,7 @@ function FabricCollection() {
       </div>
       <div className="view-all-container">
 
-        <a href="#viewAll" className="view-all-link" style={{ paddingLeft: '10px' }}>View all <span>▾</span></a>
+        {/* <a href="#viewAll" className="view-all-link" style={{ paddingLeft: '10px' }}>View all <span>▾</span></a> */}
 
       </div>
       <div className="fabric-collection">

@@ -1,9 +1,8 @@
-import React, { useState, useContext } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Auth.css";
 import SplashNavbar from "../components/SplashNavbar";
-import { AuthContext } from "../context/AuthContext"; // Adjust the path as necessary
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -17,9 +16,7 @@ const Login = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [loginSuccess, setLoginSuccess] = useState(false);
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext); // Proper way to use auth context
 
   // Validate email format
   const validateEmail = (email) => {
@@ -52,72 +49,28 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoginSuccess(false);
 
     // Validate email format before submission
     if (!validateEmail(formData.email)) {
-        setFieldErrors({
-            ...fieldErrors,
-            email: "Please enter a valid email address",
-        });
-        return;
+      setFieldErrors({
+        ...fieldErrors,
+        email: "Please enter a valid email address",
+      });
+      return;
     }
 
-    // Always normalize email to lowercase to ensure consistency
-    const normalizedEmail = formData.email.toLowerCase().trim();
-    console.log('Submitting login with email:', normalizedEmail);
-
     try {
-        setLoading(true);
-        
-        // Try multiple endpoints with the normalized email
-        let response;
-        try {
-            console.log('Trying first endpoint with:', { email: normalizedEmail, password: '•••••••' });
-            response = await axios.post("http://localhost:4000/auth/login", {
-                email: normalizedEmail,
-                password: formData.password,
-            });
-        } catch (firstError) {
-            console.log('First login endpoint failed, trying alternative:', firstError.message);
-            
-            // Try alternative endpoint
-            console.log('Trying second endpoint with:', { email: normalizedEmail, password: '•••••••' });
-            response = await axios.post("http://localhost:4000/api/auth/login", {
-                email: normalizedEmail,
-                password: formData.password,
-            });
-        }
+      setLoading(true);
+      const response = await axios.post("http://localhost:4000/auth/login", {
+        email: formData.email.toLowerCase(),
+        password: formData.password,
+      });
 
       if (response.data.success) {
-        // Store the token and user info
         localStorage.setItem("token", response.data.token);
-        if (response.data.user) {
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-          localStorage.setItem("role", response.data.user.role);
-          
-          // Transfer guest cart to user cart if guest cart exists
-          const guestCart = localStorage.getItem('cart_guest');
-          const userId = response.data.user._id || response.data.user.id;
-          
-          if (guestCart && !localStorage.getItem(`cart_${userId}`)) {
-            localStorage.setItem(`cart_${userId}`, guestCart);
-          }
-          
-          // Dispatch auth change event
-          window.dispatchEvent(new Event('auth-change'));
-        } else {
-          console.warn("User details are missing in the response.");
-        }
-
-        setLoginSuccess(true); // Show login success message
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        navigate("/home"); // Redirect to dashboard on success
       }
     } catch (error) {
-      console.error("Login error:", error);
-      
       // Handle specific backend errors
       if (error.response?.data?.error === "User not found") {
         setFieldErrors({
@@ -200,11 +153,11 @@ const Login = () => {
           </div>
 
             <div className="form-group forgot-password">
-              <Link to="/forgot-password">Forgot your password?</Link>
+              <a href="/forgot-password">Forgot Password?</a>
             </div>
 
             {error && <div className="error-message">{error}</div>}
-            {loginSuccess && <div className="success-message">Login successful! Redirecting...</div>}
+
             <button type="submit" className="auth-button" disabled={loading}>
               {loading ? (
                 <>

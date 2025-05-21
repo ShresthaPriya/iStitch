@@ -9,6 +9,7 @@ const Category = () => {
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [error, setError] = useState("");
   const [newCategory, setNewCategory] = useState({ name: "", gender: "", description: "" });
   const [successMessage, setSuccessMessage] = useState(""); // State for success message
   const [showDeleteModal, setShowDeleteModal] = useState(false); // State for delete confirmation modal
@@ -38,23 +39,30 @@ const Category = () => {
     try {
       if (editMode) {
         const response = await axios.put(`http://localhost:4000/api/categories/${selectedCategoryId}`, newCategory);
-        setCategories(
-          categories.map((category) =>
-            category._id === selectedCategoryId ? { ...category, ...response.data.category } : category
-          )
-        );
+        // Fetch updated categories after edit
+        await fetchCategories();
         setSuccessMessage("Category updated successfully!");
         setEditMode(false);
         setSelectedCategoryId(null);
+        setTimeout(() => {
+    setError("");
+  }, 3000);
       } else {
         const response = await axios.post('http://localhost:4000/api/categories', newCategory);
-        setCategories([...categories, response.data.category]);
+        // Fetch updated categories after add
+        await fetchCategories();
         setSuccessMessage("Category added successfully!");
+        setTimeout(() => {
+    setError("");
+  }, 3000);
       }
       setShowModal(false);
       setNewCategory({ name: "", gender: "", description: "" });
     } catch (err) {
       console.error('Error adding/updating category:', err);
+      setTimeout(() => {
+    setError("");
+  }, 3000);
     }
   };
 
@@ -62,10 +70,14 @@ const Category = () => {
   const handleDeleteCategory = async () => {
     try {
       await axios.delete(`http://localhost:4000/api/categories/${categoryToDelete}`);
-      setCategories(categories.filter((category) => category._id !== categoryToDelete));
+      // Fetch updated categories after delete
+      await fetchCategories();
       setSuccessMessage("Category deleted successfully!");
       setShowDeleteModal(false);
       setCategoryToDelete(null);
+      setTimeout(() => {
+    setError("");
+  }, 3000);
     } catch (err) {
       console.error('Error deleting category:', err);
     }
@@ -75,11 +87,17 @@ const Category = () => {
   const confirmDeleteCategory = (id) => {
     setCategoryToDelete(id);
     setShowDeleteModal(true);
+    setTimeout(() => {
+    setError("");
+  }, 3000);
   };
 
   // Close success message
   const closeSuccessMessage = () => {
     setSuccessMessage("");
+    setTimeout(() => {
+    setError("");
+  }, 3000);
   };
 
   // Edit category
@@ -88,6 +106,9 @@ const Category = () => {
     setSelectedCategoryId(category._id); // Store the ID of the category being edited
     setEditMode(true); // Enable edit mode
     setShowModal(true); // Show the modal for editing
+    setTimeout(() => {
+    setError("");
+  }, 3000);
   };
 
   return (

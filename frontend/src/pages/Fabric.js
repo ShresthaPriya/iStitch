@@ -86,6 +86,9 @@ const Fabric = () => {
         setSuccessMessage("Fabric updated successfully!");
         setEditMode(false);
         setSelectedFabricId(null);
+        setTimeout(() => {
+    setError("");
+  }, 3000);
       } else {
         const response = await axios.post('http://localhost:4000/api/fabrics', formData, {
           headers: {
@@ -100,6 +103,9 @@ const Fabric = () => {
     } catch (err) {
       console.error('Error adding/updating fabric:', err);
       setError(`Error adding/updating fabric: ${err.response?.data?.error || err.message}`);
+      setTimeout(() => {
+    setError("");
+  }, 3000);
     }
   };
 
@@ -117,9 +123,15 @@ const Fabric = () => {
       setSuccessMessage("Fabric deleted successfully!");
       setShowDeleteModal(false);
       setFabricToDelete(null);
+      setTimeout(() => {
+    setError("");
+  }, 3000);
     } catch (err) {
       console.error('Error deleting fabric:', err);
       setError(`Error deleting fabric: ${err.response?.data?.error || err.message}`);
+      setTimeout(() => {
+    setError("");
+  }, 3000);
     }
   };
 
@@ -242,10 +254,10 @@ const Fabric = () => {
                 </button>
               </div>
             ))}
-            <div className="add-product-container" onClick={handleAddProductField}>
+            {/* <div className="add-product-container" onClick={handleAddProductField}>
               <FaPlusCircle className="add-product-icon" />
               <span>Add Product</span>
-            </div>
+            </div> */}
             <label>Images:</label>
             <input type="file" name="images" onChange={handleFileChange} multiple accept="image/*" required />
             <div className="modal-actions">
