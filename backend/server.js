@@ -112,25 +112,25 @@ app.use('/api/orders', (req, res, next) => {
 });
 
 // Debug registered routes
-app._router.stack.forEach(function(r){
-  if (r.route && r.route.path){
-    console.log(r.route.stack[0].method.toUpperCase() + ' ' + r.route.path)
-  } else if (r.name === 'router' && r.handle.stack) {
-    r.handle.stack.forEach(function(layer) {
-      if (layer.route) {
-        console.log('  ' + layer.route.stack[0].method.toUpperCase() + ' ' + r.regexp.toString().split('\\')[1].replace('\\/?(?=\\/|$)', '') + layer.route.path);
-      }
-    });
-  }
-});
+// app._router.stack.forEach(function(r){
+//   if (r.route && r.route.path){
+//     console.log(r.route.stack[0].method.toUpperCase() + ' ' + r.route.path)
+//   } else if (r.name === 'router' && r.handle.stack) {
+//     r.handle.stack.forEach(function(layer) {
+//       if (layer.route) {
+//         console.log('  ' + layer.route.stack[0].method.toUpperCase() + ' ' + r.regexp.toString().split('\\')[1].replace('\\/?(?=\\/|$)', '') + layer.route.path);
+//       }
+//     });
+//   }
+// });
 
 // Log important configuration values at startup
-console.log('===== Server Configuration =====');
-console.log('Port:', process.env.PORT);
-console.log('Email User:', process.env.EMAIL_USER ? 'Set' : 'Not set');
-console.log('Email Password:', process.env.EMAIL_PASSWORD ? 'Set' : 'Not set');
-console.log('Admin Email:', process.env.ADMIN_EMAIL || 'Not set');
-console.log('==============================');
+// console.log('===== Server Configuration =====');
+// console.log('Port:', process.env.PORT);
+// console.log('Email User:', process.env.EMAIL_USER ? 'Set' : 'Not set');
+// console.log('Email Password:', process.env.EMAIL_PASSWORD ? 'Set' : 'Not set');
+// console.log('Admin Email:', process.env.ADMIN_EMAIL || 'Not set');
+// console.log('==============================');
 
 // Connect to MongoDB and start the server
 connectDB()
@@ -141,22 +141,22 @@ connectDB()
       console.log(`Server listening on port ${PORT}`);
       
       // Log all registered routes
-      console.log('API Routes:');
-      const getRoutes = (stack, basePath = '') => {
-        stack.forEach(layer => {
-          if (layer.route) {
-            const methods = Object.keys(layer.route.methods)
-              .filter(method => layer.route.methods[method])
-              .map(method => method.toUpperCase());
-            console.log(`${methods} ${basePath}${layer.route.path}`);
-          } else if (layer.name === 'router' && layer.handle.stack) {
-            const newBasePath = basePath + (layer.regexp.toString().match(/^\/\^\\\/([^\\]+)/) ? '/' + layer.regexp.toString().match(/^\/\^\\\/([^\\]+)/)[1] : '');
-            getRoutes(layer.handle.stack, newBasePath);
-          }
-        });
-      };
+      // console.log('API Routes:');
+      // const getRoutes = (stack, basePath = '') => {
+      //   stack.forEach(layer => {
+      //     if (layer.route) {
+      //       const methods = Object.keys(layer.route.methods)
+      //         .filter(method => layer.route.methods[method])
+      //         .map(method => method.toUpperCase());
+      //       console.log(`${methods} ${basePath}${layer.route.path}`);
+      //     } else if (layer.name === 'router' && layer.handle.stack) {
+      //       const newBasePath = basePath + (layer.regexp.toString().match(/^\/\^\\\/([^\\]+)/) ? '/' + layer.regexp.toString().match(/^\/\^\\\/([^\\]+)/)[1] : '');
+      //       getRoutes(layer.handle.stack, newBasePath);
+      //     }
+      //   });
+      // };
       
-      getRoutes(app._router.stack);
+      // getRoutes(app._router.stack);
     });
   })
   .catch((error) => {
