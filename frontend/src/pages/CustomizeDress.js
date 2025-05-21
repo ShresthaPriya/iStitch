@@ -24,14 +24,14 @@ const CustomizeDress = () => {
 
     // Price factors for different item types
     const itemPricingFactors = {
-        "Shirt Half": 1.2,
-        "Shirt Full": 1.5,
-        "Pant": 1.8,
-        "Suit 2 Piece": 3.0,
-        "Suit 3 Piece": 4.0,
-        "Blazer": 2.5,
-        "Long Coat": 2.8,
-        "Half Coat": 2.0
+        "Shirt Half": 2,
+        "Shirt Full": 2,
+        "Pant": 2,
+        "Suit 2 Piece": 10,
+        "Suit 3 Piece": 12,
+        "Blazer": 5,
+        "Long Coat": 7,
+        "Half Coat": 3.5
     };
 
     // Fetch user measurements
