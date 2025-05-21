@@ -4,17 +4,16 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import "../styles/OrderHistory.css";
 import axios from "axios";
+import { enhanceOrdersWithProductDetails, enhanceOrderWithProductDetails } from "../utils/orderUtils";
 
 const OrderHistory = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [selectedOrder, setSelectedOrder] = useState(null);
     const user = JSON.parse(localStorage.getItem("user"));
     const userId = user?._id;
     const navigate = useNavigate();
-
-    // New state to track enhanced orders with product names
-    const [enhancedOrders, setEnhancedOrders] = useState([]);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -28,7 +27,6 @@ const OrderHistory = () => {
 
                 console.log("Fetching orders for user:", userId);
                 
-                // Set a reasonable timeout
                 const response = await axios.get(`http://localhost:4000/api/orders/${userId}`, {
                     timeout: 10000 // 10 second timeout
                 });
@@ -36,11 +34,10 @@ const OrderHistory = () => {
                 console.log("Order API response:", response.data);
                 
                 if (response.data.success && Array.isArray(response.data.orders)) {
-                    setOrders(response.data.orders);
-                    console.log("Orders retrieved:", response.data.orders.length);
-                    
                     // Enhance orders with product names
-                    enhanceOrdersWithProductNames(response.data.orders);
+                    const enhancedOrders = await enhanceOrdersWithProductDetails(response.data.orders);
+                    setOrders(enhancedOrders);
+                    console.log("Enhanced orders:", enhancedOrders);
                 } else {
                     console.warn("No orders found or invalid response format");
                     setOrders([]);
@@ -48,19 +45,7 @@ const OrderHistory = () => {
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching orders:", err);
-                
-                // Provide more detailed error message
-                let errorMessage = "Failed to fetch orders";
-                if (err.response) {
-                    console.error("Error response:", err.response.data);
-                    errorMessage += `: ${err.response.data.message || err.response.statusText}`;
-                } else if (err.request) {
-                    errorMessage += ": No response from server. Please check your connection.";
-                } else {
-                    errorMessage += `: ${err.message}`;
-                }
-                
-                setError(errorMessage);
+                setError("Failed to fetch orders. Please try again.");
                 setLoading(false);
             }
         };
@@ -68,49 +53,21 @@ const OrderHistory = () => {
         fetchOrders();
     }, [userId]);
 
-    // Function to enhance orders with product names
-    const enhanceOrdersWithProductNames = async (orders) => {
+    // Function to view order details
+    const viewOrderDetails = async (order) => {
         try {
-            const ordersWithProducts = await Promise.all(
-                orders.map(async (order) => {
-                    const enhancedItems = await Promise.all(
-                        order.items.map(async (item) => {
-                            try {
-                                if (item.productId) {
-                                    const productId = typeof item.productId === 'object' 
-                                        ? item.productId._id 
-                                        : item.productId;
-                                    
-                                    const response = await axios.get(`http://localhost:4000/api/items/${productId}`);
-                                    if (response.data && response.data.item) {
-                                        return {
-                                            ...item,
-                                            productName: response.data.item.name || `Product #${productId.substring(0, 6)}`
-                                        };
-                                    }
-                                }
-                                return { 
-                                    ...item, 
-                                    productName: 'Unknown Product' 
-                                };
-                            } catch (err) {
-                                console.error("Error fetching product details:", err);
-                                return { ...item, productName: 'Unknown Product' };
-                            }
-                        })
-                    );
-                    
-                    return {
-                        ...order,
-                        items: enhancedItems
-                    };
-                })
-            );
-            
-            setEnhancedOrders(ordersWithProducts);
+            // Enhance the order with product details before displaying
+            const enhancedOrder = await enhanceOrderWithProductDetails(order);
+            setSelectedOrder(enhancedOrder);
         } catch (err) {
-            console.error("Error enhancing orders with product names:", err);
+            console.error("Error enhancing order details:", err);
+            setSelectedOrder(order); // Fall back to unenhanced order
         }
+    };
+
+    // Function to close order details modal
+    const closeOrderDetails = () => {
+        setSelectedOrder(null);
     };
 
     // Function to format date
@@ -142,9 +99,9 @@ const OrderHistory = () => {
                         <p>{error}</p>
                         <button onClick={() => window.location.reload()} className="shop-now-btn">Try Again</button>
                     </div>
-                ) : (enhancedOrders.length > 0 || orders.length > 0) ? (
+                ) : orders.length > 0 ? (
                     <div className="orders-container">
-                        {(enhancedOrders.length > 0 ? enhancedOrders : orders).map((order) => (
+                        {orders.map((order) => (
                             <div key={order._id} className="order-card">
                                 <div className="order-header">
                                     <div>
@@ -161,10 +118,16 @@ const OrderHistory = () => {
                                         <h4>Items</h4>
                                         {order.items.map((item, index) => (
                                             <div key={index} className="order-item">
-                                                <span>{item.quantity}x {item.productName || 'Item'}</span>
+                                                <span>{item.quantity}x {item.productName || 'Product'}</span>
                                                 <span>Rs. {item.price.toFixed(2)}</span>
                                             </div>
                                         ))}
+                                        {/* <button 
+                                            className="view-details-btn" 
+                                            onClick={() => viewOrderDetails(order)}
+                                        >
+                                            View Details
+                                        </button> */}
                                     </div>
 
                                     <div className="order-info">
@@ -199,6 +162,43 @@ const OrderHistory = () => {
                     </div>
                 )}
             </div>
+
+            {/* Order Details Modal */}
+            {selectedOrder && (
+                <div className="order-modal">
+                    <div className="modal-content">
+                        <span className="close" onClick={closeOrderDetails}>&times;</span>
+                        <h2>Order Details</h2>
+                        <div className="order-info">
+                            <p><strong>Order ID:</strong> {selectedOrder._id}</p>
+                            <p><strong>Date:</strong> {formatDate(selectedOrder.createdAt)}</p>
+                            <p><strong>Total:</strong> Rs. {(selectedOrder.totalAmount || selectedOrder.total || 0).toFixed(2)}</p>
+                            <p><strong>Status:</strong> <span className={`status ${selectedOrder.status.toLowerCase()}`}>{selectedOrder.status}</span></p>
+                            <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</p>
+                            <p><strong>Shipping Address:</strong> {selectedOrder.address}</p>
+                        </div>
+                        
+                        <h3>Order Items</h3>
+                        <div className="order-items">
+                            {selectedOrder.items.map((item, index) => (
+                                <div key={index} className="order-item">
+                                    <div className="item-name">
+                                        <h4>{item.productName}</h4>
+                                        {item.customDetails && item.customDetails.additionalStyling && (
+                                            <p className="custom-notes">
+                                                <strong>Styling Notes:</strong> {item.customDetails.additionalStyling}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <p><strong>Size:</strong> {item.size || item.selectedSize || 'N/A'}</p>
+                                    <p><strong>Quantity:</strong> {item.quantity}</p>
+                                    <p><strong>Price:</strong> Rs. {item.price}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
             <Footer />
         </>
     );

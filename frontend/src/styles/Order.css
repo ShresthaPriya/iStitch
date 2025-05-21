@@ -774,3 +774,32 @@ ul li {
 .cancel-btn:hover {
   background-color: #5a6268;
 }
+
+/* Custom Order Details Styling */
+.custom-details {
+  margin-top: 8px;
+  font-size: 0.9em;
+  background-color: #f8f9fa;
+  padding: 8px;
+  border-radius: 4px;
+  border-left: 3px solid #6366f1;
+}
+
+.custom-item-type, .custom-item-style {
+  display: block;
+  margin-bottom: 4px;
+  color: #495057;
+}
+
+.custom-item-notes {
+  margin-top: 6px;
+  color: #6c757d;
+  font-style: italic;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.items-table td {
+  vertical-align: top;
+  padding: 15px 12px;
+}

@@ -171,12 +171,24 @@ const AdminOrders = () => {
                                         {order.items?.map((item, index) => (
                                             <div key={index} className="order-item-row">
                                                 {item.productId?.name || "Custom Item"} 
-                                                {item.customDetails?.itemType && ` (${item.customDetails.itemType})`}
-                                                {item.size && ` - Size: ${item.size}`}
-                                                (x{item.quantity})
-                                                {item.customDetails?.fabricName && 
-                                                    <div className="fabric-detail">Fabric: {item.customDetails.fabricName}</div>
-                                                }
+                                                {item.customDetails?.itemType && (
+                                                    <div className="fabric-detail">
+                                                        <strong>Item Type:</strong> {item.customDetails.itemType}
+                                                        {item.customDetails.style && (
+                                                            <span> - <strong>Style:</strong> {item.customDetails.style}</span>
+                                                        )}
+                                                        {item.customDetails.fabricName && (
+                                                            <div><strong>Fabric:</strong> {item.customDetails.fabricName}</div>
+                                                        )}
+                                                        {item.customDetails.additionalStyling && (
+                                                            <div className="additional-styling">
+                                                                <strong>Additional Instructions:</strong> {item.customDetails.additionalStyling}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {!item.customDetails && item.size && <span> - Size: {item.size}</span>}
+                                                <span className="item-quantity">(x{item.quantity})</span>
                                             </div>
                                         )) || "N/A"}
                                     </td>

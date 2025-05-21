@@ -358,6 +358,98 @@ const Order = () => {
     }
   };
 
+  const fetchOrderDetails = async (orderId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`http://localhost:4000/api/orders/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        // Process product names similar to admin view
+        const order = response.data.order;
+        const enhancedItems = await Promise.all(
+          order.items.map(async (item) => {
+            try {
+              // First check if it's a custom order with fabricName
+              if (item.customDetails) {
+                const fabricName = item.customDetails.fabricName || '';
+                const itemType = item.customDetails.itemType || 'Custom Item';
+                const style = item.customDetails.style ? ` (${item.customDetails.style})` : '';
+                return {
+                  ...item,
+                  productName: `${itemType}${style} - ${fabricName}`
+                };
+              }
+              
+              // Then try to fetch by productId
+              if (item.productId) {
+                const productId = typeof item.productId === 'object' ? 
+                  item.productId._id : item.productId;
+                
+                try {
+                  const response = await axios.get(`http://localhost:4000/api/items/${productId}`);
+                  
+                  if (response.data && response.data.item && response.data.item.name) {
+                    return {
+                      ...item,
+                      productName: response.data.item.name
+                    };
+                  }
+                } catch (fetchError) {
+                  console.log("Error fetching product, will use fallback name");
+                }
+              }
+              
+              // If we have a name property directly in the item, use that
+              if (item.name) {
+                return {
+                  ...item,
+                  productName: item.name
+                };
+              }
+              
+              // Fallback: create a readable name from what we know
+              let fallbackName = "Unknown Product";
+              
+              if (item.productId) {
+                const idStr = typeof item.productId === 'object' ? 
+                  (item.productId._id || '').substring(0, 6) : 
+                  (item.productId || '').substring(0, 6);
+                fallbackName = `Product #${idStr}`;
+              }
+              
+              // If we have size, include it in the fallback name
+              if (item.size || item.selectedSize) {
+                fallbackName += ` (${item.size || item.selectedSize})`;
+              }
+              
+              return {
+                ...item,
+                productName: fallbackName
+              };
+            } catch (err) {
+              return {
+                ...item,
+                productName: item.name || 'Unknown Product'
+              };
+            }
+          })
+        );
+        
+        // Update order with enhanced items
+        const enhancedOrder = {
+          ...order,
+          items: enhancedItems
+        };
+        
+        setSelectedOrder(enhancedOrder);
+      }
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    }
+  };
+
   return (
     <div className="admin-content-container">
       <Sidebar />
