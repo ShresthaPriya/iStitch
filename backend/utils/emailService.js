@@ -1,15 +1,11 @@
 const nodemailer = require('nodemailer');
 
-// Get email configuration from environment variables with fallbacks
-const EMAIL_USER = process.env.EMAIL_USER || process.env.EMAIL;
-const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || process.env.PASSWORD_APP_EMAIL;
-
 // Create a transporter with debugging enabled
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASSWORD
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD
   },
   debug: true, // Enable debugging
   logger: true // Enable logger
@@ -20,8 +16,8 @@ const transporter = nodemailer.createTransport({
   try {
     console.log('Testing email connection...');
     console.log('Using credentials:', { 
-      email: EMAIL_USER, 
-      password: EMAIL_PASSWORD ? '****' + EMAIL_PASSWORD.slice(-4) : 'not set' 
+      email: process.env.EMAIL_USER, 
+      password: process.env.EMAIL_PASSWORD ? '****' + process.env.EMAIL_PASSWORD.slice(-4) : 'not set' 
     });
     
     const result = await transporter.verify();
@@ -29,7 +25,7 @@ const transporter = nodemailer.createTransport({
   } catch (error) {
     console.error('Email connection failed:', error);
     console.error('Make sure you have:');
-    console.error('1. Set the correct email and app password in .env file');
+    console.error('1. Set the correct email and app password');
     console.error('2. Enabled less secure apps if not using app password');
     console.error('3. Check if your email provider requires additional configuration');
   }
@@ -43,13 +39,18 @@ const sendEmail = async (to, subject, html) => {
   console.log(`To: ${to}`);
   console.log(`Subject: ${subject}`);
   console.log(`Using email credentials:`, {
-    user: EMAIL_USER,
-    pass: EMAIL_PASSWORD ? '[HIDDEN]' : 'NOT SET'
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD ? '[HIDDEN]' : 'NOT SET'
   });
+  
+  // Extract password from HTML for debugging purposes
+  let passwordMatch = html.match(/font-size: 16px;">(.*?)<\/p>/);
+  let extractedPassword = passwordMatch ? passwordMatch[1] : 'Not found in HTML';
+  console.log(`Generated password (for debugging): ${extractedPassword}`);
   
   try {
     const mailOptions = {
-      from: EMAIL_USER || 'your-email@gmail.com',
+      from: process.env.EMAIL_USER || 'your-email@gmail.com',
       to,
       subject,
       html
@@ -166,6 +167,7 @@ const generateAdminOrderNotificationEmail = (order) => {
         <h3 style="margin-top: 0; color: #333;">Order Details</h3>
         <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>Customer:</strong> ${order.fullName}</p>
+        <p><strong>Email:</strong> ${order.email || 'N/A'}</p>
         <p><strong>Contact:</strong> ${order.contactNumber}</p>
         <p><strong>Total Amount:</strong> Rs. ${(order.total || order.totalAmount).toFixed(2)}</p>
         <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>

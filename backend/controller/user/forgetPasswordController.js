@@ -1,12 +1,13 @@
 const User = require("../../models/UserSchema");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken"); // Add missing import
 
 const forgetPassword = async (req, res) => {
   try {
-    console.log("Forgot password request received:", req.body);
-    const { email } = req.body;  // Ensure email is destructured correctly
+    console.log("Password reset request received for:", req.body.email);
+    const { email } = req.body;
 
     if (!email) {
       return res.status(400).json({ success: false, message: "Email is required" });
@@ -15,86 +16,112 @@ const forgetPassword = async (req, res) => {
     // Find the user by email
     const user = await User.findOne({ email });
 
-    // If user not found, don't disclose this but log it server-side
+    // If user not found, don't reveal this for security reasons
     if (!user) {
-      console.log(`Password reset attempted for non-existent email: ${email}`);
-      // Still return success to prevent email enumeration attacks
-      return res.status(200).json({ success: true, message: "If the email exists, a reset link was sent." });
+      console.log("Password reset requested for non-existent email:", email);
+      return res.status(200).json({ 
+        success: true, 
+        message: "If your email is registered, you will receive a new password." 
+      });
     }
 
-    // Generate a unique JWT token for the user that contains the user's id
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "10m" });
+    // Generate a new random password (8 characters with letters and numbers)
+    const newPassword = crypto.randomBytes(4).toString('hex');
+    
+    console.log(`Generated new temporary password for ${email}: ${newPassword}`);
 
-    // Store the reset token and expiry in the user document
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update user's password in database
+    user.password = hashedPassword;
     await user.save();
+    
+    console.log(`Password updated in database for user: ${user._id}`);
 
-    // Create email transporter with correct credentials
+    // Check if email credentials are configured
+    const emailUser = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_PASSWORD;
+    
+    if (!emailUser || !emailPassword) {
+      console.warn("Email credentials missing! Returning password in response for development purposes only.");
+      // ONLY FOR DEVELOPMENT/TESTING - remove in production
+      return res.status(200).json({
+        success: true,
+        message: "Email service is not configured. Your new password is displayed below (for development purposes only).",
+        devInfo: {
+          password: newPassword,
+          note: "This password display is for development purposes only and should be removed in production."
+        }
+      });
+    }
+
+    // Create email transporter
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+        user: emailUser,
+        pass: emailPassword,
       },
-      debug: true, // Enable debugging for troubleshooting
     });
 
-    // Log email configuration (without password)
-    console.log("Email configuration:", {
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD ? "******" : "NOT SET"
-      }
-    });
-
-    // Base URL for the frontend reset page
-    const clientURL = process.env.CLIENT_URL || 'http://localhost:3000';
-    const resetURL = `${clientURL}/reset-password/${token}`;
-
-    // Email configuration
+    // Email configuration with the new password
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: emailUser,
       to: email,
-      subject: "Reset Password - iStitch",
+      subject: "Your New Password - iStitch",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-          <h1 style="color: #4a5568;">Reset Your Password</h1>
-          <p>Hello,</p>
-          <p>We received a request to reset your password. Click the button below to reset it:</p>
-          <div style="text-align: center; margin: 20px 0;">
-            <a href="${resetURL}" style="background-color: #4299e1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Reset Your Password</a>
+          <h2 style="color: #333;">Your Password Has Been Reset</h2>
+          <p>Hello ${user.fullname || 'Valued Customer'},</p>
+          <p>As requested, we've reset your password. Here is your new temporary password:</p>
+          
+          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 4px; margin: 20px 0; text-align: center;">
+            <p style="font-family: monospace; font-size: 18px; font-weight: bold; margin: 0;">${newPassword}</p>
           </div>
-          <p>This link will expire in 10 minutes.</p>
-          <p>If you didn't request a password reset, please ignore this email or contact support if you have questions.</p>
-          <p>Best regards,<br>The iStitch Team</p>
+          
+          <p><strong>Please log in with this password and change it immediately for security reasons.</strong></p>
+          <p>If you did not request this password reset, please contact our support team immediately.</p>
+          <p>Thank you,<br>iStitch Team</p>
         </div>
       `,
     };
 
-    // Verify connection before sending
-    transporter.verify(function(error, success) {
-      if (error) {
-        console.error("SMTP verification error:", error);
-        return res.status(500).json({ success: false, message: `Email configuration error: ${error.message}` });
-      } else {
-        console.log("SMTP server is ready to send messages");
-        
-        // Send the email
+    // Send the email with new password using Promise instead of callback
+    try {
+      await new Promise((resolve, reject) => {
         transporter.sendMail(mailOptions, (err, info) => {
           if (err) {
-            console.error("Error sending email:", err);
-            return res.status(500).json({ success: false, message: `Email sending failed: ${err.message}` });
+            console.error("Error sending password reset email:", err);
+            reject(err);
+          } else {
+            console.log("Password reset email sent:", info.response);
+            resolve(info);
           }
-          console.log("Password reset email sent:", info.response);
-          res.status(200).json({ success: true, message: "Email sent successfully" });
         });
-      }
-    });
+      });
+      
+      return res.status(200).json({ 
+        success: true, 
+        message: "A new password has been sent to your email address. Please check your inbox." 
+      });
+    } catch (emailErr) {
+      console.error("Failed to send email:", emailErr);
+      
+      // Email sending failed but password was updated
+      return res.status(200).json({
+        success: true,
+        message: "Your password has been reset, but we couldn't send the email. Please contact support for assistance.",
+        passwordResetSuccessful: true
+      });
+    }
   } catch (err) {
-    console.error("Forgot password error:", err);
-    res.status(500).json({ success: false, message: `Internal Server Error: ${err.message}` });
+    console.error("Password reset error:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: "An error occurred. Please try again later." 
+    });
   }
 };
 
