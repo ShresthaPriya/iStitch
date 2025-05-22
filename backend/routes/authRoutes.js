@@ -1,5 +1,9 @@
 const express = require("express");
 const passport = require("passport");
+const bcrypt = require("bcryptjs"); // Make sure bcrypt is imported
+const jwt = require("jsonwebtoken"); // Make sure jwt is imported
+const User = require("../models/UserSchema"); // Make sure User model is imported
+
 // Replace import with require
 const { forgetPassword, resetPassword } = require("../controller/user/forgetPasswordController");
 const {
@@ -58,6 +62,59 @@ router.get("/login/failed", loginFailed);
 router.get("/logout", logout);
 
 router.post("/forgetPassword", forgetPassword);
+router.post("/forgot-password", forgetPassword); // Add an alias for the route with a different name format
 router.post("/reset-password/:token", resetPassword);
+
+// Add admin login route
+router.post("/admin-login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password are required" });
+    }
+
+    // Find the admin user
+    const user = await User.findOne({ email });
+
+    // Check if user exists and has admin role
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
+
+    // Check if user is an admin
+    if (user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Access denied. Admin privileges required." });
+    }
+
+    // Generate JWT token with admin role
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // Send success response
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        fullname: user.fullname,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error("Admin login error:", error);
+    res.status(500).json({ success: false, message: "Server error. Please try again." });
+  }
+});
 
 module.exports = router;

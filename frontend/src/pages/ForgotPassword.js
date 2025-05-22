@@ -32,16 +32,10 @@ const ForgotPassword = () => {
     try {
       console.log('Sending password reset request for:', email);
       
-      // Try both possible endpoints
-      let response;
-      try {
-        // First try with /auth prefix
-        response = await axios.post('http://localhost:4000/auth/forgot-password', { email });
-      } catch (err) {
-        console.log('First endpoint failed, trying alternative endpoint');
-        // Try alternative endpoint if first one fails
-        response = await axios.post('http://localhost:4000/api/auth/forgot-password', { email });
-      }
+      // Send request to correct endpoint
+      const response = await axios.post('http://localhost:4000/auth/forgetPassword', { 
+        email: email.trim().toLowerCase()
+      });
       
       console.log('Password reset response:', response.data);
       
@@ -49,12 +43,22 @@ const ForgotPassword = () => {
       setMessage('If your email is registered, you will receive instructions to reset your password.');
     } catch (err) {
       console.error('Password reset error:', err);
-      // For network/server errors only, don't expose if email exists
+      
+      // For network/server errors show a user-friendly message
       if (err.code === 'ERR_NETWORK') {
         setError('Unable to connect to the server. Please check your internet connection.');
-      } else {
+      } else if (err.response && err.response.status === 500) {
         console.log('Error response:', err.response?.data);
-        // Still show success message even on server errors
+        
+        // Show a specific error message if the email service is not configured
+        if (err.response.data && err.response.data.message && 
+            err.response.data.message.includes('Missing credentials')) {
+          setError('Our email service is currently unavailable. Please try again later or contact support.');
+        } else {
+          setError('An error occurred on the server. Please try again later.');
+        }
+      } else {
+        // Still show success message to avoid exposing which emails are registered
         setMessage('If your email is registered, you will receive instructions to reset your password.');
       }
     } finally {
@@ -69,7 +73,7 @@ const ForgotPassword = () => {
         <div className="auth-card">
           <div className="auth-header">
             <h2>Reset Your Password</h2>
-            <p>Enter your email address and we'll send you a new password.</p>
+            <p>Enter your email address and we'll send you instructions to reset your password.</p>
           </div>
           
           {message && (

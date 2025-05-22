@@ -2,9 +2,17 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/UserSchema');
 const { LoginAdmin } = require('../controller/user/admin');
+const { adminLogin } = require('../controller/admin/adminAuthController');
+const adminAuth = require('../middleware/adminAuth');
 
-// Admin login route
-router.post('/login', LoginAdmin); // Admin login route
+// Admin login route (no auth middleware here)
+router.post('/login', adminLogin); // Admin login route
+router.post('/admin-login', adminLogin);  // Alias for compatibility
+
+// Protected admin routes
+router.get('/profile', adminAuth, (req, res) => {
+  res.json({ success: true, user: req.user });
+});
 
 // Fetch customer details
 router.get('/customers', async (req, res) => {

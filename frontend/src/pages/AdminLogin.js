@@ -27,21 +27,11 @@ const AdminLogin = () => {
 
     try {
       console.log('Attempting admin login with:', { email });
-      // Check both possible API endpoints
-      let response;
-      try {
-        response = await axios.post('http://localhost:4000/api/auth/admin-login', {
-          email,
-          password
-        });
-      } catch (firstError) {
-        console.log('First endpoint failed, trying alternative endpoint');
-        // Try alternative endpoint if first one fails
-        response = await axios.post('http://localhost:4000/auth/admin-login', {
-          email,
-          password
-        });
-      }
+      // Only use the correct endpoint
+      const response = await axios.post('http://localhost:4000/api/admin/login', {
+        email,
+        password
+      });
 
       if (response.data.success) {
         console.log('Admin login successful');
@@ -49,6 +39,9 @@ const AdminLogin = () => {
         // Store admin token and info
         localStorage.setItem('adminToken', response.data.token);
         localStorage.setItem('isAdmin', 'true');
+        if (response.data.user) {
+          localStorage.setItem('adminUser', JSON.stringify(response.data.user));
+        }
         // Navigate to /admin after a short delay
         setTimeout(() => {
           navigate('/admin');
@@ -58,12 +51,12 @@ const AdminLogin = () => {
       }
     } catch (err) {
       console.error('Admin login error:', err);
-      
-      // Provide more detailed error message
-      if (err.response?.status === 404) {
-        setError('Admin login endpoint not found. Please check server configuration.');
-      } else if (err.response?.status === 401) {
+      if (err.response?.status === 401) {
         setError('Invalid email or password. Please try again.');
+      } else if (err.response?.status === 403) {
+        setError('Access denied. You must have admin privileges to login.');
+      } else if (err.response?.status === 404) {
+        setError('Admin login endpoint not found. Please contact system administrator.');
       } else {
         setError(err.response?.data?.message || 'Login failed. Please try again later.');
       }

@@ -32,6 +32,9 @@ const searchRoute = require("./routes/search.js");
 const emailTestRoutes = require('./routes/emailTest');
 const adminAuth = require('./middleware/adminAuth');
 
+// Import controllers
+const { adminLogin } = require('./controller/user/adminAuth');
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 const CLIENT_URL = process.env.CLIENT_URL.replace(/\/+$/, ""); // Remove trailing slashes
@@ -74,8 +77,14 @@ app.get("/", verifyToken, Home.Home);
 app.use("/register", Register);
 app.use("/login", Login);
 app.use('/auth', authRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes); 
+app.use("/api/admin", adminRoutes);
 app.use("/admin", adminRoutes);
+
+// Register additional alias routes for direct access
+app.post("/auth/admin-login", require("./controller/admin/adminAuthController").adminLogin);
+app.post("/api/auth/admin-login", require("./controller/admin/adminAuthController").adminLogin);
+
 app.use("/api/customers", customerRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);
@@ -92,11 +101,14 @@ app.use('/api/khalti', khaltiRoutes);
 app.use("/api", searchRoute);
 app.use('/api/email', emailTestRoutes);
 
-// Protect admin routes
-app.use('/api/admin/*', adminAuth);
-app.use('/api/orders', adminAuth);
-app.use('/api/users', adminAuth);
-// Add other admin routes that need protection
+// Protect admin routes (do NOT protect the login endpoint)
+app.use('/api/admin/*', (req, res, next) => {
+  if (req.method === 'POST' && req.path === '/login') {
+    // Allow POST /api/admin/login without auth
+    return next();
+  }
+  adminAuth(req, res, next);
+});
 
 // If you're using admin middleware, apply it correctly
 app.use('/api/orders/:id', adminAuth);
