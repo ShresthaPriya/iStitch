@@ -167,7 +167,6 @@ const generateAdminOrderNotificationEmail = (order) => {
         <h3 style="margin-top: 0; color: #333;">Order Details</h3>
         <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>Customer:</strong> ${order.fullName}</p>
-        <p><strong>Email:</strong> ${order.email || 'N/A'}</p>
         <p><strong>Contact:</strong> ${order.contactNumber}</p>
         <p><strong>Total Amount:</strong> Rs. ${(order.total || order.totalAmount).toFixed(2)}</p>
         <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>

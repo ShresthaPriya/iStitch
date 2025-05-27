@@ -6,6 +6,7 @@ const { sendEmail, generateOrderConfirmationEmail, generateAdminOrderNotificatio
 const User = require('../models/User'); // Make sure this path is correct
 let Item;
 
+
 try {
     Item = mongoose.model('Item');
 } catch (error) {
@@ -14,7 +15,7 @@ try {
 
 console.log("Khalti routes are being registered at:", new Date().toISOString());
 
-// Environment variables - replace with your actual keys
+// Environment variables 
 const KHALTI_SECRET_KEY = "46dddb5ea6fe4862928b7e6714683551"; 
 const KHALTI_GATEWAY_URL = "https://a.khalti.com";
 

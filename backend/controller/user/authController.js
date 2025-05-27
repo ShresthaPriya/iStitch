@@ -35,9 +35,14 @@ const googleCallback = (req, res, next) => {
       if (err) {
         return res.redirect(`${process.env.CLIENT_URL}/login?error=${encodeURIComponent("Login failed")}`);
       }
-      // Send user data to the frontend
-      return res.redirect(`${process.env.CLIENT_URL}/home?user=${encodeURIComponent(JSON.stringify(user))}`);
+       // Redirect based on action
+      if (action === "signup") {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=${encodeURIComponent(info.message)}`);
+      } else {
+        return res.redirect(`${process.env.CLIENT_URL}/home`);
+      }
     });
+      
   })(req, res, next);
 };
 
