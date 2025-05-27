@@ -190,14 +190,14 @@ const ReviewOrder = () => {
         }
 
         let relevantMeasurements = [...userMeasurements];
-        if (customization.itemToBeMade.includes("Shirt") || customization.itemToBeMade.includes("Blazer") || customization.itemToBeMade.includes("Coat")) {
-            const upperBodyMeasurements = ["Chest", "Shoulder Length", "Sleeves Length", "Neck", "Waist", "Upper Body Lenght"];
+        if (customization.itemToBeMade.includes("Shirt") || (customization.itemToBeMade.includes("Half Shirt"))|| customization.itemToBeMade.includes("Blazer") || customization.itemToBeMade.includes("Coat")) {
+            const upperBodyMeasurements = ["Chest", "Shoulder Length", "Sleeves Length", "Neck", "Waist", "Upper Body Length"];
             relevantMeasurements = userMeasurements.filter(m => 
                 upperBodyMeasurements.some(ubm => m.title.includes(ubm))
             );
         }
         if (customization.itemToBeMade.includes("Pant")) {
-            const lowerBodyMeasurements = ["Waist", "Hip", "Thigh", "Leg Opening"];
+            const lowerBodyMeasurements = ["Waist", "Hip", "Thigh", "Leg Opening", "Inseam"];
             relevantMeasurements = userMeasurements.filter(m => 
                 lowerBodyMeasurements.some(lbm => m.title.includes(lbm))
             );

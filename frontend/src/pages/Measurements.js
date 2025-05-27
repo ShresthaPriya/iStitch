@@ -1,5 +1,6 @@
 import React from 'react';
-import './Measurements.css'; // Import your CSS file for styling
+// import './Measurements.css'; // Import your CSS file for styling
+import "../styles/Measurements.css";
 
 const Measurements = () => {
   // ...existing state and functions for measurements
@@ -28,7 +29,7 @@ const Measurements = () => {
 
   return (
     <div className="measurements-page">
-      <h1>Your Measurements</h1>
+      {/* <h1>Your Measurements</h1> */}
       
       {/* Add the measurement guide component here */}
       <MeasurementGuide />

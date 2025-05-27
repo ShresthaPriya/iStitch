@@ -250,7 +250,7 @@ const Signup = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                placeholder="••••••••"
+                placeholder=""
                 required
                 className={fieldErrors.confirmPassword ? "input-error" : ""}
               />
@@ -283,8 +283,8 @@ const Signup = () => {
           </div>
 
           <button className="google-auth-button" onClick={googleAuth}>
-            <img src={require("../images/google.png")} alt="Google logo" />
-            <span>Signup with Google</span>
+            <img src={require("../images/google.png")} alt="Google logo" /> 
+            <span>Signup with Google</span> 
           </button>
 
           <div className="auth-footer">

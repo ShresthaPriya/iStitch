@@ -59,7 +59,7 @@ const FabricDetails = () => {
               <p>{fabric.description}</p>
               <p className="price">Rs.{fabric.price}</p>
               <button className="select-btn" onClick={() => handleSelectFabric(fabric)}>Select for Customization</button>
-              <button className="favourite-button" onClick={() => addToFavourite(fabric._id)}>Add to Favourite</button>
+              {/* <button className="favourite-button" onClick={() => addToFavourite(fabric._id)}>Add to Favourite</button> */}
             </div>
           </div>
         )}

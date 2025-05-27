@@ -14,8 +14,8 @@ const Footer = () => (
         </ul>
       </div>
       <div className="footer-section contact-info">
-        <p>Email us: info@example.com </p>
-        <p>Phone : +123 456 7890</p>
+        <p>Email us: istitch@gmail.com </p>
+        <p>Phone : +977 9810657787</p>
       </div>
       <div className="footer-section payments">
         <p>We accept: <span>💳</span></p>

@@ -127,7 +127,7 @@ const Home = () => {
         <div className="tailor-details">
           <h2>About iStitch</h2>
           <p>iStitch is your digital tailoring solution, ensuring convenience, precision, and quality for all your clothing needs.</p>
-          <a href="/services" className="btn">More About Us</a>
+                    <button className="btn" onClick={handleExploreClick}>More About Us</button> {/* Call reusable function */}
         </div>
       </section>
 

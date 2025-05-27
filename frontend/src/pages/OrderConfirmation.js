@@ -221,7 +221,7 @@ const OrderConfirmation = () => {
                             </button>
                             <button 
                                 className="secondary-button"
-                                onClick={() => navigate('/')}
+                                onClick={() => navigate('/home')}
                             >
                                 Continue Shopping
                             </button>

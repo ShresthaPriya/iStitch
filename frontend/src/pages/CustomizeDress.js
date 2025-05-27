@@ -26,7 +26,7 @@ const CustomizeDress = () => {
     const itemPricingFactors = {
         "Shirt Half": 2,
         "Shirt Full": 2,
-        "Pant": 2,
+        "Pant": 3,
         "Suit 2 Piece": 10,
         "Suit 3 Piece": 12,
         "Blazer": 5,
@@ -153,16 +153,16 @@ const CustomizeDress = () => {
                 <div className="customization-form">
                     <h3><span className="step-number">2</span> Customization Options</h3>
                     <div className="form-group">
-                        <label><FaTshirt className="form-icon" /> Item to be made</label>
+                        <label><FaTshirt className="form-icon" /> Garment to be made</label>
                         <select 
                             name="itemToBeMade" 
                             value={customization.itemToBeMade} 
                             onChange={handleChange} 
                             required
                         >
-                            <option value="">Select an item</option>
-                            <option value="Shirt Half">Shirt Half</option>
-                            <option value="Shirt Full">Shirt Full</option>
+                            <option value="">Select an garment</option>
+                            <option value="Shirt Half">Half Shirt</option>
+                            <option value="Shirt Full">Full Shirt</option>
                             <option value="Pant">Pant</option>
                             <option value="Suit 2 Piece">Suit 2 Piece</option>
                             <option value="Suit 3 Piece">Suit 3 Piece</option>

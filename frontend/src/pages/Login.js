@@ -178,12 +178,12 @@ const Login = () => {
           </form>
 
           <div className="auth-divider">
-            <span>OR</span>
+            <span>OR</span> 
           </div>
 
           <button className="google-auth-button" onClick={googleAuth}>
-            <img src={require("../images/google.png")} alt="Google logo" />
-            <span>Login with Google</span>
+          <img src={require("../images/google.png")} alt="Google logo" /> 
+             <span>Login with Google</span> 
           </button>
 
           <div className="auth-footer">

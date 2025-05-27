@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar";
 import Footer from '../components/Footer';
 import CartSidebar from '../components/CartSidebar';
 import "../styles/CustomerMeasurements.css";
+import Measurements from "./Measurements";
+import SizeGuideTabs from "../components/SizeGuideTabs";
 
 const CustomerMeasurements = () => {
   const [measurements, setMeasurements] = useState([]);
@@ -198,14 +200,23 @@ const CustomerMeasurements = () => {
           </form>
         )}
         
+        <Measurements />
+
         <h3>Size Reference Chart</h3>
-        <table className="size-matrix">
+        <p>Use the chart below to guide measurement if you know your size.</p>
+        <SizeGuideTabs />
+        {/* <table className="size-matrix">
           <thead>
             <tr>
               <th>Size</th>
               <th>Chest (in)</th>
               <th>Waist (in)</th>
               <th>Hip (in)</th>
+              <th>Inseam (in)</th>
+              <th>Neck (in)</th>
+              <th>Shoulder (in)</th>
+              <th>Sleeves (in)</th>
+              <th>Back Length</th>
             </tr>
           </thead>
           <tbody>
@@ -214,27 +225,44 @@ const CustomerMeasurements = () => {
               <td>34-36</td>
               <td>28-30</td>
               <td>34-36</td>
+              <td>30-32</td>
+              <td>14-15</td>
+              <td>16-17</td>
+              <td>32-33</td>
+              <td>16-17</td>
             </tr>
             <tr>
               <td>Medium</td>
               <td>38-40</td>
               <td>32-34</td>
               <td>38-40</td>
+              <td>32-34</td>
+              <td>15-16</td>
+              <td>17-18</td>
+              <td>33-34</td>
             </tr>
             <tr>
               <td>Large</td>
               <td>42-44</td>
               <td>36-38</td>
               <td>42-44</td>
+              <td>34-36</td>
+              <td>16-17</td>
+              <td>18-19</td>
+              <td>34-35</td>
             </tr>
             <tr>
               <td>Extra Large</td>
               <td>46-48</td>
               <td>40-42</td>
               <td>46-48</td>
+              <td>36-38</td>
+              <td>17-18</td>
+              <td>19-20</td>
+              <td>35-36</td>
             </tr>
           </tbody>
-        </table>
+        </table> */}
       </div>
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <Footer />
