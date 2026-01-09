@@ -13,7 +13,7 @@ const SplashHome = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/api/items');
+                const response = await axios.get('/api/items');
                 setItems(response.data.items || []); // Ensure items is always an array
             } catch (err) {
                 console.error("Error fetching items:", err);
@@ -33,7 +33,7 @@ const SplashHome = () => {
                 <div className="items-grid">
                     {items.map(item => (
                         <div key={item._id} className="item-card">
-                            <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
+                            <img src={`/images/${item.images[0]}`} alt={item.name} />
                             <h3>{item.name}</h3>
                             <p>{item.description}</p>
                             <p>${item.price}</p>

@@ -11,7 +11,7 @@ const SplashMensPage = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/items/category/67da68cc5bdd84464f2494c4`)
+        const response = await axios.get(`/api/items/category/67da68cc5bdd84464f2494c4`)
         setItems(response.data.items || [])
       } catch (err) {
         console.error("Error fetching items:", err)
@@ -42,7 +42,7 @@ const SplashMensPage = () => {
           <div className="items-grid">
             {items.map((item, index) => (
               <div key={item._id} className="item-card">
-                <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
+                <img src={`/images/${item.images[0]}`} alt={item.name} />
                 <span className="material">{getMaterial(index)}</span>
                 <h3>{item.name}</h3>
                 <p>{item.description}</p>

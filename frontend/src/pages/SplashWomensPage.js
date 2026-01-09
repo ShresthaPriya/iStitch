@@ -10,7 +10,7 @@ const SplashWomensPage = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/api/items/category/67d84a23e603c05e661caecd');
+                const response = await axios.get('/api/items/category/67d84a23e603c05e661caecd');
                 setItems(response.data.items || []); // Ensure items is always an array
             } catch (err) {
                 console.error("Error fetching items:", err);
@@ -29,7 +29,7 @@ const SplashWomensPage = () => {
                 <div className="items-grid">
                     {items.map(item => (
                         <div key={item._id} className="item-card">
-                            <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
+                            <img src={`/images/${item.images[0]}`} alt={item.name} />
                             <h3>{item.name}</h3>
                             <p>{item.description}</p>
                             <p>Rs.{item.price}</p>

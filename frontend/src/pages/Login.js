@@ -61,7 +61,7 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:4000/auth/login", {
+      const response = await axios.post("/auth/login", {
         email: formData.email.toLowerCase(),
         password: formData.password,
       });
@@ -99,7 +99,7 @@ const Login = () => {
   };
 
   const googleAuth = () => {
-    window.open("http://localhost:4000/auth/google/login", "_self");
+    window.open("https://istitch-backend.onrender.com/auth/google/login", "_self");
   };
 
   return (

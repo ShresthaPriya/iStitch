@@ -50,7 +50,7 @@ const UserProfile = () => {
 
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:4000/api/users/${userId}`);
+        const response = await axios.get(`/api/users/${userId}`);
 
         if (response.data) {
           setProfile({
@@ -112,7 +112,7 @@ const UserProfile = () => {
     setSuccess("");
 
     try {
-      const response = await axios.put(`http://localhost:4000/api/users/${userId}`, {
+      const response = await axios.put(`/api/users/${userId}`, {
         fullname: profile.fullname,
         email: profile.email
       });
@@ -169,7 +169,7 @@ const UserProfile = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        `http://localhost:4000/api/users/${userId}/password`,
+        `/api/users/${userId}/password`,
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,

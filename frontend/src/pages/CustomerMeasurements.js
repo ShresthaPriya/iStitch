@@ -24,7 +24,7 @@ const CustomerMeasurements = () => {
     // Fetch measurement categories
     const fetchMeasurements = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/measurements');
+        const response = await axios.get('/api/measurements');
         setMeasurements(response.data.measurements);
       } catch (err) {
         console.error("Error fetching measurements:", err);
@@ -37,7 +37,7 @@ const CustomerMeasurements = () => {
       if (!userId) return;
       
       try {
-        const response = await axios.get(`http://localhost:4000/api/user-measurements/${userId}`);
+        const response = await axios.get(`/api/user-measurements/${userId}`);
         if (response.data.success && response.data.measurements.length > 0) {
           // Save the raw measurements array
           setSavedMeasurements(response.data.measurements);
@@ -84,7 +84,7 @@ const CustomerMeasurements = () => {
 
       console.log("Submitting measurements payload:", { userId, measurements: formattedMeasurements });
 
-      const response = await axios.post('http://localhost:4000/api/user-measurements', {
+      const response = await axios.post('/api/user-measurements', {
         userId,
         measurements: formattedMeasurements
       });

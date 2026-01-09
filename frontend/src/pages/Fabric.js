@@ -22,7 +22,7 @@ const Fabric = () => {
 
   const fetchFabrics = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/fabrics');
+      const response = await axios.get('https://istitch-backend.onrender.com/api/fabrics');
       setFabrics(response.data.fabrics);
     } catch (err) {
       console.error("Error fetching fabrics:", err);
@@ -73,7 +73,7 @@ const Fabric = () => {
 
     try {
       if (editMode) {
-        const response = await axios.put(`http://localhost:4000/api/fabrics/${selectedFabricId}`, formData, {
+        const response = await axios.put(`https://istitch-backend.onrender.com/api/fabrics/${selectedFabricId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -90,7 +90,7 @@ const Fabric = () => {
     setError("");
   }, 3000);
       } else {
-        const response = await axios.post('http://localhost:4000/api/fabrics', formData, {
+        const response = await axios.post('/api/fabrics', formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -118,7 +118,7 @@ const Fabric = () => {
   // Delete fabric
   const handleDeleteFabric = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/fabrics/${fabricToDelete}`);
+      await axios.delete(`/api/fabrics/${fabricToDelete}`);
       setFabrics(fabrics.filter((fabric) => fabric._id !== fabricToDelete));
       setSuccessMessage("Fabric deleted successfully!");
       setShowDeleteModal(false);
@@ -208,7 +208,7 @@ const Fabric = () => {
                   {/* <td>{fabric.products.length > 0 ? fabric.products.join(", ") : "No Products"}</td> */}
                   <td>
                     {fabric.images.map((image, index) => (
-                      <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} width="50" />
+                      <img key={index} src={`/images/${image}`} alt={`Fabric ${index}`} width="50" />
                     ))}
                   </td>
                   <td className="operations">
@@ -296,7 +296,7 @@ const Fabric = () => {
               <strong>Images:</strong>
               <div className="images-container">
                 {viewingFabric.images.map((image, index) => (
-                  <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} width="100" />
+                  <img key={index} src={`/images/${image}`} alt={`Fabric ${index}`} width="100" />
                 ))}
               </div>
             </div>

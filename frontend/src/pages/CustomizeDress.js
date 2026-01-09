@@ -41,7 +41,7 @@ const CustomizeDress = () => {
             
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:4000/api/user-measurements/${userId}`);
+                const response = await axios.get(`/api/user-measurements/${userId}`);
                 if (response.data.success) {
                     setUserMeasurements(response.data.measurements);
                 }
@@ -137,7 +137,7 @@ const CustomizeDress = () => {
                     <div className="fabric-details">
                         <div className="fabric-image-container">
                             <img 
-                                src={`http://localhost:4000/images/${fabric.images[0]}`} 
+                                src={`/images/${fabric.images[0]}`} 
                                 alt={fabric.name} 
                                 className="fabric-image" 
                             />

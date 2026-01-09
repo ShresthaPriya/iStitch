@@ -18,7 +18,7 @@ const FabricDetails = () => {
   useEffect(() => {
     const fetchFabric = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/fabrics/${id}`);
+        const response = await axios.get(`/api/fabrics/${id}`);
         setFabric(response.data.fabric);
       } catch (err) {
         console.error("Error fetching fabric:", err);
@@ -51,7 +51,7 @@ const FabricDetails = () => {
           <div className="fabric-card">
             <div className="fabric-image-container">
               {fabric.images.map((image, index) => (
-                <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
+                <img key={index} src={`/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
               ))}
             </div>
             <div className="fabric-info">

@@ -20,7 +20,7 @@ const Item = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/items');
+        const response = await axios.get('/api/items');
         setItems(response.data.items);
       } catch (err) {
         console.error("Error fetching items:", err);
@@ -29,7 +29,7 @@ const Item = () => {
 
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/categories');
+        const response = await axios.get('/api/categories');
         setCategories(response.data.categories);
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -80,7 +80,7 @@ const Item = () => {
 
     try {
       if (editMode) {
-        const response = await axios.put(`http://localhost:4000/api/items/${selectedItemId}`, formData, {
+        const response = await axios.put(`/api/items/${selectedItemId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -94,7 +94,7 @@ const Item = () => {
         setSelectedItemId(null);
         setSuccessMessage("Product updated successfully!");
       } else {
-        const response = await axios.post('http://localhost:4000/api/items', formData, {
+        const response = await axios.post('/api/items', formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -119,7 +119,7 @@ const Item = () => {
   // Delete item
   const handleDeleteItem = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/items/${itemToDelete}`);
+      await axios.delete(`/api/items/${itemToDelete}`);
       setItems(items.filter((item) => item._id !== itemToDelete));
       setSuccessMessage("Product deleted successfully!");
       setShowDeleteModal(false);
@@ -292,7 +292,7 @@ const Item = () => {
                 {viewingItem.images.map((image, index) => (
                   <img 
                     key={index} 
-                    src={`http://localhost:4000/images/${image}`} 
+                    src={`/images/${image}`} 
                     alt={`Item ${index}`} 
                     width="50" 
                   />

@@ -11,7 +11,7 @@ const CategoryPage = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/items/category/${categoryId}`);
+        const response = await axios.get(`/api/items/category/${categoryId}`);
         setItems(response.data.items);
       } catch (err) {
         console.error("Error fetching items:", err);
@@ -29,7 +29,7 @@ const CategoryPage = () => {
         <div className="items-grid">
           {items.map(item => (
             <div key={item._id} className="item-card">
-              <img src={`http://localhost:4000/uploads/${item.images[0]}`} alt={item.name} className="item-image" />
+              <img src={`/uploads/${item.images[0]}`} alt={item.name} className="item-image" />
               <h3>{item.name}</h3>
               <p>{item.price}</p>
               <p>{item.description}</p>

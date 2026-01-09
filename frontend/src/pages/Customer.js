@@ -19,7 +19,7 @@ const Customer = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/customers');
+        const response = await axios.get('/api/customers');
         setCustomers(response.data.customers);
       } catch (err) {
         console.error("Error fetching customers:", err);
@@ -39,7 +39,7 @@ const Customer = () => {
   const handleAddCustomer = async () => {
     try {
       if (editMode) {
-        const response = await axios.put(`http://localhost:4000/api/customers/${selectedCustomerId}`, newCustomer);
+        const response = await axios.put(`/api/customers/${selectedCustomerId}`, newCustomer);
         setCustomers(
           customers.map((customer) =>
             customer._id === selectedCustomerId ? { ...customer, ...response.data.customer } : customer
@@ -49,7 +49,7 @@ const Customer = () => {
         setSelectedCustomerId(null);
         setSuccessMessage("Customer updated successfully!");
       } else {
-        const response = await axios.post('http://localhost:4000/api/customers', newCustomer);
+        const response = await axios.post('/api/customers', newCustomer);
         setCustomers([...customers, response.data.customer]);
         setSuccessMessage("Customer added successfully!");
       }
@@ -69,7 +69,7 @@ const Customer = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:4000/api/customers/${id}`);
+      await axios.delete(`/api/customers/${id}`);
       setCustomers(customers.filter((customer) => customer._id !== id));
       setSuccessMessage("Customer deleted successfully!");
     } catch (err) {

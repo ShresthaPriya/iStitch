@@ -14,7 +14,7 @@ function FabricCollection() {
   useEffect(() => {
     const fetchFabrics = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/fabrics');
+        const response = await axios.get('/api/fabrics');
         setFabrics(response.data.fabrics);
       } catch (err) {
         console.error("Error fetching fabrics:", err);
@@ -72,7 +72,7 @@ function FabricCollection() {
         {sortedFabrics.map((fabric) => (
           <div key={fabric._id} className={`fabric-card ${selectedFabric && selectedFabric._id === fabric._id ? 'selected' : ''}`}>
             {fabric.images.map((image, index) => (
-              <img key={index} src={`http://localhost:4000/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
+              <img key={index} src={`/images/${image}`} alt={`Fabric ${index}`} className="fabric-image" />
             ))}
             <div className="fabric-info">
               <h3>{fabric.name}</h3>

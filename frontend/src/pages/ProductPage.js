@@ -21,7 +21,7 @@ const ProductPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/items/${id}`);
+        const response = await axios.get(`/api/items/${id}`);
         setProduct(response.data.item);
         // Set default selected size to the first available size
         if (response.data.item?.sizes?.length > 0) {
@@ -100,7 +100,7 @@ const ProductPage = () => {
             {product.images.map((image, index) => (
               <img
                 key={index}
-                src={`http://localhost:4000/images/${image}`}
+                src={`/images/${image}`}
                 alt={product.name}
                 className="image"
               />

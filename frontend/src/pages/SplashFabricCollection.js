@@ -15,7 +15,7 @@ const SplashFabricCollection = () => {
     useEffect(() => {
         const fetchFabrics = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/api/fabrics');
+                const response = await axios.get('/api/fabrics');
                 setFabrics(response.data.fabrics || []);
                 setSortedFabrics(response.data.fabrics || []);  // Initialize sorted fabrics
             } catch (err) {
@@ -73,7 +73,7 @@ const SplashFabricCollection = () => {
                 <div className="fabric-collection">
                     {sortedFabrics.map(fabric => (
                         <div key={fabric._id} className="fabric-card">
-                            <img src={`http://localhost:4000/images/${fabric.images[0]}`} alt={fabric.name} />
+                            <img src={`/images/${fabric.images[0]}`} alt={fabric.name} />
                             <h3>{fabric.name}</h3>
                             <p>{fabric.description}</p>
                             <p>Rs. {fabric.price}</p>

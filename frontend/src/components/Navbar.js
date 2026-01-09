@@ -29,7 +29,7 @@ function Navbar({ onCartClick }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/api/categories");
+        const response = await axios.get("https://istitch-backend.onrender.com/api/categories");
         setCategories(response.data.categories);
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -73,7 +73,7 @@ function Navbar({ onCartClick }) {
     }
 
     try {
-      const response = await axios.get(`http://localhost:4000/api/search?query=${searchQuery}`);
+      const response = await axios.get(`/api/search?query=${searchQuery}`);
       const { fabrics, items } = response.data.results;
       const combinedResults = [
         ...fabrics.map(item => ({ ...item, type: "fabric" })),

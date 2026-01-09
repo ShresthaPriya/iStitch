@@ -13,7 +13,7 @@ const ResetPasswordRequest = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:4000/auth/forgetPassword", {
+      const response = await axios.post("/auth/forgetPassword", {
         email,
       });
 

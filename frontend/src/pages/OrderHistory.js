@@ -27,7 +27,7 @@ const OrderHistory = () => {
 
                 console.log("Fetching orders for user:", userId);
                 
-                const response = await axios.get(`http://localhost:4000/api/orders/${userId}`, {
+                const response = await axios.get(`/api/orders/${userId}`, {
                     timeout: 10000 // 10 second timeout
                 });
                 

@@ -30,7 +30,7 @@ const Checkout = () => {
             
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:4000/api/user-measurements/${userId}`);
+                const response = await axios.get(`/api/user-measurements/${userId}`);
                 if (response.data.success) {
                     setUserMeasurements(response.data.measurements);
                 }
@@ -90,7 +90,7 @@ const Checkout = () => {
             console.log('Order Payload:', orderPayload);
             
             // Send the order to the backend
-            const response = await axios.post('http://localhost:4000/api/orders', orderPayload, {
+            const response = await axios.post('/api/orders', orderPayload, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -173,7 +173,7 @@ const Checkout = () => {
             };
 
             // Send the payment initiation request to the backend
-            const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
+            const response = await axios.post("/api/khalti/initiate", paymentData);
 
             if (response.data.success) {
                 localStorage.setItem('khaltiPidx', response.data.pidx);
@@ -232,7 +232,7 @@ const Checkout = () => {
                 <div className="checkout-items">
                     {cart.map((item, index) => (
                         <div key={`${item._id}-${item.selectedSize || item.size}-${index}`} className="checkout-item">
-                            <img src={`http://localhost:4000/images/${item.images[0]}`} alt={item.name} />
+                            <img src={`/images/${item.images[0]}`} alt={item.name} />
                             <div>
                                 <h3>{item.name}</h3>
                                 <p className="checkout-item-size">

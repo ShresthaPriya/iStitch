@@ -67,7 +67,7 @@ const ReviewOrder = () => {
             };
 
             if (paymentMethod === "Cash On Delivery") {
-                const response = await axios.post("http://localhost:4000/api/orders", orderPayload, {
+                const response = await axios.post("/api/orders", orderPayload, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -142,7 +142,7 @@ const ReviewOrder = () => {
                     returnUrl: "http://localhost:3000/order-confirmation"
                 };
 
-                const response = await axios.post("http://localhost:4000/api/khalti/initiate", paymentData);
+                const response = await axios.post("/api/khalti/initiate", paymentData);
                 if (response.data.success) {
                     // Save shipping address and order details again right before redirect
                     // This ensures the data is available when returning from Khalti
@@ -241,7 +241,7 @@ const ReviewOrder = () => {
                         <div className="product-summary">
                             <div className="product-image-container">
                                 <img 
-                                    src={`http://localhost:4000/images/${fabric.images[0]}`} 
+                                    src={`/images/${fabric.images[0]}`} 
                                     alt={fabric.name}
                                     className="product-image" 
                                 />

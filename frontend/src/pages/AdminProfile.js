@@ -14,7 +14,7 @@ const AdminProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/admin/profile');
+        const response = await axios.get('/api/admin/profile');
         setProfile(response.data.profile);
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -32,7 +32,7 @@ const AdminProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put('http://localhost:4000/api/admin/profile', profile);
+      await axios.put('/api/admin/profile', profile);
       alert('Profile updated successfully');
     } catch (err) {
       console.error("Error updating profile:", err);

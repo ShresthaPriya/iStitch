@@ -43,8 +43,8 @@ const AdminHome = () => {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/metrics?range=${dateRange}`);
-        console.log("Metrics response:", response.data); // Debugging: Log the response
+        const response = await axios.get(`/api/metrics?range=${dateRange}`);
+        console.log("Metrics response:", response.data); 
         setMetrics(response.data.metrics);
       } catch (err) {
         console.error("Error fetching metrics:", err);

@@ -20,7 +20,7 @@ const AdminUsers = () => {
             setError(""); // Clear any previous errors
             
             console.log("Fetching users...");
-            const response = await axios.get("http://localhost:4000/api/users");
+            const response = await axios.get("/api/users");
             
             console.log("Users response:", response.data);
             setUsers(Array.isArray(response.data) ? response.data : []);
@@ -37,7 +37,7 @@ const AdminUsers = () => {
             try {
                 setError(""); // Clear any previous errors
                 
-                const response = await axios.delete(`http://localhost:4000/api/users/${userId}`);
+                const response = await axios.delete(`/api/users/${userId}`);
                 
                 if (response.data.success) {
                     // Show success message
@@ -65,7 +65,7 @@ const AdminUsers = () => {
         try {
             const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
             const response = await axios.put(
-                `http://localhost:4000/api/users/${editingUser._id}`,
+                `/api/users/${editingUser._id}`,
                 {
                     fullname: editingUser.fullname,
                     email: editingUser.email,

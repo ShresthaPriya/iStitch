@@ -124,7 +124,7 @@ const OrderConfirmation = () => {
                     localStorage.setItem('processedKhaltiPayments', JSON.stringify(processedPayments));
                     
                     // Verify payment and create order
-                    const response = await axios.post('http://localhost:4000/api/orders', orderDetails);
+                    const response = await axios.post('/api/orders', orderDetails);
                     
                     console.log("Verification response:", response.data);
                     

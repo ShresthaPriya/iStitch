@@ -17,7 +17,7 @@ const MensPage = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/api/items/category/67da68cc5bdd84464f2494c4`);
+                const response = await axios.get(`/api/items/category/67da68cc5bdd84464f2494c4`);
                 setItems(response.data.items || []); // Ensure items is always an array
             } catch (err) {
                 console.error("Error fetching items:", err);
@@ -70,7 +70,7 @@ const handleSortChange = (e) => {
                     {sortedItem .map(item => (
                         <div key={item._id} className="item-card">
                             <img 
-                                src={item.images?.[0] ? `http://localhost:4000/images/${item.images[0]}` : '/path/to/fallback-image.jpg'} 
+                                src={item.images?.[0] ? `/images/${item.images[0]}` : '/path/to/fallback-image.jpg'} 
                                 alt={item.name} 
                                 onClick={() => handleViewDetails(item)} // Redirect on image click
                             />

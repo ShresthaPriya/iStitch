@@ -12,7 +12,6 @@ export const enhanceOrderItems = async (items) => {
   return Promise.all(
     items.map(async (item) => {
       try {
-        // First check if it's a custom order with fabricName
         if (item.customDetails) {
           const fabricName = item.customDetails.fabricName || '';
           const itemType = item.customDetails.itemType || 'Custom Item';
@@ -23,18 +22,16 @@ export const enhanceOrderItems = async (items) => {
           };
         }
         
-        // If we already have a product name, just return it
         if (item.productName) {
           return item;
         }
         
-        // Fetch product details if we have a productId
         if (item.productId) {
           const productId = typeof item.productId === 'object' ? 
             item.productId._id : item.productId;
           
           try {
-            const response = await axios.get(`http://localhost:4000/api/items/${productId}`);
+            const response = await axios.get(`https://istitch-backend.onrender.com/api/items/${productId}`);
             
             if (response.data && response.data.item && response.data.item.name) {
               return {
@@ -47,7 +44,6 @@ export const enhanceOrderItems = async (items) => {
           }
         }
         
-        // If we have a name property directly in the item, use that
         if (item.name) {
           return {
             ...item,
@@ -55,10 +51,8 @@ export const enhanceOrderItems = async (items) => {
           };
         }
         
-        // Fallback: create a readable name from what we know
         let fallbackName = "Product";
         
-        // Try to identify product using ID format
         if (item.productId) {
           const idStr = typeof item.productId === 'object' ? 
             (item.productId._id || '').substring(0, 6) : 
@@ -66,7 +60,6 @@ export const enhanceOrderItems = async (items) => {
           fallbackName = `Product #${idStr}`;
         }
         
-        // If we have size, include it in the fallback name
         if (item.size || item.selectedSize) {
           fallbackName += ` (${item.size || item.selectedSize})`;
         }

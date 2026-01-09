@@ -21,7 +21,7 @@ const Order = () => {
       try {
         setLoading(true);
         const token = getAuthToken();
-        const response = await axios.get("http://localhost:4000/api/orders", {
+        const response = await axios.get("/api/orders", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -54,7 +54,7 @@ const Order = () => {
     try {
       const token = getAuthToken();
       const response = await axios.put(
-        `http://localhost:4000/api/orders/${orderId}`, 
+        `/api/orders/${orderId}`, 
         { status: newStatus },
         {
           headers: {
@@ -83,7 +83,7 @@ const Order = () => {
     try {
       const token = getAuthToken();
       const response = await axios.put(
-        `http://localhost:4000/api/orders/${orderId}`, 
+        `/api/orders/${orderId}`, 
         { paymentStatus: newPaymentStatus },
         {
           headers: {
@@ -141,7 +141,7 @@ const Order = () => {
               
               try {
                 const response = await axios.get(
-                  `http://localhost:4000/api/items/${productId}`,
+                  `/api/items/${productId}`,
                   {
                     headers: {
                       Authorization: `Bearer ${token}`
@@ -224,7 +224,7 @@ const Order = () => {
     try {
       setLoadingMeasurements(true);
       const token = getAuthToken();
-      const response = await axios.get(`http://localhost:4000/api/user-measurements/${userId}`, {
+      const response = await axios.get(`/api/user-measurements/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -305,7 +305,7 @@ const Order = () => {
       
       const token = getAuthToken();
       const response = await axios.put(
-        `http://localhost:4000/api/orders/${editingOrder._id}`, 
+        `/api/orders/${editingOrder._id}`, 
         updatedData,
         {
           headers: {
@@ -338,7 +338,7 @@ const Order = () => {
     try {
       const token = getAuthToken();
       const response = await axios.delete(
-        `http://localhost:4000/api/orders/${orderId}`,
+        `/api/orders/${orderId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

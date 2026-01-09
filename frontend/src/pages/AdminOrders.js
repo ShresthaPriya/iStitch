@@ -14,7 +14,7 @@ const AdminOrders = () => {
         const fetchOrders = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get("http://localhost:4000/api/orders", {
+                const response = await axios.get("/api/orders", {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
@@ -39,7 +39,7 @@ const AdminOrders = () => {
     const handleStatusChange = async (orderId, newStatus) => {
         try {
             await axios.put(
-                `http://localhost:4000/api/orders/${orderId}`,
+                `/api/orders/${orderId}`,
                 { status: newStatus },
                 {
                     headers: {
@@ -61,7 +61,7 @@ const AdminOrders = () => {
     const handleViewMeasurements = async (userId) => {
         try {
             const response = await axios.get(
-                `http://localhost:4000/api/measurements/${userId}`,
+                `/api/measurements/${userId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -79,7 +79,7 @@ const AdminOrders = () => {
     const handleDeleteOrder = async (orderId) => {
         if (!window.confirm("Are you sure you want to delete this order?")) return;
         try {
-            await axios.delete(`http://localhost:4000/api/orders/${orderId}`, {
+            await axios.delete(`/api/orders/${orderId}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
@@ -108,7 +108,7 @@ const AdminOrders = () => {
         try {
             const { _id, status, paymentStatus, address, contactNumber } = editOrder;
             await axios.put(
-                `http://localhost:4000/api/orders/${_id}`,
+                `/api/orders/${_id}`,
                 { status, paymentStatus, address, contactNumber },
                 {
                     headers: {

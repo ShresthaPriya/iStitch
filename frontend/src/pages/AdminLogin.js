@@ -28,7 +28,7 @@ const AdminLogin = () => {
     try {
       console.log('Attempting admin login with:', { email });
       // Only use the correct endpoint
-      const response = await axios.post('http://localhost:4000/api/admin/login', {
+      const response = await axios.post('/api/admin/login', {
         email,
         password
       });

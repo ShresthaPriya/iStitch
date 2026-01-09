@@ -29,7 +29,7 @@ const Measurement = () => {
 
   const fetchMeasurements = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/measurements');
+      const response = await axios.get('/api/measurements');
       setMeasurements(response.data.measurements);
     } catch (err) {
       console.error("Error fetching measurements:", err);
@@ -38,7 +38,7 @@ const Measurement = () => {
 
   const fetchGuides = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/guides');
+      const response = await axios.get('/api/guides');
       setGuides(response.data.guides);
     } catch (err) {
       console.error("Error fetching guides:", err);
@@ -66,7 +66,7 @@ const Measurement = () => {
 
     try {
       if (editMode) {
-        const response = await axios.put(`http://localhost:4000/api/measurements/${selectedMeasurementId}`, formData, {
+        const response = await axios.put(`/api/measurements/${selectedMeasurementId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -80,7 +80,7 @@ const Measurement = () => {
         setEditMode(false);
         setSelectedMeasurementId(null);
       } else {
-        const response = await axios.post('http://localhost:4000/api/measurements', formData, {
+        const response = await axios.post('/api/measurements', formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -110,7 +110,7 @@ const Measurement = () => {
 
     try {
       if (editMode) {
-        const response = await axios.put(`http://localhost:4000/api/guides/${selectedGuideId}`, formData, {
+        const response = await axios.put(`/api/guides/${selectedGuideId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -124,7 +124,7 @@ const Measurement = () => {
         setEditMode(false);
         setSelectedGuideId(null);
       } else {
-        const response = await axios.post('http://localhost:4000/api/guides', formData, {
+        const response = await axios.post('/api/guides', formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
@@ -155,7 +155,7 @@ const Measurement = () => {
   // Delete measurement
   const handleDeleteMeasurement = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/measurements/${measurementToDelete}`);
+      await axios.delete(`/api/measurements/${measurementToDelete}`);
       setMeasurements(measurements.filter((measurement) => measurement._id !== measurementToDelete));
       setSuccessMessage("Measurement deleted successfully!");
       setShowDeleteModal(false);
@@ -169,7 +169,7 @@ const Measurement = () => {
   // Delete guide
   const handleDeleteGuide = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/guides/${guideToDelete}`);
+      await axios.delete(`/api/guides/${guideToDelete}`);
       setGuides(guides.filter((guide) => guide._id !== guideToDelete));
       setSuccessMessage("Guide deleted successfully!");
       setShowDeleteModal(false);
@@ -294,8 +294,8 @@ const Measurement = () => {
               {guides.map((guide) => (
                 <tr key={guide._id}>
                   <td>{guide.title}</td>
-                  <td>{guide.video ? <a href={`http://localhost:4000/${guide.video}`} target="_blank" rel="noopener noreferrer">View Video</a> : "N/A"}</td>
-                  <td>{guide.guideFile ? <a href={`http://localhost:4000/${guide.guideFile}`} target="_blank" rel="noopener noreferrer">View Guide</a> : "N/A"}</td>
+                  <td>{guide.video ? <a href={`https://istitch-backend.onrender.com/${guide.video}`} target="_blank" rel="noopener noreferrer">View Video</a> : "N/A"}</td>
+                  <td>{guide.guideFile ? <a href={`https://istitch-backend.onrender.com/${guide.guideFile}`} target="_blank" rel="noopener noreferrer">View Guide</a> : "N/A"}</td>
                   <td>{guide.description}</td>
                   <td className="operations">
                     <FaEdit className="edit-icon" onClick={() => handleEditGuide(guide)} />
@@ -390,8 +390,8 @@ const Measurement = () => {
         <div className="modal">
           <div className="modal-content">
             <h3>{viewingGuide.title} Details</h3>
-            <p><strong>Video:</strong> {viewingGuide.video ? <a href={`http://localhost:4000/${viewingGuide.video}`} target="_blank" rel="noopener noreferrer">View Video</a> : "N/A"}</p>
-            <p><strong>Guide File:</strong> {viewingGuide.guideFile ? <a href={`http://localhost:4000/${viewingGuide.guideFile}`} target="_blank" rel="noopener noreferrer">View Guide</a> : "N/A"}</p>
+            <p><strong>Video:</strong> {viewingGuide.video ? <a href={`https://istitch-backend.onrender.com/${viewingGuide.video}`} target="_blank" rel="noopener noreferrer">View Video</a> : "N/A"}</p>
+            <p><strong>Guide File:</strong> {viewingGuide.guideFile ? <a href={`https://istitch-backend.onrender.com/${viewingGuide.guideFile}`} target="_blank" rel="noopener noreferrer">View Guide</a> : "N/A"}</p>
             <p><strong>Description:</strong> {viewingGuide.description}</p>
             <div className="modal-actions">
               <button className="cancel-btn" onClick={() => setViewingGuide(null)}>Close</button>

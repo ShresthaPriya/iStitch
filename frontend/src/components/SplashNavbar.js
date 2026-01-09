@@ -25,7 +25,7 @@ function SplashNavbar({ onCartClick }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/api/categories");
+        const response = await axios.get("/api/categories");
         setCategories(response.data.categories);
       } catch (err) {
         console.error(err);
@@ -71,7 +71,7 @@ function SplashNavbar({ onCartClick }) {
       }
   
       try {
-        const response = await axios.get(`http://localhost:4000/api/search?query=${searchQuery}`);
+        const response = await axios.get(`/api/search?query=${searchQuery}`);
         setSearchResults(response.data.results.fabrics || []);
       } catch (err) {
         console.error("Error fetching search results:", err);

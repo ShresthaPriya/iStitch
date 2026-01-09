@@ -135,7 +135,7 @@ const Signup = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:4000/auth/register", submissionData);
+      const response = await axios.post("/auth/register", submissionData);
       
       if (response.data.success) {
         setSuccess(true); // Show success message
@@ -169,7 +169,7 @@ const Signup = () => {
   };
 
   const googleAuth = () => {
-    window.open("http://localhost:4000/auth/google/signup", "_self");
+    window.open("https://istitch-backend.onrender.com/auth/google/signup", "_self");
   };
 
   return (

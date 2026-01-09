@@ -20,7 +20,7 @@ function Items() {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await axios.get(`http://localhost:4000/api/items?category=${decodedCategory}&subcategory=${decodedSubcategory}`);
+                const response = await axios.get(`/items?category=${decodedCategory}&subcategory=${decodedSubcategory}`);
                 setItems(response.data.items);
             } catch (err) {
                 console.error(err);
@@ -94,7 +94,7 @@ function Items() {
                     ) : (
                         items.map(item => (
                             <div className="item-grid" key={item._id}>
-                                <img src={`http://localhost:4000/uploads/${item.images[0]}`} alt={item.name} className="item-image" />
+                                <img src={`/uploads/${item.images[0]}`} alt={item.name} className="item-image" />
                                 <h2>{item.name}</h2>
                                 <div className='info'>
                                     <p>{item.description}</p>

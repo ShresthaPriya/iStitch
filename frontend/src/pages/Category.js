@@ -21,7 +21,7 @@ const Category = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/categories');
+      const response = await axios.get('/api/categories');
       setCategories(response.data.categories);
     } catch (err) {
       console.error('Error fetching categories:', err);
@@ -38,7 +38,7 @@ const Category = () => {
   const handleAddCategory = async () => {
     try {
       if (editMode) {
-        const response = await axios.put(`http://localhost:4000/api/categories/${selectedCategoryId}`, newCategory);
+        const response = await axios.put(`/api/categories/${selectedCategoryId}`, newCategory);
         // Fetch updated categories after edit
         await fetchCategories();
         setSuccessMessage("Category updated successfully!");
@@ -48,7 +48,7 @@ const Category = () => {
     setError("");
   }, 3000);
       } else {
-        const response = await axios.post('http://localhost:4000/api/categories', newCategory);
+        const response = await axios.post('/api/categories', newCategory);
         // Fetch updated categories after add
         await fetchCategories();
         setSuccessMessage("Category added successfully!");
@@ -69,7 +69,7 @@ const Category = () => {
   // Delete category
   const handleDeleteCategory = async () => {
     try {
-      await axios.delete(`http://localhost:4000/api/categories/${categoryToDelete}`);
+      await axios.delete(`/api/categories/${categoryToDelete}`);
       // Fetch updated categories after delete
       await fetchCategories();
       setSuccessMessage("Category deleted successfully!");
