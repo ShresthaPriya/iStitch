@@ -40,14 +40,16 @@ const PORT = process.env.PORT || 4000;
 const CLIENT_URL = process.env.CLIENT_URL.replace(/\/+$/, ""); // Remove trailing slashes
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
-// ✅ Session middleware (replaces cookie-session)
 app.use(
   session({
     secret: process.env.COOKIE_KEY || "cyberwolve",
@@ -101,74 +103,28 @@ app.use('/api/khalti', khaltiRoutes);
 app.use("/api", searchRoute);
 app.use('/api/email', emailTestRoutes);
 
-// Protect admin routes (do NOT protect the login endpoint)
 app.use('/api/admin/*', (req, res, next) => {
   if (req.method === 'POST' && req.path === '/login') {
-    // Allow POST /api/admin/login without auth
     return next();
   }
   adminAuth(req, res, next);
 });
 
-// If you're using admin middleware, apply it correctly
 app.use('/api/orders/:id', adminAuth);
 
-// Or exclude it from specific routes
 app.use('/api/orders', (req, res, next) => {
-  // Skip auth for GET requests if needed
   if (req.method === 'GET' && !req.path.includes('/admin')) {
     return next();
   }
-  // Apply auth middleware for other routes
   adminAuth(req, res, next);
 });
 
-// Debug registered routes
-// app._router.stack.forEach(function(r){
-//   if (r.route && r.route.path){
-//     console.log(r.route.stack[0].method.toUpperCase() + ' ' + r.route.path)
-//   } else if (r.name === 'router' && r.handle.stack) {
-//     r.handle.stack.forEach(function(layer) {
-//       if (layer.route) {
-//         console.log('  ' + layer.route.stack[0].method.toUpperCase() + ' ' + r.regexp.toString().split('\\')[1].replace('\\/?(?=\\/|$)', '') + layer.route.path);
-//       }
-//     });
-//   }
-// });
-
-// Log important configuration values at startup
-// console.log('===== Server Configuration =====');
-// console.log('Port:', process.env.PORT);
-// console.log('Email User:', process.env.EMAIL_USER ? 'Set' : 'Not set');
-// console.log('Email Password:', process.env.EMAIL_PASSWORD ? 'Set' : 'Not set');
-// console.log('Admin Email:', process.env.ADMIN_EMAIL || 'Not set');
-// console.log('==============================');
-
-// Connect to MongoDB and start the server
 connectDB()
   .then(() => {
     console.log('Connected to MongoDB');
-    // Start the server
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
-      
-      // Log all registered routes
-      // console.log('API Routes:');
-      // const getRoutes = (stack, basePath = '') => {
-      //   stack.forEach(layer => {
-      //     if (layer.route) {
-      //       const methods = Object.keys(layer.route.methods)
-      //         .filter(method => layer.route.methods[method])
-      //         .map(method => method.toUpperCase());
-      //       console.log(`${methods} ${basePath}${layer.route.path}`);
-      //     } else if (layer.name === 'router' && layer.handle.stack) {
-      //       const newBasePath = basePath + (layer.regexp.toString().match(/^\/\^\\\/([^\\]+)/) ? '/' + layer.regexp.toString().match(/^\/\^\\\/([^\\]+)/)[1] : '');
-      //       getRoutes(layer.handle.stack, newBasePath);
-      //     }
-      //   });
-      // };
-      
-      // getRoutes(app._router.stack);
+    
     });
   })
   .catch((error) => {
